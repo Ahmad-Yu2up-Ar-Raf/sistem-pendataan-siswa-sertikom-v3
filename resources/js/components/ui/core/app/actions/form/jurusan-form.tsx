@@ -130,7 +130,7 @@ export default function JurusanForm<T extends FieldValues, >({
                         {...field}
                       />
                     </FormControl>
-                    <FormDescription className="sr-only">{`Product description`}</FormDescription>
+                    <FormDescription className="sr-only">{`Jurusan description`}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

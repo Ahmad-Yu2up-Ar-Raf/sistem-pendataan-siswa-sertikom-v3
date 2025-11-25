@@ -84,6 +84,10 @@ class Kelas extends Model
     {
         return $this->hasMany(KelasDetail::class, 'kelas_id');
     }
+    public function siswa()
+    {
+        return $this->hasMany(Siswa::class, 'kelas_id');
+    }
 
     /**
      * Get active siswas in this kelas through kelas_details
@@ -99,10 +103,10 @@ class Kelas extends Model
     /**
      * Get all siswas ever in this kelas through kelas_details
      */
-    public function siswas()
-    {
-        return $this->belongsToMany(Siswa::class, 'kelas_details', 'kelas_id', 'siswa_id')
-            ->withPivot(['tanggal_masuk', 'tanggal_keluar', 'status_kelas', 'semester', 'no_urut_absen', 'nilai_rata_rata', 'ranking', 'keterangan'])
-            ->withTimestamps();
-    }
+    // public function siswas()
+    // {
+    //     return $this->belongsToMany(Siswa::class, 'kelas_details', 'kelas_id', 'siswa_id')
+    //         ->withPivot(['tanggal_masuk', 'tanggal_keluar', 'status_kelas', 'semester', 'no_urut_absen', 'nilai_rata_rata', 'ranking', 'keterangan'])
+    //         ->withTimestamps();
+    // }
 }

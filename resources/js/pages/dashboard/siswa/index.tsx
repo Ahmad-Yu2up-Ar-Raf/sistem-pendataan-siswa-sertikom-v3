@@ -1,8 +1,20 @@
+import CreateSiswaSheet from '@/components/ui/core/app/actions/sheet/create-sheet/create-siswa-sheet'
 import AppLayout from '@/components/ui/core/layout/app/app-layout'
-import { Head } from '@inertiajs/react'
-import React from 'react'
+import { SiswaSchema } from '@/lib/validations/siswaValidate'
+import { TahunAjarSchema } from '@/lib/validations/tahunAjarValidate'
+import { ApiResponse } from '@/types'
+import { Head, usePage } from '@inertiajs/react'
 
-function index() {
+
+
+function index({ ...props} : ApiResponse & {
+  data : {
+    siswa : SiswaSchema[]
+    
+  }
+}) {
+    
+ 
   return (
     <AppLayout >
     <Head title="Dashboard" />
@@ -14,10 +26,10 @@ function index() {
 </header>
 
 
-{/* <main  className='   space-y-4'>
-
-<OrderDataTable  data={props}/>
-</main> */}
+<main  className='   space-y-4'>
+<CreateSiswaSheet/>
+{/* <OrderDataTable  data={props}/> */}
+</main>
 </div>
 </AppLayout>
   )

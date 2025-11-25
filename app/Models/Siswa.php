@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -50,7 +51,8 @@ class Siswa extends Model
         'telepon_wali',
         'alamat_wali',
         'jurusan_id',
-        'tahun_masuk_id',
+        'kelas_id',
+        'tahun_ajar_id',
         'asal_sekolah',
         'foto',
         'status',
@@ -75,13 +77,17 @@ class Siswa extends Model
     {
         return $this->belongsTo(Jurusan::class, 'jurusan_id')->withDefault();
     }
+    public function kelas()
+    {
+        return $this->belongsTo(Kelas::class, 'kelas_id')->withDefault();
+    }
 
     /**
      * Get the tahun ajar when siswa entered
      */
     public function tahunMasuk()
     {
-        return $this->belongsTo(TahunAjar::class, 'tahun_masuk_id')->withDefault();
+        return $this->belongsTo(TahunAjar::class, 'tahun_ajar_id')->withDefault();
     }
 
     /**
@@ -140,4 +146,11 @@ class Siswa extends Model
             ->withPivot(['tanggal_masuk', 'tanggal_keluar', 'status_kelas', 'semester', 'no_urut_absen', 'nilai_rata_rata', 'ranking', 'keterangan'])
             ->withTimestamps();
     }
+
+
+
+       /* ---------- scopes ---------- */
+
+  
+  
 }

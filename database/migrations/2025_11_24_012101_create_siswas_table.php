@@ -60,8 +60,10 @@ return new class extends Migration
             $table->text('alamat_wali')->nullable();
 
             // Data Akademik
-            $table->foreignId('jurusan_id')->nullable()->constrained('jurusans')->onDelete('set null')->onUpdate('cascade'); // ON DELETE SET NULL: tetap simpan data siswa
-            $table->foreignId('tahun_masuk_id')->nullable()->constrained('tahun_ajars')->onDelete('set null')->onUpdate('cascade'); // ON DELETE SET NULL: tetap simpan data siswa
+            $table->foreignId('jurusan_id')->nullable()->constrained('jurusans')->onDelete('set null')->onUpdate('cascade'); // ON DELETE SET NULL: 
+                
+            $table->foreignId('kelas_id')->nullable()->constrained('kelas')->onDelete('set null')->onUpdate('cascade'); // ON DELETE SET NULL: tetap simpan data siswa
+            $table->foreignId('tahun_ajar_id')->constrained('tahun_ajars')->onDelete('restrict')->onUpdate('cascade');  // ON DELETE SET NULL: tetap simpan data siswa
             $table->string('asal_sekolah', 191)->nullable();
 
             // Status & Media

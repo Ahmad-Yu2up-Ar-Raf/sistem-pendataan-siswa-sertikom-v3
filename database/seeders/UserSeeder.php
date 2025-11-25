@@ -3,64 +3,61 @@
 namespace Database\Seeders;
 
 use App\Enums\RoleEnums;
-use App\Models\Jurusan;
+use App\Models\Kelas;
+use App\Models\Siswa;
 use App\Models\TahunAjar;
 use App\Models\User;
-use Exception;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class UserSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Assumptions / defaults:
+     * - USERS_COUNT: number of users with nested tahun_ajars/kelas/siswa
+     * - each user will own TAHUN_PER_USER tahun ajar, each tahun has KELAS_PER_TAHUN kelas, each kelas has SISWA_PER_KELAS siswa
      */
     public function run(): void
     {
-    // Reduced number of records for development/testing
-$userCount = 6; // Reduced to 10 users for testing
-$productsPerVendor = 1; // Reduced to 5 products per vendor
+        $USERS_COUNT = 6;
+        $TAHUN_PER_USER = 2;
+        $KELAS_PER_TAHUN = 4;
+        $SISWA_PER_KELAS = 10;
 
-// Clear tracked URLs before starting
+        DB::transaction(function () use ($USERS_COUNT, $TAHUN_PER_USER, $KELAS_PER_TAHUN, $SISWA_PER_KELAS) {
+            Schema::disableForeignKeyConstraints();
 
+            // optional truncation for idempotency (be conservative)
+            // DB::table('users')->truncate();
 
-// Create users in smaller batches with proper rate limiting
-$users = collect();
-for ($i = 0; $i < $userCount; $i += 2) {  // Process 2 users at a time
-    $batchSize = min(2, $userCount - $i);  // Handle last batch correctly
+            User::factory()
+                ->count($USERS_COUNT)
+                ->has(
+                    TahunAjar::factory()
+                        ->count($TAHUN_PER_USER)
+                        ->has(
+                            Kelas::factory()
+                                ->count($KELAS_PER_TAHUN)
+                                ->has(
+                                    Siswa::factory()->count($SISWA_PER_KELAS),
+                                    'siswa'
+                                ),
+                            'kelases'
+                        ),
+                    'tahunAjars'
+                )
+                ->create()
+                ->each(function ($user) {
+                    // assign a role if Spatie or similar exists; wrap if not
+                    try {
+                        $user->assignRole(RoleEnums::SuperAdmin->value);
+                    } catch (\Throwable $e) {
+                        // role package not available in this environment — skip
+                    }
+                });
 
-    try {
-        $batchUsers = User::factory()
-            ->count($batchSize)
-             ->has(
-                        Jurusan::factory($productsPerVendor)
-                            ->state(function () {
-                                // Add longer delay between product creation
-                                sleep(2); // 2 second delay between products
-                                return [];
-                            })
-                    )
-
-            ->create();
-    } catch (Exception $e) {
-        Log::error('Failed to create batch of users and products', [
-            'error' => $e->getMessage(),
-            'batch_size' => $batchSize,
-            'products_per_vendor' => $productsPerVendor
-        ]);
-        throw $e;
-    }
-
-    // Assign roles to the batch
-    $batchUsers->each(function ($superAdmin) {
-        $superAdmin->assignRole(RoleEnums::SuperAdmin->value);
-    });
-
-    $users = $users->concat($batchUsers);
-
-    if ($i + $batchSize < $userCount) {
-        sleep(3); // 3 second delay between batches, but not after the last batch
-    }
-}
+            Schema::enableForeignKeyConstraints();
+        });
     }
 }

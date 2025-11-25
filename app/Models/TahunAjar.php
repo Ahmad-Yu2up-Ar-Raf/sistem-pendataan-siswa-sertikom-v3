@@ -64,7 +64,7 @@ class TahunAjar extends Model
      */
     public function siswas()
     {
-        return $this->hasMany(Siswa::class, 'tahun_masuk_id');
+        return $this->hasMany(Siswa::class, 'tahun_ajar_id');
     }
 
     /**

@@ -38,9 +38,9 @@ return new class extends Migration
             $table->foreign('updated_by')->references('id')->on('users')->onDelete('set null')->onUpdate('cascade');
 
             // Indexes
-            $table->index(['siswa_id', 'tahun_ajar_id', 'status_kelas'], 'idx_siswa_tahun_status');
-            $table->index(['kelas_id', 'status_kelas'], 'idx_kelas_status');
-            $table->index('status_kelas', 'idx_status_kelas');
+            // $table->index(['siswa_id', 'tahun_ajar_id', 'status_kelas'], 'idx_siswa_tahun_status');
+            // $table->index(['kelas_id', 'status_kelas'], 'idx_kelas_status');
+            // $table->index('status_kelas', 'idx_status_kelas');
         });
     }
 

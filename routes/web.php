@@ -21,9 +21,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('dashboard')->name('dashboard.')->group(function () {
         Route::get('/', [OverviewsController::class, 'index'])->name('index');
 
-        Route::resource('/tahun_ajar', TahunAjarController::class);
+
         Route::resource('/kelas_detail', KelasDetailController::class);
-      
+        
+    
+        Route::prefix('tahun_ajar')->name('tahun_ajar.')->group(function () {
+            Route::get('/', [TahunAjarController::class, 'index'])->name('index');
+            Route::get('/json_data', [TahunAjarController::class, 'json_data'])->name('json_data');
+            Route::post('/', [TahunAjarController::class, 'store'])->name('store');
+            Route::get('/{siswa}', [TahunAjarController::class, 'show'])->name('show');
+        });
+
+
+
+
         Route::prefix('siswa')->name('siswa.')->group(function () {
             Route::get('/', [SiswaController::class, 'index'])->name('index');
             Route::post('/', [SiswaController::class, 'store'])->name('store');

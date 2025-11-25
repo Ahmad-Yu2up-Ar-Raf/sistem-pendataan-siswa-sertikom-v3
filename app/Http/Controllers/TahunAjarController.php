@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\StatusEnums;
 use App\Http\Requests\TahunAjarStoreRequest as RequestsTahunAjarStoreRequest;
 
 use App\Models\TahunAjar;
@@ -20,6 +21,71 @@ class TahunAjarController extends Controller
         return Inertia::render('dashboard/tahun_ajar');
     }
 
+
+
+    public function json_data(Request $request)
+    {
+        $perPage = $request->input('perPage', 5);
+        $search = $request->input('search');
+      
+        $page = $request->input('page', 1);
+
+
+        $query = TahunAjar::select(['nama_tahun_ajar', 'id'])->where('status' , StatusEnums::Aktif->value);
+    
+    
+       
+      
+    
+    
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $searchLower = strtolower($search);
+                $q->whereRaw('LOWER(nama_tahun_ajar) LIKE ?', ["%{$searchLower}%"])
+                  ->orWhereRaw('LOWER(kode_tahun_ajar) LIKE ?', ["%{$searchLower}%"]);
+            });
+        }
+    
+     
+     
+    
+    
+        $tahun_ajar = $query->orderByDesc('created_at')
+            ->paginate($perPage, ['*'], 'page', $page);
+    
+    
+        $tahun_ajar->through(function ($item) {
+           
+    
+            return [
+                ...$item->toArray(),
+                // 'foto' => $item->cover_image ? url($item->cover_image) : null,
+              
+              
+            ];
+        });
+        return response()->json([
+            'status' => true,
+            'message' => 'Siswa retrieved successfully',
+            'data' => [
+                'tahun_ajar' => $tahun_ajar->items() ?? [],
+            ],
+            'meta' => [
+                'filters' => [
+                    'search' => $search ?? '',
+                    'status' => $status ?? [],
+                ],
+                'pagination' => [
+                    'total' => $tahun_ajar->total(),
+                    'currentPage' => $tahun_ajar->currentPage(),
+                    'perPage' => $tahun_ajar->perPage(),
+                    'lastPage' => $tahun_ajar->lastPage(),
+                    'hasMore' => $tahun_ajar->currentPage() < $tahun_ajar->lastPage(),
+                ],
+            ],
+        ]);
+    
+    }
     /**
      * Show the form for creating a new resource.
      */

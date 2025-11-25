@@ -22,7 +22,7 @@ const imageSchema = z.union([
 export const siswaSchema = z.object({
     id: z.number().optional(),
     
-    // Data Identitas
+
     nisn: z
       .string()
       .min(1, "NISN wajib diisi")
@@ -41,28 +41,28 @@ export const siswaSchema = z.object({
       .string()
       .min(1, "Tempat lahir wajib diisi")
       .max(100, "Tempat lahir maksimal 100 karakter"),
-    tanggal_lahir: z.coerce
-      .date(
-       "Tanggal lahir wajib diisi",
-      )
-      .refine((date) => date < new Date(), {
-        message: "Tanggal lahir harus sebelum hari ini",
-      }),
+    // tanggal_lahir: z.coerce
+    //   .date(
+    //    "Tanggal lahir wajib diisi",
+    //   )
+    //   .refine((date) => date < new Date(), {
+    //     message: "Tanggal lahir harus sebelum hari ini",
+    //   }),
     agama: z.string().min(1, "Agama wajib dipilih"),
-    anak_ke: z.coerce
-      .number()
-      .min(1, "Anak ke minimal 1")
-      .max(20, "Anak ke maksimal 20")
-      .optional()
-      .nullable(),
-    jumlah_saudara: z.coerce
-      .number()
-      .min(0, "Jumlah saudara minimal 0")
-      .max(20, "Jumlah saudara maksimal 20")
-      .optional()
-      .nullable(),
+    // anak_ke: z.coerce
+    //   .number()
+    //   .min(1, "Anak ke minimal 1")
+    //   .max(20, "Anak ke maksimal 20")
+    //   .optional()
+    //   .nullable(),
+    // jumlah_saudara: z.coerce
+    //   .number()
+    //   .min(0, "Jumlah saudara minimal 0")
+    //   .max(20, "Jumlah saudara maksimal 20")
+    //   .optional()
+    //   .nullable(),
   
-    // Alamat
+    
     alamat: z
       .string()
       .min(1, "Alamat wajib diisi")
@@ -178,8 +178,9 @@ export const siswaSchema = z.object({
       .nullable(),
   
     // Data Akademik
-    jurusan_id: z.coerce.number().optional().nullable(),
-    tahun_masuk_id: z.coerce.number().optional().nullable(),
+    // jurusan_id: z.coerce.number().optional().nullable(),
+    // kelas_id: z.coerce.number().optional().nullable(),
+    // tahun_ajar_id: z.coerce.number().optional().nullable(),
     asal_sekolah: z
       .string()
       .max(191, "Asal sekolah maksimal 191 karakter")

@@ -70,7 +70,8 @@ class SiswaStoreRequest extends FormRequest
 
             // Data Akademik
             'jurusan_id' => 'nullable|exists:jurusans,id',
-            'tahun_masuk_id' => 'nullable|exists:tahun_ajars,id',
+            'kelas_id' => 'nullable|exists:kelas,id',
+            'tahun_ajar_id' => 'nullable|exists:tahun_ajars,id',
             'asal_sekolah' => 'nullable|string|max:191',
 
             // Status & Media
