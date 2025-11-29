@@ -1,23 +1,28 @@
-import CreateJurusanSheet from '@/components/ui/core/app/actions/sheet/create-sheet/create-jurusan-sheet'
+import JurusanDataTable from '@/components/ui/core/app/actions/table/jurusan/jurusan-datatable'
 import AppLayout from '@/components/ui/core/layout/app/app-layout'
+import { JurusanSchema } from '@/lib/validations/jurusanValidate'
+import { ApiResponse } from '@/types'
+import { PencilRuler } from 'lucide-react'
 
+export type  pagePropsJurusan = ApiResponse & {
+  data : {
+    jurusan : JurusanSchema[] 
+  }
+}
 
-function index() {
+function index({ ...props} : pagePropsJurusan) {
   return (
-<AppLayout >
+<AppLayout  title={"Menagements Jurusan"} icon={PencilRuler}  deskripcion='Ini daftar Jurusan Anda. Kelola Jurusan Anda di sini' >
    
-    <div className="flex-1 space-y-4">
 
-<header className="flex flex-col gap-0.5 mb-6">
-<h2 className=" text-3xl font-bold tracking-tighter ">Menagements Jurusan</h2>
-<p className="text-muted-foreground ">Ini daftar Jurusan Anda. Kelola Jurusan Anda di sini.</p>
-</header>
 
 
 <main  className='   space-y-4'>
-<CreateJurusanSheet/>
+
+<JurusanDataTable data={props}/>
 </main>
-</div>
+
+
 </AppLayout>
   )
 }

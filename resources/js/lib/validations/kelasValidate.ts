@@ -13,12 +13,17 @@ export const kelasSchema = z.object({
       .min(1, "Nama kelas wajib diisi")
       .max(100, "Nama kelas maksimal 100 karakter"),
     tingkat: z.string().min(1, "Tingkat wajib dipilih"),
-    jurusan_id: z.coerce
-      .number( "Jurusan wajib dipilih",)
-      .min(1, "Jurusan wajib dipilih"),
-    tahun_ajar_id: z.coerce
-      .number( "Tahun ajar wajib dipilih",)
-      .min(1, "Tahun ajar wajib dipilih"),
+     jurusan_id: z
+    .number()
+    .int()
+    .positive()
+    .or(z.literal("")),
+ tahun_ajar_id: z
+    .number({
+      error: "Tahun ajar wajib dipilih",
+    })
+    .int()
+    .positive("Tahun ajar harus valid"),
     kapasitas_maksimal: z.coerce
       .number()
       .min(1, "Kapasitas minimal 1")
@@ -40,7 +45,7 @@ export const kelasSchema = z.object({
     updated_at: z.string().optional(),
     created_by: z.number().optional(),
     updated_by: z.number().optional(),
-    
+     siswa_count: z.number().optional(),
     // Relations
     jurusan: jurusanSchema.optional(),
     tahun_ajar: tahunAjarSchema.optional(),

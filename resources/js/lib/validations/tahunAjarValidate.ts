@@ -8,24 +8,28 @@ export const tahunAjarSchema = z
   .object({
     id: z.number().optional(),
     kode_tahun_ajar: z
-      .string()
+    .coerce
+      .number()
       .min(1, "Kode tahun ajar wajib diisi")
       .max(20, "Kode tahun ajar maksimal 20 karakter"),
     nama_tahun_ajar: z
       .string()
       .min(1, "Nama tahun ajar wajib diisi")
       .max(100, "Nama tahun ajar maksimal 100 karakter"),
-    tanggal_mulai: z.instanceof(Date, {
+    tanggal_mulai: z.coerce.date({
       message: "Tanggal mulai wajib diisi",
     }),
-    tanggal_selesai: z.instanceof(Date, {
+    tanggal_selesai: z.coerce.date({
       message: "Tanggal selesai wajib diisi",
     }),
     status: z.string().optional(),
     created_at: z.string().optional(),
+    
     updated_at: z.string().optional(),
     created_by: z.number().optional(),
     updated_by: z.number().optional(),
+   kelases_count : z.number().optional(),
+    siswas_count: z.number().optional(),
   })
   .refine((data) => data.tanggal_mulai < data.tanggal_selesai, {
     message: "Tanggal mulai harus sebelum tanggal selesai",

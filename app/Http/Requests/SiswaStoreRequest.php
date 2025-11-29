@@ -27,6 +27,7 @@ class SiswaStoreRequest extends FormRequest
                 Rule::in(JenisKelaminEnums::values()),
             ],
             'tempat_lahir' => 'required|string|max:100',
+            'asal_negara' => 'required|string|max:100',
             'tanggal_lahir' => 'required|date|before:today',
             'agama' => [
                 'required',
@@ -69,13 +70,14 @@ class SiswaStoreRequest extends FormRequest
             'alamat_wali' => 'nullable|string|max:500',
 
             // Data Akademik
-            'jurusan_id' => 'nullable|exists:jurusans,id',
-            'kelas_id' => 'nullable|exists:kelas,id',
-            'tahun_ajar_id' => 'nullable|exists:tahun_ajars,id',
+            'jurusan_id' => 'required|exists:jurusans,id',
+            'kelas_id' => 'required|exists:kelas,id',
+            'tahun_ajar_id' => 'required|exists:tahun_ajars,id',
             'asal_sekolah' => 'nullable|string|max:191',
 
             // Status & Media
-            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // 2MB max
+            'crop_data' => 'nullable|json', // Optional: Store crop coordinates
             'status' => [
                 'nullable',
                 Rule::in(StatusSiswaEnums::values()),
@@ -108,5 +110,20 @@ class SiswaStoreRequest extends FormRequest
             'foto.max' => 'Ukuran gambar maksimal 2MB',
             'status.in' => 'Status tidak valid',
         ];
+    }
+
+    /**
+     * Get validated data with proper type casting
+     */
+    public function validated($key = null, $default = null)
+    {
+        $validated = parent::validated($key, $default);
+
+        // Parse crop_data JSON if exists
+        if (isset($validated['crop_data'])) {
+            $validated['crop_data'] = json_decode($validated['crop_data'], true);
+        }
+
+        return $validated;
     }
 }

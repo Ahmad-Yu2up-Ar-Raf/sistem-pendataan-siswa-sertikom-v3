@@ -1,11 +1,5 @@
 "use client";
-
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader, Plus } from "lucide-react";
-import * as React from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/fragments/shadcn-ui/button";
 import {
   Sheet,
@@ -17,9 +11,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/fragments/shadcn-ui/sheet";
-import TahunAjarForm from "../form/tahun-ajar-form";
-
-import { useIsMobile } from "@/hooks/use-mobile";
+import KelasForm from "../../form/kelas-form";
+import { Spinner } from "@/components/ui/fragments/shadcn-ui/spinner";
 import {
   Drawer,
   DrawerClose,
@@ -30,74 +23,36 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/fragments/shadcn-ui/drawer";
-import { router } from "@inertiajs/react";
-
-import { tahunAjarSchema, TahunAjarSchema } from "@/lib/validations/tahunAjarValidate";
-import tahun_ajar from "@/routes/dashboard/tahun_ajar";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useState } from "react";
+import { useKelasForm } from "@/hooks/actions/useKelas";
+import { toast } from "sonner";
 
 interface type  {
   trigger?: boolean;
+  open? : boolean,
+  onOpenChange? :  React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export default function CreateTahunAjarSheet({ ...props }: type) {
-  const [isPending, startTransition] = React.useTransition();
-  const [loading, setLoading] = React.useState(false);
-  const [internalOpen, setInternalOpen] = React.useState(false);
 
+export default function CreateKelasSheet({ ...props }: type) {
+  const open = props.open
+  const setOpen = props.onOpenChange
   const isDesktop = useIsMobile();
 
-  // Use internal state if onOpenChange is not provided
-  const isOpen =  internalOpen;
-  const handleOpenChange =  setInternalOpen;
-
-  const form = useForm<TahunAjarSchema>({
-    mode: "onSubmit",
-    defaultValues: {
-      kode_tahun_ajar: "",
-      nama_tahun_ajar: "",
-      tanggal_mulai: new Date(),
-      tanggal_selesai: new Date(),
+  const { form, submit, isPending } = useKelasForm(undefined, {
+    notify: ({ type, message }) => {
+      if (type === "success") toast.success(message);
+      else toast.error(message);
     },
-    resolver: zodResolver(tahunAjarSchema),
+    closeSheet: () => setOpen!(false),
+    route: "/dashboard/kelas",
   });
 
-  function onSubmit(input: TahunAjarSchema) {
-    toast.loading("Loading....", {
-      id: "create-products",
-    });
-
-    startTransition(() => {
-      setLoading(true);
-
-      router.post("/dashboard/tahun_ajar", input, {
-        preserveScroll: true,
-        preserveState: true,
-
-        onSuccess: () => {
-          form.reset();
-          handleOpenChange(false);
-          toast.success("Tahun ajar created successfully", {
-            id: "create-products",
-          });
-          setLoading(false);
-        },
-        onError: (error) => {
-          console.error("Submit error:", error);
-          toast.error(`Error: ${Object.values(error).join(", ")}`, {
-            id: "create-products",
-          });
-          setLoading(false);
-        },
-        onFinish: () => {
-          setLoading(false);
-        },
-      });
-    });
-  }
 
   if (!isDesktop) {
     return (
-      <Sheet open={isOpen} onOpenChange={handleOpenChange} modal={true}>
+      <Sheet open={open} onOpenChange={setOpen} modal={true}>
         {(props.trigger == null) && (
           <SheetTrigger asChild>
             <Button
@@ -117,53 +72,53 @@ export default function CreateTahunAjarSheet({ ...props }: type) {
                 variant={"outline"}
                 className=" ml-2  px-2.5 text-base capitalize"
               >
-                products
+                kelas
               </Button>{" "}
             </SheetTitle>
             <SheetDescription className=" sr-only">
-              Fill in the details below to create a new task
+              Fill in the details below to create a new kelas
             </SheetDescription>
           </SheetHeader>
-          <TahunAjarForm
-            isPending={loading}
+          <KelasForm
+            isPending={isPending}
             form={form}
-            onSubmit={onSubmit}
+            onSubmit={submit}
           >
             <SheetFooter className="gap-3 px-3 py-4 w-full flex-row justify-end  flex  border-t sm:space-x-0">
               <SheetClose
-                disabled={loading}
+                disabled={isPending}
                 asChild
                 onClick={() => form.reset()}
               >
                 <Button
-                  disabled={loading}
+                  disabled={isPending}
                   type="button"
                   className="  w-fit"
                   size={"sm"}
                   variant="outline"
                 >
-                  {loading && <Loader className="animate-spin" />}
+                  {isPending && <Spinner className="animate-spin" />}
                   Cancel
                 </Button>
               </SheetClose>
               <Button
-                disabled={loading}
+                disabled={isPending}
                 type="submit"
-                className="w-fit dark:bg-primary !pointer-products-auto  dark:text-primary-foreground  bg-primary text-primary-foreground "
+                className="w-fit dark:bg-primary !pointer-kelas-auto  dark:text-primary-foreground  bg-primary text-primary-foreground "
                 size={"sm"}
               >
-                {loading && <Loader className="animate-spin" />}
+                {isPending && <Spinner className="animate-spin" />}
                 Add
               </Button>
             </SheetFooter>
-          </TahunAjarForm>
+          </KelasForm>
         </SheetContent>
       </Sheet>
     );
   }
 
   return (
-    <Drawer open={isOpen} onOpenChange={handleOpenChange} modal={true}>
+    <Drawer open={open} onOpenChange={setOpen} modal={true}>
       {(props.trigger == null) && (
         <DrawerTrigger
           asChild
@@ -185,47 +140,47 @@ export default function CreateTahunAjarSheet({ ...props }: type) {
               variant={"outline"}
               className=" ml-2  px-2.5 text-base"
             >
-              products
+              kelas
             </Button>{" "}
           </DrawerTitle>
           <DrawerDescription className=" text-sm">
-            Fill in the details below to create a new task
+            Fill in the details below to create a new kelas
           </DrawerDescription>
         </DrawerHeader>
 
-        <TahunAjarForm
-          isPending={loading}
+        <KelasForm
+          isPending={isPending}
           form={form}
-          onSubmit={onSubmit}
+          onSubmit={submit}
         >
           <DrawerFooter className="gap-3 px-3 py-4 w-full flex-row justify-end  flex  border-t sm:space-x-0">
             <DrawerClose
-              disabled={loading}
+              disabled={isPending}
               asChild
               onClick={() => form.reset()}
             >
               <Button
-                disabled={loading}
+                disabled={isPending}
                 type="button"
                 className="  w-fit"
                 size={"sm"}
                 variant="outline"
               >
-                {loading && <Loader className="animate-spin" />}
+                {isPending && <Spinner className="animate-spin" />}
                 Cancel
               </Button>
             </DrawerClose>
             <Button
               type="submit"
-              disabled={loading}
-              className="w-fit  !pointer-products-auto  dark:bg-primary  dark:text-primary-foreground  bg-primary text-primary-foreground "
+              disabled={isPending}
+              className="w-fit  !pointer-kelas-auto  dark:bg-primary  dark:text-primary-foreground  bg-primary text-primary-foreground "
               size={"sm"}
             >
-              {loading && <Loader className="animate-spin" />}
+              {isPending && <Spinner className="animate-spin" />}
               Add
             </Button>
           </DrawerFooter>
-        </TahunAjarForm>
+        </KelasForm>
       </DrawerContent>
     </Drawer>
   );

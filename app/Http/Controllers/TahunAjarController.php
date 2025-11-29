@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Enums\StatusEnums;
 use App\Http\Requests\TahunAjarStoreRequest as RequestsTahunAjarStoreRequest;
-
+use App\Http\Requests\TahunAjarUpdateRequest;
 use App\Models\TahunAjar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
@@ -16,22 +17,18 @@ class TahunAjarController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+  public function index(Request $request)
     {
-        return Inertia::render('dashboard/tahun_ajar');
-    }
-
-
-
-    public function json_data(Request $request)
-    {
-        $perPage = $request->input('perPage', 5);
+        $perPage = $request->input('perPage', 10);
         $search = $request->input('search');
       
         $page = $request->input('page', 1);
+        $status = $request->input('status');
+       
+        
 
-
-        $query = TahunAjar::select(['nama_tahun_ajar', 'id'])->where('status' , StatusEnums::Aktif->value);
+    
+        $query = tahunAjar::query()->orderByDesc('updated_at')->withCount('kelases')->withCount('siswas');
     
     
        
@@ -47,28 +44,36 @@ class TahunAjarController extends Controller
         }
     
      
-     
+        if ($status) {
+            if (is_array($status)) {
+                $query->whereIn('status', $status);
+            } elseif (is_string($status)) {
+                $statusArray = explode(',', $status);
+                $query->whereIn('status', $statusArray);
+            }
+        }
     
+   
     
-        $tahun_ajar = $query->orderByDesc('created_at')
+        $tahunAjar = $query
             ->paginate($perPage, ['*'], 'page', $page);
     
     
-        $tahun_ajar->through(function ($item) {
+        $tahunAjar->through(function ($item) {
            
     
             return [
                 ...$item->toArray(),
-                // 'foto' => $item->cover_image ? url($item->cover_image) : null,
+              
               
               
             ];
         });
-        return response()->json([
+        return Inertia::render('dashboard/tahun_ajar',[
             'status' => true,
-            'message' => 'Siswa retrieved successfully',
+            'message' => 'tahunAjar retrieved successfully',
             'data' => [
-                'tahun_ajar' => $tahun_ajar->items() ?? [],
+                'tahunAjar' => $tahunAjar->items() ?? [],
             ],
             'meta' => [
                 'filters' => [
@@ -76,15 +81,60 @@ class TahunAjarController extends Controller
                     'status' => $status ?? [],
                 ],
                 'pagination' => [
-                    'total' => $tahun_ajar->total(),
-                    'currentPage' => $tahun_ajar->currentPage(),
-                    'perPage' => $tahun_ajar->perPage(),
-                    'lastPage' => $tahun_ajar->lastPage(),
-                    'hasMore' => $tahun_ajar->currentPage() < $tahun_ajar->lastPage(),
+                    'total' => $tahunAjar->total(),
+                    'currentPage' => $tahunAjar->currentPage(),
+                    'perPage' => $tahunAjar->perPage(),
+                    'lastPage' => $tahunAjar->lastPage(),
+                    'hasMore' => $tahunAjar->currentPage() < $tahunAjar->lastPage(),
                 ],
             ],
         ]);
     
+    }
+
+
+
+
+    public function json_data(Request $request)
+    {
+        $perPage = $request->input('perPage', 10); // ubah default jadi 10
+        $search = $request->input('search', ''); // tambah default empty string
+        $page = $request->input('page', 1);
+
+        $query = TahunAjar::select(['id', 'nama_tahun_ajar', 'kode_tahun_ajar']) // tambah kode_tahun_ajar
+            ->where('status', StatusEnums::Aktif->value);
+
+        // Search filter
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $searchLower = strtolower($search);
+                $q->whereRaw('LOWER(nama_tahun_ajar) LIKE ?', ["%{$searchLower}%"])
+                  ->orWhereRaw('LOWER(kode_tahun_ajar) LIKE ?', ["%{$searchLower}%"]);
+            });
+        }
+
+        $tahunAjar = $query->orderByDesc('updated_at') // ubah order by
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        // PERBAIKI: Return struktur yang benar
+        return response()->json([
+            'status' => true,
+            'message' => 'Tahun Ajar retrieved successfully',
+            'data' => $tahunAjar->items(), // ← LANGSUNG ITEMS, bukan nested
+            'meta' => [
+                'filters' => [
+                    'search' => $search,
+                    'perPage' => $perPage,
+                ],
+                'pagination' => [
+                    'total' => $tahunAjar->total(),
+                    'currentPage' => $tahunAjar->currentPage(),
+                    'perPage' => $tahunAjar->perPage(),
+                    'lastPage' => $tahunAjar->lastPage(),
+                    'hasMore' => $tahunAjar->hasMorePages(),
+                ],
+            ],
+        ]);
     }
     /**
      * Show the form for creating a new resource.
@@ -100,14 +150,14 @@ class TahunAjarController extends Controller
     public function store(RequestsTahunAjarStoreRequest $request)
     {
         try {
-            $product = TahunAjar::create([
+            $tahun_ajar = TahunAjar::create([
                 ...$request->validated(),
                 'created_by' => Auth::id(),
                 'updated_by' => Auth::id(),
                     
             ]);
 
-            $fileCount = count($product->showcase_images ?? []);
+            $fileCount = count($tahun_ajar->showcase_images ?? []);
             $message = $fileCount > 0 
                 ? "Tahun Ajar berhasil ditambahkan dengan {$fileCount} file."
                 : "Tahun Ajar berhasil ditambahkan.";
@@ -143,16 +193,121 @@ class TahunAjarController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, TahunAjar $tahunAjar)
+ public function update(TahunAjarUpdateRequest $request, TahunAjar $tahun_ajar)
     {
-        //
-    }
+        try {
+            DB::beginTransaction();
 
+            $validatedData = $request->validated();
+
+          
+
+            // Update tahun_ajar data (showcase_images will be handled by observer)
+            $tahun_ajar->update($validatedData);
+
+            DB::commit();
+     
+     return redirect()->route('dashboard.tahun_ajar.index')
+                ->with('success');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            Log::error('Tahun Ajar update error: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to update tahun_ajar: ' . $e->getMessage()
+            ], 500);
+        }
+    }
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(TahunAjar $tahunAjar)
+ public function destroy(Request $request)
     {
-        //
+        
+        $ids = $request->input('ids');
+        if (empty($ids)) {
+            return redirect()->route('dashboard.tahun_ajar.index')
+                ->with('error', 'Tidak ada event yang dipilih untuk dihapus.');
+        }
+
+        // Validasi apakah semua ID milik user yang sedang login
+        $tahun_ajar = TahunAjar::whereIn('id', $ids)->get();
+        if ($tahun_ajar->count() !== count($ids)) {
+            return redirect()->route('dashboard.tahun_ajar.index')
+                ->with('error', 'Unauthorized access atau event tidak ditemukan.');
+        }
+
+        try {
+            DB::beginTransaction();
+              
+            // SOLUSI: Delete satu per satu agar Observer terpicu
+            foreach ($tahun_ajar as $event) {
+                // if ($event->gambar && Storage::disk('public')->exists(str_replace('storage/', '', $event->gambar))) {
+                //     Storage::disk('public')->delete(str_replace('storage/', '', $event->gambar));
+                // }
+        
+                $event->delete(); // Ini akan trigger observer tahun_ajar
+            }
+            
+            DB::commit();
+
+            $deletedCount = $tahun_ajar->count();
+            return redirect()->route('dashboard.tahun_ajar.index')
+                ->with('success', "{$deletedCount} TahunAjar berhasil dihapus beserta semua file terkait.");
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('TahunAjar deletion error: ' . $e->getMessage());
+            return redirect()->route('dashboard.tahun_ajar.index')
+                ->with('error', 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage());
+        }
+    }
+
+    public function statusUpdate(Request $request)
+    {
+        
+        $ids = $request->input('ids');
+        $value = $request->input('value');
+        $colum = $request->input('colum');
+        
+        if (empty($ids)) {
+            return redirect()->route('dashboard.tahun_ajar.index')
+                ->with('error', 'Tidak ada event yang dipilih untuk dihapus.');
+        }
+
+        // Validasi apakah semua ID milik user yang sedang login
+        $tahun_ajar = TahunAjar::whereIn('id', $ids)->get();
+        if ($tahun_ajar->count() !== count($ids)) {
+            return redirect()->route('dashboard.tahun_ajar.index')
+                ->with('error', 'Unauthorized access atau event tidak ditemukan.');
+        }
+
+        try {
+            DB::beginTransaction();
+              
+             foreach ($tahun_ajar as $event) {
+                $event->update([$colum => $value]);
+            }
+
+   
+
+            
+            
+            DB::commit();
+            
+
+            $deletedCount = $tahun_ajar->count();
+            return redirect()->route('dashboard.tahun_ajar.index')
+                ->with('success', "{$deletedCount} TahunAjar berhasil dihapus beserta semua file terkait.");
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('TahunAjar deletion error: ' . $e->getMessage());
+            return redirect()->route('dashboard.tahun_ajar.index')
+                ->with('error', 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage());
+        }
     }
 }

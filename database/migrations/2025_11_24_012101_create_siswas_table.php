@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('nama_lengkap', 191);
             $table->enum('jenis_kelamin', JenisKelaminEnums::values()); // L = Laki-laki, P = Perempuan
             $table->string('tempat_lahir', 100);
+            $table->string('asal_negara', 100);
             $table->date('tanggal_lahir');
             $table->enum('agama', AgamaEnums::values())->default(AgamaEnums::Islam->value) ;
             $table->integer('anak_ke')->nullable();
@@ -60,14 +61,15 @@ return new class extends Migration
             $table->text('alamat_wali')->nullable();
 
             // Data Akademik
-            $table->foreignId('jurusan_id')->nullable()->constrained('jurusans')->onDelete('set null')->onUpdate('cascade'); // ON DELETE SET NULL: 
+            $table->foreignId('jurusan_id')->constrained('jurusans')->onDelete('set null')->onUpdate('cascade'); // ON DELETE SET NULL: 
                 
-            $table->foreignId('kelas_id')->nullable()->constrained('kelas')->onDelete('set null')->onUpdate('cascade'); // ON DELETE SET NULL: tetap simpan data siswa
+            $table->foreignId('kelas_id')->constrained('kelas')->onDelete('set null')->onUpdate('cascade'); // ON DELETE SET NULL: tetap simpan data siswa
             $table->foreignId('tahun_ajar_id')->constrained('tahun_ajars')->onDelete('restrict')->onUpdate('cascade');  // ON DELETE SET NULL: tetap simpan data siswa
             $table->string('asal_sekolah', 191)->nullable();
 
             // Status & Media
             $table->string('foto', 255)->nullable();
+              $table->json('crop_data')->nullable();
             $table->enum('status', StatusSiswaEnums::values())->default(StatusSiswaEnums::Aktif->value);
             $table->text('keterangan')->nullable();
 

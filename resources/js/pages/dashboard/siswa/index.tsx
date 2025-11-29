@@ -1,36 +1,35 @@
-import CreateSiswaSheet from '@/components/ui/core/app/actions/sheet/create-sheet/create-siswa-sheet'
+
+import SiswaDataTable from '@/components/ui/core/app/actions/table/siswa/siswa-datatable'
 import AppLayout from '@/components/ui/core/layout/app/app-layout'
 import { SiswaSchema } from '@/lib/validations/siswaValidate'
-import { TahunAjarSchema } from '@/lib/validations/tahunAjarValidate'
+
 import { ApiResponse } from '@/types'
-import { Head, usePage } from '@inertiajs/react'
+import {Users2Icon } from 'lucide-react'
 
 
-
-function index({ ...props} : ApiResponse & {
+export type  pagePropsSiswa = ApiResponse & {
   data : {
-    siswa : SiswaSchema[]
-    
+    siswa : SiswaSchema[] 
   }
-}) {
-    
- 
-  return (
-    <AppLayout >
-    <Head title="Dashboard" />
-    <div className="flex-1 space-y-4">
+}
 
-<header className="flex flex-col gap-0.5 mb-6">
-<h2 className="text-3xl font-bold tracking-tight ">Menagements Siswa</h2>
-<p className="text-muted-foreground">Here is your pinjaman list. Manage your Orders here.</p>
-</header>
+function index({ ...props} : pagePropsSiswa) {
+    
+console.log(props.data.siswa)
+  return (
+    <AppLayout title={"Menagements Siswa"} icon={Users2Icon}  deskripcion='Here is your pinjaman list. Manage your Orders here'>
+   
+    
+
+
 
 
 <main  className='   space-y-4'>
-<CreateSiswaSheet/>
-{/* <OrderDataTable  data={props}/> */}
+
+<SiswaDataTable data={props}/>
 </main>
-</div>
+
+
 </AppLayout>
   )
 }

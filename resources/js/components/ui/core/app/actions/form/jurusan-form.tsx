@@ -53,31 +53,7 @@ export default function JurusanForm<T extends FieldValues, >({
       >
         <main className="space-y-6 mb-6">
           <section className="space-y-10  pb-8 pt-2 px-4 sm:px-6 border-b">
-            <FormField
-              control={form.control}
-              name={"kode_jurusan" as FieldPath<T>}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className={cn(isPending && "text-muted-foreground")}>
-                    Kode Jurusan
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                    
-                      placeholder={`RPL`}
-                      type="text"
-                      disabled={isPending}
-                      {...field}
-                    
-                    />
-                  </FormControl>
-                  <FormDescription className="sr-only">
-                    Kode Jurusan
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+         
 
             <FormField
               control={form.control}
@@ -104,7 +80,31 @@ export default function JurusanForm<T extends FieldValues, >({
               )}
             />
 
-            
+               <FormField
+              control={form.control}
+              name={"kode_jurusan" as FieldPath<T>}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className={cn(isPending && "text-muted-foreground")}>
+                    Kode Jurusan
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                    
+                      placeholder={`RPL`}
+                      type="text"
+                      disabled={isPending}
+                      {...field}
+                    
+                    />
+                  </FormControl>
+                  <FormDescription className="sr-only">
+                    Kode Jurusan
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </section>
 
           <section className="space-y-10 px-4 sm:px-6">
@@ -143,7 +143,7 @@ export default function JurusanForm<T extends FieldValues, >({
                     <FormLabel>Status</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                    
+                      defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger       disabled={isPending}>

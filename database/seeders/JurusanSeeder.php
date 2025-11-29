@@ -19,7 +19,7 @@ class JurusanSeeder extends Seeder
         DB::table('jurusans')->truncate();
 
         $now = now();
-        $names = ['Umum', 'IPA', 'IPS', 'Teknik', 'Akuntansi'];
+        $names = ['Umum', 'IPA', 'IPS', 'Teknik', 'Akuntansi' , 'RPL' , 'TKJ' , 'DKV'];
 
         $entries = [];
         foreach ($names as $i => $name) {

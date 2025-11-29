@@ -83,9 +83,10 @@ export interface PaginatedData {
 
 
 export interface Filters {
-    search?: string;
+    search: string;
     status?: string[] | string;
-    category?: string[] | string
+    agama?: string[] | string;
+    jenis_kelamin? : string[] | string;
     [key: string]: unknown;
 }
 
@@ -94,31 +95,22 @@ export interface Meta {
     filters : Filters
     pagination : PaginatedData
 }
-export interface MetaSiswa {
-    filters : Filters
-    pagination :  {
-        siswa : PaginatedData
-        tahun_ajar : {
-            perPageTahunAjar : number
-            hasMoreTahunAjar: boolean,
-        }
-    }
-}
+
 export interface ApiResponse {
     status: boolean;
     // ProductscategoryCount: Record<string, number>;
     message: string;
-    meta?: Meta;
+    meta: Meta;
     // data?: ProductsSchema[];
    
   }
-export interface ApiResponseSiswa {
-    status: boolean;
-    // ProductscategoryCount: Record<string, number>;
-    message: string;
-    meta?: MetaSiswa;
-    data : {
-        siswa : SiswaSchema[]
-       tahun_ajar : TahunAjarSchema[]
-    }
-  }
+
+
+
+export interface MultiEnumFilterProps {
+  column: string;
+  title: string;
+  options: OptionItem[];
+  selectedValues: string[];
+  onValueChange: (values: string[]) => void;
+}

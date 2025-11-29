@@ -3,8 +3,6 @@
 import * as React from "react";
 import type { FieldPath, FieldValues, UseFormReturn } from "react-hook-form";
 
-import debounce from "lodash.debounce";
-
 import {
   Form,
   FormControl,
@@ -34,125 +32,40 @@ import {
 } from "@/components/ui/fragments/shadcn-ui/select";
 
 import { Button } from "@/components/ui/fragments/shadcn-ui/button";
-import { CalendarIcon, Check, Search, Loader2 } from "lucide-react";
+import { CalendarIcon, Check, Search, Loader } from "lucide-react";
 import { Textarea } from "@/components/ui/fragments/shadcn-ui/textarea";
 import { StatusSiswaOptions } from "@/config/enums/StatusSiswa";
-import { Spinner } from "@/components/ui/fragments/shadcn-ui/spinner";
 
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/fragments/shadcn-ui/command";
+import AvatarInput from "@/components/ui/fragments/custom-ui/input/file-input/avatar-input";
+import { JenisKelaminOptions } from "@/config/enums/jenis-kelamin";
+import { AgamaOptions } from "@/config/enums/agama";
+import { CountrySelector } from "@/components/ui/fragments/custom-ui/input/select/location-input";
+import TahunAjarCombobox from "@/components/ui/fragments/custom-ui/input/combobox/tahunAjarCombobox";
+import KelasCombobox from "@/components/ui/fragments/custom-ui/input/combobox/kelasCombobox";
+import JurusanCombobox from "@/components/ui/fragments/custom-ui/input/combobox/jurusanCombobox";
+import { SiswaSchema } from "@/lib/validations/siswaValidate";
 
-interface TahunAjar {
-  id: number;
-  nama_tahun_ajar: string;
-  kode_tahun_ajar?: string;
-}
+import { ProvinceSelector } from "@/components/ui/fragments/custom-ui/input/select/province-input";
+
+
 
 interface TaskFormProps<T extends FieldValues> {
   form: UseFormReturn<T>;
   onSubmit: (data: T) => void;
   children: React.ReactNode;
   isPending: boolean;
+    defaultvalue?: SiswaSchema;
 }
 
-export default function SiswaFormAsync<T extends FieldValues>({
+export default function SiswaForm<T extends FieldValues>({
   form,
   onSubmit,
   children,
   isPending,
+  defaultvalue,
 }: TaskFormProps<T>) {
-  // State untuk combobox dan async search
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [searchValue, setSearchValue] = React.useState("");
-  const [currentInputValue, setCurrentInputValue] = React.useState("");
-  const [tahunAjarResults, setTahunAjarResults] = React.useState<TahunAjar[]>([]);
-  const [isSearching, setIsSearching] = React.useState(false);
-  const [isTyping, setIsTyping] = React.useState(false);
-  const [selectedTahunAjar, setSelectedTahunAjar] = React.useState<TahunAjar | null>(null);
 
-  // Cache untuk mengurangi request
-  const searchCache = React.useRef<Map<string, TahunAjar[]>>(new Map());
-  const abortControllerRef = React.useRef<AbortController | null>(null);
-
-  // Debounced search function
-  const debouncedSearch = React.useMemo(
-    () =>
-      debounce(async (query: string) => {
-        setIsTyping(false);
-        
-        // Jangan search jika kurang dari 2 karakter
-        if (query.length < 2) {
-          setTahunAjarResults([]);
-          setIsSearching(false);
-          return;
-        }
-
-        // Cek cache dulu
-        if (searchCache.current.has(query)) {
-          setTahunAjarResults(searchCache.current.get(query)!);
-          setIsSearching(false);
-          return;
-        }
-
-        // Cancel previous request
-        if (abortControllerRef.current) {
-          abortControllerRef.current.abort();
-        }
-
-        abortControllerRef.current = new AbortController();
-        setIsSearching(true);
-
-        try {
-          const response = await fetch(
-            `dashboard/tahun_ajar/json_data?search=${encodeURIComponent(query)}`,
-            { signal: abortControllerRef.current.signal }
-          );
-
-          if (!response.ok) throw new Error("Search failed");
-
-          const data = await response.json();
-          const results = data.data || [];
-
-          // Simpan ke cache
-          searchCache.current.set(query, results);
-          setTahunAjarResults(results);
-        } catch (error: any) {
-          if (error.name !== "AbortError") {
-            console.error("Search error:", error);
-            setTahunAjarResults([]);
-          }
-        } finally {
-          setIsSearching(false);
-        }
-      }, 300),
-    []
-  );
-
-  // Handle input change
-  const handleInputChange = (value: string) => {
-    setCurrentInputValue(value);
-    setSearchValue(value);
-    setIsTyping(true);
-    debouncedSearch(value);
-  };
-
-  // Cleanup on unmount
-  React.useEffect(() => {
-    return () => {
-      debouncedSearch.cancel();
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, [debouncedSearch]);
-
-
+  const countryValue = form.watch("asal_negara" as FieldPath<T>)
 
   return (
     <Form {...form}>
@@ -162,6 +75,29 @@ export default function SiswaFormAsync<T extends FieldValues>({
       >
         <main className="space-y-6 mb-6">
           <section className="space-y-10 pb-8 pt-2 px-4 sm:px-6 border-b">
+            
+           
+  {/* Nama Lengkap Field */}
+            <FormField
+              control={form.control}
+              name={"nama_lengkap" as FieldPath<T>}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className={cn(isPending && "text-muted-foreground")}>
+                    Nama Lengkap
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Nama lengkap"
+                      type="text"
+                      disabled={isPending}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             {/* NISN Field */}
             <FormField
               control={form.control}
@@ -206,234 +142,105 @@ export default function SiswaFormAsync<T extends FieldValues>({
               )}
             />
 
+
+             {/* Country Field */}
+        <FormField
+          control={form.control}
+          name={"asal_negara" as FieldPath<T>}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Asal Negara</FormLabel>
+              <FormControl>
+                <CountrySelector
+                  value={field.value}
+                  onChange={field.onChange}
+                  disabled={isPending}
+                />
+              </FormControl>
+              <FormDescription className='text-xs sr-only text-muted-foreground'>
+                Select your country
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Province Field */}
+        <FormField
+          control={form.control}
+          name={"tempat_lahir" as FieldPath<T>}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tempat Lahir</FormLabel>
+              <FormControl>
+                <ProvinceSelector
+             
+                  value={field.value}
+                  onChange={field.onChange}
+                  countryName={countryValue as string}
+                  disabled={isPending}
+                />
+              </FormControl>
+              <FormDescription className='text-xs sr-only text-muted-foreground'>
+                Select your province (if available)
+              </FormDescription>
+              <FormMessage  className=' sr-only'/>
+            </FormItem>
+          )}
+        />    
+
+          
+            <FormField
+              control={form.control}
+              name={"nama_ayah" as FieldPath<T>}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className={cn(isPending && "text-muted-foreground")}>
+                    Nama Ayah
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Nama ayah"
+                      type="text"
+                      disabled={isPending}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name={"nama_ibu" as FieldPath<T>}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className={cn(isPending && "text-muted-foreground")}>
+                    Nama Ibu
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Nama ibu"
+                      type="text"
+                      disabled={isPending}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+
+                 <TahunAjarCombobox isPending={isPending} form={form}/>
+                <KelasCombobox isPending={isPending} form={form}/>
+                <JurusanCombobox isPending={isPending} form={form}/>
             {/* RT Field */}
-            <FormField
-              control={form.control}
-              name={"rt" as FieldPath<T>}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className={cn(isPending && "text-muted-foreground")}>
-                    RT
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="RT"
-                      type="text"
-                      disabled={isPending}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+           
 
-            {/* RW Field */}
-            <FormField
-              control={form.control}
-              name={"rw" as FieldPath<T>}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className={cn(isPending && "text-muted-foreground")}>
-                    RW
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="RW"
-                      type="text"
-                      disabled={isPending}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          
 
-            {/* Nama Lengkap Field */}
-            <FormField
-              control={form.control}
-              name={"nama_lengkap" as FieldPath<T>}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className={cn(isPending && "text-muted-foreground")}>
-                    Nama Lengkap
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Nama lengkap"
-                      type="text"
-                      disabled={isPending}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Asal Sekolah Field */}
-            <FormField
-              control={form.control}
-              name={"asal_sekolah" as FieldPath<T>}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className={cn(isPending && "text-muted-foreground")}>
-                    Asal Sekolah
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Asal sekolah"
-                      type="text"
-                      disabled={isPending}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* ========== TAHUN AJAR COMBOBOX (ASYNC SEARCH) ========== */}
-            <FormField
-              control={form.control}
-              name={"tahun_ajar" as FieldPath<T>}
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel className={cn(isPending && "text-muted-foreground")}>
-                    Tahun Ajar
-                    {(isSearching || isTyping) && (
-                      <span className="ml-2 inline-flex items-center gap-1 text-xs text-muted-foreground">
-                        <Spinner className="h-3 w-3 animate-spin" />
-                        {isTyping ? "Mengetik..." : "Mencari..."}
-                      </span>
-                    )}
-                  </FormLabel>
-
-                  <Popover open={isOpen} onOpenChange={setIsOpen}>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          aria-expanded={isOpen}
-                          disabled={isPending}
-                          className={cn(
-                            "w-full justify-between",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value
-                            ? selectedTahunAjar?.nama_tahun_ajar ||
-                              tahunAjarResults.find((ta) => ta.id === field.value)
-                                ?.nama_tahun_ajar ||
-                              "Memuat..."
-                            : "Pilih tahun ajar"}
-                          <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-
-                    <PopoverContent className="w-full p-0" align="start">
-                      <Command shouldFilter={false}>
-                        <div className="relative">
-                          <CommandInput
-                            placeholder="Ketik min. 2 karakter..."
-                            value={currentInputValue}
-                            onValueChange={handleInputChange}
-                          />
-                          {(isSearching || isTyping) && (
-                            <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                            </div>
-                          )}
-                        </div>
-
-                        <CommandList className="max-h-72 overflow-y-auto">
-                          <CommandEmpty>
-                            {isSearching || isTyping ? (
-                              <div className="flex items-center justify-center gap-2 py-4">
-                                <Spinner className="h-4 w-4 animate-spin" />
-                                <span>Mencari...</span>
-                              </div>
-                            ) : searchValue.length < 2 ? (
-                              <div className="py-4 text-center text-sm text-muted-foreground">
-                                Ketik minimal 2 karakter untuk mencari
-                              </div>
-                            ) : (
-                              <div className="py-4 text-center text-sm text-muted-foreground">
-                                Tidak ada hasil untuk "{searchValue}"
-                              </div>
-                            )}
-                          </CommandEmpty>
-
-                          {!isSearching && tahunAjarResults.length > 0 && (
-                            <CommandGroup>
-                              {tahunAjarResults.map((tahunAjar) => (
-                                <CommandItem
-                                  key={tahunAjar.id}
-                                  value={tahunAjar.nama_tahun_ajar}
-                                  onSelect={() => {
-                                    form.setValue(
-                                      "tahun_ajar" as FieldPath<T>,
-                                      tahunAjar.id  as any
-                                    );
-                                    setSelectedTahunAjar(tahunAjar);
-                                    setIsOpen(false);
-                                    setCurrentInputValue("");
-                                    setSearchValue("");
-                                  }}
-                                  className="flex justify-between items-center"
-                                >
-                                  <div className="flex gap-3 items-center">
-                                    <CalendarIcon className="size-4 text-accent-foreground" />
-                                    <div className="flex flex-col">
-                                      <span>{tahunAjar.nama_tahun_ajar}</span>
-                                      {tahunAjar.kode_tahun_ajar && (
-                                        <span className="text-xs text-muted-foreground">
-                                          {tahunAjar.kode_tahun_ajar}
-                                        </span>
-                                      )}
-                                    </div>
-                                  </div>
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      tahunAjar.id === field.value
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          )}
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-
-                  <FormDescription>
-                    Ketik untuk mencari tahun ajar (min. 2 karakter)
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </section>
-
-          {/* Optional Fields */}
-          <section className="space-y-10 px-4 sm:px-6">
-            <header>
-              <h1 className="text-lg font-semibold">Optional Fields</h1>
-              <p className="text-sm text-muted-foreground">
-                Field opsional yang tidak wajib diisi
-              </p>
-            </header>
-
-            <section className="space-y-10">
-              {/* Tanggal Lahir */}
-              <FormField
+          <FormField
                 control={form.control}
                 name={"tanggal_lahir" as FieldPath<T>}
                 render={({ field }) => (
@@ -491,6 +298,159 @@ export default function SiswaFormAsync<T extends FieldValues>({
                 )}
               />
 
+              <FormField
+                control={form.control}
+                name={"jenis_kelamin" as FieldPath<T>}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Jenis Kelamin</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={defaultvalue?.jenis_kelamin} disabled={isPending}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih kelamin" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {JenisKelaminOptions.map((item, i) => (
+                          <SelectItem key={i} value={item.value}>
+                            {item.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name={"agama" as FieldPath<T>}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Agama</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={defaultvalue?.agama} disabled={isPending}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih agama" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {AgamaOptions.map((item, i) => (
+                          <SelectItem key={i} value={item.value}>
+                            {item.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+          </section>
+
+             
+          {/* Optional Fields */}
+          <section className="space-y-10 px-4 sm:px-6">
+            <header>
+              <h1 className="text-lg font-semibold">Optional Fields</h1>
+              <p className="text-sm text-muted-foreground">
+                Field opsional yang tidak wajib diisi
+              </p>
+            </header>
+
+            <section className="space-y-10">
+              {/* Tanggal Lahir */}
+
+
+                 {/* ========== FOTO FIELD (Avatar Input) ========== */}
+            <FormField
+              control={form.control}
+              name={"foto" as FieldPath<T>}
+              render={({ field }) => (
+                <FormItem className="">
+                  {/* <FormLabel className={cn(isPending && "text-muted-foreground sr-only hidden text-center w-full m-auto")}>
+                    Foto Profil
+                  </FormLabel> */}
+                  <FormControl>
+                    <AvatarInput
+                      value={field.value}
+                      onChange={field.onChange}
+                      disabled={isPending}
+                    />
+                  </FormControl>
+                  <FormDescription className=" text-center">
+                    Upload foto profil siswa (JPG, PNG, max 2MB)
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+             <FormField
+              control={form.control}
+              name={"rt" as FieldPath<T>}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className={cn(isPending && "text-muted-foreground")}>
+                    RT
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="RT"
+                      type="text"
+                      disabled={isPending}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* RW Field */}
+            <FormField
+              control={form.control}
+              name={"rw" as FieldPath<T>}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className={cn(isPending && "text-muted-foreground")}>
+                    RW
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="RW"
+                      type="text"
+                      disabled={isPending}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+              {/* Asal Sekolah Field */}
+            <FormField
+              control={form.control}
+              name={"asal_sekolah" as FieldPath<T>}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className={cn(isPending && "text-muted-foreground")}>
+                    Asal Sekolah
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Asal sekolah"
+                      type="text"
+                      disabled={isPending}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
               {/* Keterangan */}
               <FormField
                 control={form.control}
@@ -541,7 +501,7 @@ export default function SiswaFormAsync<T extends FieldValues>({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Status</FormLabel>
-                    <Select onValueChange={field.onChange} disabled={isPending}>
+                    <Select onValueChange={field.onChange}  defaultValue={field.value}  disabled={isPending}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Pilih status" />
@@ -559,6 +519,7 @@ export default function SiswaFormAsync<T extends FieldValues>({
                   </FormItem>
                 )}
               />
+            
             </section>
           </section>
         </main>
@@ -567,4 +528,4 @@ export default function SiswaFormAsync<T extends FieldValues>({
       </form>
     </Form>
   );
-}
+} 

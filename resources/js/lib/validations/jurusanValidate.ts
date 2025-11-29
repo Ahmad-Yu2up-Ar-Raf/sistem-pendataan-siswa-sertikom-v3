@@ -1,3 +1,4 @@
+import { StatusOptions, StatusValues } from "@/config/enums/status";
 import { z } from "zod";
 
 // ==========================================
@@ -25,11 +26,15 @@ export const jurusanSchema = z.object({
     .max(1000, "Deskripsi maksimal 1000 karakter")
     .optional()
     .nullable(),
-  status: z.string().optional(),
+  status: z.enum(StatusValues,"Status wajib dipilih",
+  ),
+  
   created_at: z.string().optional(),
   updated_at: z.string().optional(),
   created_by: z.number().optional(),
   updated_by: z.number().optional(),
+   kelases_count : z.number().optional(),
+    siswas_count: z.number().optional(),
 });
 
 export type JurusanSchema = z.infer<typeof jurusanSchema>;

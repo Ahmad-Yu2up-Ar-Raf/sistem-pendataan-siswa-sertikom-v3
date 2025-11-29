@@ -1,11 +1,7 @@
 "use client";
-
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import * as React from "react";
-import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-
 import { Button } from "@/components/ui/fragments/shadcn-ui/button";
 import {
   Sheet,
@@ -17,8 +13,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/fragments/shadcn-ui/sheet";
+import { Spinner } from "@/components/ui/fragments/shadcn-ui/spinner";
 import JurusanForm from "../../form/jurusan-form";
-
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Drawer,
@@ -30,73 +26,33 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/fragments/shadcn-ui/drawer";
-import { router } from "@inertiajs/react";
-
-import { jurusanSchema, JurusanSchema } from "@/lib/validations/jurusanValidate";
+import { useJurusanForm } from "@/hooks/actions/useJurusan";
 
 interface type  {
   trigger?: boolean;
+  open? : boolean,
+  onOpenChange? :  React.Dispatch<React.SetStateAction<boolean>>
 }
 
+
 export default function CreateJurusanSheet({ ...props }: type) {
-  const [isPending, startTransition] = React.useTransition();
-  const [loading, setLoading] = React.useState(false);
-  const [internalOpen, setInternalOpen] = React.useState(false);
+  const open = props.open
+  const setOpen = props.onOpenChange
+ const isDesktop = useIsMobile();
+ 
 
-  const isDesktop = useIsMobile();
-
-  // Use internal state if onOpenChange is not provided
-  const isOpen =  internalOpen;
-  const handleOpenChange =  setInternalOpen;
-
-  const form = useForm<JurusanSchema>({
-    mode: "onSubmit",
-    defaultValues: {
-      kode_jurusan: "",
-      nama_jurusan: "",
-      deskripsi: "",
-
+  const { form, submit, isPending } = useJurusanForm(undefined, {
+    notify: ({ type, message }) => {
+      if (type === "success") toast.success(message);
+      else toast.error(message);
     },
-    resolver: zodResolver(jurusanSchema),
+    closeSheet: () => setOpen!(false),
+    route: "/dashboard/jurusan",
   });
-
-  function onSubmit(input: JurusanSchema) {
-    toast.loading("Loading....", {
-      id: "create-jurusan",
-    });
-
-    startTransition(() => {
-      setLoading(true);
-
-      router.post("/dashboard/jurusan", input, {
-        preserveScroll: true,
-        preserveState: true,
-
-        onSuccess: () => {
-          form.reset();
-          handleOpenChange(false);
-          toast.success("Jurusan created successfully", {
-            id: "create-jurusan",
-          });
-          setLoading(false);
-        },
-        onError: (error) => {
-          console.error("Submit error:", error);
-          toast.error(`Error: ${Object.values(error).join(", ")}`, {
-            id: "create-jurusan",
-          });
-          setLoading(false);
-        },
-        onFinish: () => {
-          setLoading(false);
-        },
-      });
-    });
-  }
 
   if (!isDesktop) {
     return (
-      <Sheet open={isOpen} onOpenChange={handleOpenChange} modal={true}>
+      <Sheet open={open} onOpenChange={setOpen} modal={true}>
         {(props.trigger == null) && (
           <SheetTrigger asChild>
             <Button
@@ -124,34 +80,34 @@ export default function CreateJurusanSheet({ ...props }: type) {
             </SheetDescription>
           </SheetHeader>
           <JurusanForm
-            isPending={loading}
+            isPending={isPending}
             form={form}
-            onSubmit={onSubmit}
+            onSubmit={submit}
           >
             <SheetFooter className="gap-3 px-3 py-4 w-full flex-row justify-end  flex  border-t sm:space-x-0">
               <SheetClose
-                disabled={loading}
+                disabled={isPending}
                 asChild
                 onClick={() => form.reset()}
               >
                 <Button
-                  disabled={loading}
+                  disabled={isPending}
                   type="button"
                   className="  w-fit"
                   size={"sm"}
                   variant="outline"
                 >
-                  {loading && <Loader className="animate-spin" />}
+                  {isPending && <Spinner className="" />}
                   Cancel
                 </Button>
               </SheetClose>
               <Button
-                disabled={loading}
+                disabled={isPending}
                 type="submit"
                 className="w-fit dark:bg-primary !pointer-jurusan-auto  dark:text-primary-foreground  bg-primary text-primary-foreground "
                 size={"sm"}
               >
-                {loading && <Loader className="animate-spin" />}
+                {isPending && <Spinner className="" />}
                 Add
               </Button>
             </SheetFooter>
@@ -162,7 +118,7 @@ export default function CreateJurusanSheet({ ...props }: type) {
   }
 
   return (
-    <Drawer open={isOpen} onOpenChange={handleOpenChange} modal={true}>
+    <Drawer open={open} onOpenChange={setOpen} modal={true}>
       {(props.trigger == null) && (
         <DrawerTrigger
           asChild
@@ -193,34 +149,34 @@ export default function CreateJurusanSheet({ ...props }: type) {
         </DrawerHeader>
 
         <JurusanForm
-          isPending={loading}
+          isPending={isPending}
           form={form}
-          onSubmit={onSubmit}
+          onSubmit={submit}
         >
           <DrawerFooter className="gap-3 px-3 py-4 w-full flex-row justify-end  flex  border-t sm:space-x-0">
             <DrawerClose
-              disabled={loading}
+              disabled={isPending}
               asChild
               onClick={() => form.reset()}
             >
               <Button
-                disabled={loading}
+                disabled={isPending}
                 type="button"
                 className="  w-fit"
                 size={"sm"}
                 variant="outline"
               >
-                {loading && <Loader className="animate-spin" />}
+                {isPending && <Spinner className="" />}
                 Cancel
               </Button>
             </DrawerClose>
             <Button
               type="submit"
-              disabled={loading}
+              disabled={isPending}
               className="w-fit  !pointer-jurusan-auto  dark:bg-primary  dark:text-primary-foreground  bg-primary text-primary-foreground "
               size={"sm"}
             >
-              {loading && <Loader className="animate-spin" />}
+              {isPending && <Spinner className="" />}
               Add
             </Button>
           </DrawerFooter>

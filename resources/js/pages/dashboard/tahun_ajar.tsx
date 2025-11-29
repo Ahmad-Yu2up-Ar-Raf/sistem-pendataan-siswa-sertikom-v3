@@ -1,24 +1,33 @@
 import CreateTahunAjarSheet from '@/components/ui/core/app/actions/sheet/create-sheet/create-tahun-ajar-sheet'
+import  TahunAjarDataTable  from '@/components/ui/core/app/actions/table/tahun_ajar/tahun-ajar-datatable'
 import AppLayout from '@/components/ui/core/layout/app/app-layout'
-import { Head } from '@inertiajs/react'
+import { TahunAjarSchema } from '@/lib/validations/tahunAjarValidate'
+import { ApiResponse } from '@/types'
+import { Calendar } from 'lucide-react'
 
-function index() {
+
+export type  pagePropsTahunAjar = ApiResponse & {
+  data : {
+    tahunAjar : TahunAjarSchema[] 
+  }
+}
+
+function index({ ...props} : pagePropsTahunAjar) {
+
+
+  console.log(props.data.tahunAjar)
   return (
-    <AppLayout >
+    <AppLayout title={"Menagements Tahun Ajar"}  deskripcion='Ini daftar Tahun Ajar Anda. Kelola Tahun Ajar Anda di sini' icon={Calendar}>
    
-    <div className="flex-1 space-y-4">
 
-<header className="flex flex-col gap-0.5 mb-6">
-<h2 className=" text-3xl font-bold tracking-tighter ">Menagements Tahun Ajar</h2>
-<p className="text-muted-foreground ">Ini daftar Tahun Ajar Anda. Kelola Tahun Ajar Anda di sini.</p>
-</header>
+
 
 
 <main  className='   space-y-4'>
-<CreateTahunAjarSheet/>
-{/* <OrderDataTable  data={props}/> */}
+
+<TahunAjarDataTable data={props}/>
 </main>
-</div>
+
 </AppLayout>
   )
 }

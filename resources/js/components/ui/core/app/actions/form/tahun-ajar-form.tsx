@@ -70,9 +70,10 @@ export default function TahunAjarForm<T extends FieldValues, >({
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder={`Capactity name`}
+                      placeholder={`003`}
                       type="number"
                       disabled={isPending}
+                      
                       {...field}
                     
                     />
@@ -216,7 +217,7 @@ export default function TahunAjarForm<T extends FieldValues, >({
                     <FormLabel>Status</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                    
+                      defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger

@@ -1,11 +1,7 @@
 "use client";
-
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader, Plus } from "lucide-react";
-import * as React from "react";
-import { useForm } from "react-hook-form";
+import {  Plus } from "lucide-react";
+import * as React from "react";;
 import { toast } from "sonner";
-
 import { Button } from "@/components/ui/fragments/shadcn-ui/button";
 import {
   Sheet,
@@ -18,7 +14,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/fragments/shadcn-ui/sheet";
 import TahunAjarForm from "../../form/tahun-ajar-form";
-
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Drawer,
@@ -30,78 +25,36 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/fragments/shadcn-ui/drawer";
-import { router } from "@inertiajs/react";
-
-import { tahunAjarSchema, TahunAjarSchema } from "@/lib/validations/tahunAjarValidate";
-import tahun_ajar from "@/routes/dashboard/tahun_ajar";
+import { useTahunAjarForm } from "@/hooks/actions/useTahunAjar";
+import { Spinner } from "@/components/ui/fragments/shadcn-ui/spinner";
 
 interface type  {
   trigger?: boolean;
+  open? : boolean,
+  onOpenChange? :  React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export default function CreateTahunAjarSheet({ ...props }: type) {
-  const [isPending, startTransition] = React.useTransition();
-  const [loading, setLoading] = React.useState(false);
-  const [internalOpen, setInternalOpen] = React.useState(false);
-
   const isDesktop = useIsMobile();
-
-  // Use internal state if onOpenChange is not provided
-  const isOpen =  internalOpen;
-  const handleOpenChange =  setInternalOpen;
-
-  const form = useForm<TahunAjarSchema>({
-    mode: "onSubmit",
-    defaultValues: {
-      kode_tahun_ajar: "",
-      nama_tahun_ajar: "",
-      tanggal_mulai: new Date(),
-      tanggal_selesai: new Date(),
-    },
-    resolver: zodResolver(tahunAjarSchema),
-  });
-
-  function onSubmit(input: TahunAjarSchema) {
-    toast.loading("Loading....", {
-      id: "create-tahun-ajar",
-    });
-
-    startTransition(() => {
-      setLoading(true);
-
-      router.post("/dashboard/tahun_ajar", input, {
-        preserveScroll: true,
-        preserveState: true,
-
-        onSuccess: () => {
-          form.reset();
-          handleOpenChange(false);
-          toast.success("Tahun ajar created successfully", {
-            id: "create-tahun-ajar",
-          });
-          setLoading(false);
-        },
-        onError: (error) => {
-          console.error("Submit error:", error);
-          toast.error(`Error: ${Object.values(error).join(", ")}`, {
-            id: "create-tahun-ajar",
-          });
-          setLoading(false);
-        },
-        onFinish: () => {
-          setLoading(false);
-        },
-      });
-    });
-  }
-
+  const open = props.open
+  const setOpen = props.onOpenChange
+ 
+   const { form, submit, isPending } = useTahunAjarForm(undefined, {
+     notify: ({ type, message }) => {
+       if (type === "success") toast.success(message);
+       else toast.error(message);
+     },
+     closeSheet: () => setOpen!(false),
+     route: "/dashboard/tahun_ajar",
+   });
+ 
   if (!isDesktop) {
     return (
-      <Sheet open={isOpen} onOpenChange={handleOpenChange} modal={true}>
+      <Sheet open={open} onOpenChange={setOpen} modal={true}>
         {(props.trigger == null) && (
           <SheetTrigger asChild>
             <Button
-              className=" text-sm  w-fit "
+              className=" text-sm mr-0  w-fit "
             >
               <Plus className=" mr-3 " />
               Add New
@@ -125,34 +78,34 @@ export default function CreateTahunAjarSheet({ ...props }: type) {
             </SheetDescription>
           </SheetHeader>
           <TahunAjarForm
-            isPending={loading}
+            isPending={isPending}
             form={form}
-            onSubmit={onSubmit}
+            onSubmit={submit}
           >
             <SheetFooter className="gap-3 px-3 py-4 w-full flex-row justify-end  flex  border-t sm:space-x-0">
               <SheetClose
-                disabled={loading}
+                disabled={isPending}
                 asChild
                 onClick={() => form.reset()}
               >
                 <Button
-                  disabled={loading}
+                  disabled={isPending}
                   type="button"
                   className="  w-fit"
                   size={"sm"}
                   variant="outline"
                 >
-                  {loading && <Loader className="animate-spin" />}
+                  {isPending && <Spinner className="" />}
                   Cancel
                 </Button>
               </SheetClose>
               <Button
-                disabled={loading}
+                disabled={isPending}
                 type="submit"
-                className="w-fit dark:bg-primary !pointer-Tahun Ajar-auto  dark:text-primary-foreground  bg-primary text-primary-foreground "
+                className="w-fit dark:bg-primary !pointer-events-auto  dark:text-primary-foreground  bg-primary text-primary-foreground "
                 size={"sm"}
               >
-                {loading && <Loader className="animate-spin" />}
+                {isPending && <Spinner className="" />}
                 Add
               </Button>
             </SheetFooter>
@@ -163,16 +116,18 @@ export default function CreateTahunAjarSheet({ ...props }: type) {
   }
 
   return (
-    <Drawer open={isOpen} onOpenChange={handleOpenChange} modal={true}>
+    <Drawer open={open} onOpenChange={setOpen} modal={true}>
       {(props.trigger == null) && (
         <DrawerTrigger
           asChild
         >
           <Button
-            className=" w-fit text-sm "
+            className="w-full text-sm "
           >
             <Plus className=" mr-3 " />
-            Add New
+           <span className="">
+             Add New
+            </span>
           </Button>
         </DrawerTrigger>
       )}
@@ -194,34 +149,34 @@ export default function CreateTahunAjarSheet({ ...props }: type) {
         </DrawerHeader>
 
         <TahunAjarForm
-          isPending={loading}
+          isPending={isPending}
           form={form}
-          onSubmit={onSubmit}
+          onSubmit={submit}
         >
           <DrawerFooter className="gap-3 px-3 py-4 w-full flex-row justify-end  flex  border-t sm:space-x-0">
             <DrawerClose
-              disabled={loading}
+              disabled={isPending}
               asChild
               onClick={() => form.reset()}
             >
               <Button
-                disabled={loading}
+                disabled={isPending}
                 type="button"
                 className="  w-fit"
                 size={"sm"}
                 variant="outline"
               >
-                {loading && <Loader className="animate-spin" />}
+                {isPending && <Spinner className="" />}
                 Cancel
               </Button>
             </DrawerClose>
             <Button
               type="submit"
-              disabled={loading}
-              className="w-fit  !pointer-Tahun Ajar-auto  dark:bg-primary  dark:text-primary-foreground  bg-primary text-primary-foreground "
+              disabled={isPending}
+              className="w-fit  !pointer-events-auto  dark:bg-primary  dark:text-primary-foreground  bg-primary text-primary-foreground "
               size={"sm"}
             >
-              {loading && <Loader className="animate-spin" />}
+              {isPending && <Spinner className="" />}
               Add
             </Button>
           </DrawerFooter>

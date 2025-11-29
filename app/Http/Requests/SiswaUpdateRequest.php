@@ -36,6 +36,7 @@ class SiswaUpdateRequest extends FormRequest
                 'required',
                 Rule::in(JenisKelaminEnums::values()),
             ],
+            'asal_negara' => 'required|string|max:100',
             'tempat_lahir' => 'required|string|max:100',
             'tanggal_lahir' => 'required|date|before:today',
             'agama' => [
@@ -90,7 +91,8 @@ class SiswaUpdateRequest extends FormRequest
             'asal_sekolah' => 'nullable|string|max:191',
 
             // Status & Media
-            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // 2MB max
+            'crop_data' => 'nullable|json', // Optional: Store crop coordinates
             'status' => [
                 'nullable',
                 Rule::in(StatusSiswaEnums::values()),
@@ -110,6 +112,8 @@ class SiswaUpdateRequest extends FormRequest
             'jenis_kelamin.in' => 'Jenis kelamin tidak valid',
             'tempat_lahir.required' => 'Tempat lahir wajib diisi',
             'tanggal_lahir.required' => 'Tanggal lahir wajib diisi',
+            'asal_negara.required' => 'asal_negara wajib diisi',
+            'asal_negara.required' => 'asal_negara wajib diisi',
             'tanggal_lahir.before' => 'Tanggal lahir harus sebelum hari ini',
             'agama.required' => 'Agama wajib dipilih',
             'agama.in' => 'Agama tidak valid',

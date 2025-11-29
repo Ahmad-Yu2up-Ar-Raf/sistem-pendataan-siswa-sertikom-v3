@@ -1,21 +1,17 @@
+import { Agama, AgamaOptions } from "@/config/enums/agama";
+import { JenisKelamin, JenisKelaminOptions } from "@/config/enums/jenis-kelamin";
+import { Role, RoleOptions } from "@/config/enums/Roles";
+import { Semester, SemesterOptions } from "@/config/enums/Semester";
 import {
     Status,
     StatusOptions,
-    JenisKelamin,
-    JenisKelaminOptions,
-    Agama,
-    AgamaOptions,
-    Tingkat,
-    TingkatOptions,
-    Semester,
-    SemesterOptions,
+ 
     StatusSiswa,
     StatusSiswaOptions,
-    StatusKelas,
-    StatusKelasOptions,
-    Role,
-    RoleOptions,
+
   } from "@/config/enums/status";
+import { StatusKelas, StatusKelasOptions } from "@/config/enums/StatusKelas";
+import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
   import { CircleIcon, LucideIcon } from "lucide-react";
   
   // ==========================================

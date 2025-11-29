@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('kode_jurusan', 20)->unique();
             $table->string('nama_jurusan', 191);
             $table->text('deskripsi')->nullable();
-                    $table->enum('status', StatusEnums::values())->default(StatusEnums::Aktif->value);
+            $table->enum('status', StatusEnums::values())->default(StatusEnums::Aktif->value);
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();

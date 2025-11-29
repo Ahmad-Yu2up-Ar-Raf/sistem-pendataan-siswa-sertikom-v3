@@ -36,6 +36,7 @@ class SiswaFactory extends Factory
             'nis' => $this->faker->unique()->numerify('##########'),
             'nama_lengkap' => $firstName . ' ' . $this->faker->lastName(),
             'jenis_kelamin' => $jenisKelamin,
+            'asal_negara' => $this->faker->country(),
             'tempat_lahir' => $this->faker->city(),
             'tanggal_lahir' => $this->faker->date('Y-m-d', '-15 years'),
             'agama' => $this->faker->randomElement(array_map(fn($e) => $e->value, AgamaEnums::cases())),
