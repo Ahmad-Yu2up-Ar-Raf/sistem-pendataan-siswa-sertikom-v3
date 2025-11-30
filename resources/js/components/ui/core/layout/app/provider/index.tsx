@@ -10,7 +10,7 @@ function Provider({children } : componentProps) {
   return (
 <div className="">
     <TooltipProvider>
-    <Toaster/>
+    <Toaster position="top-center"/>
     {children}
     </TooltipProvider>
 </div>

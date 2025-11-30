@@ -9,7 +9,7 @@ import {
   Users2Icon,
 } from "lucide-react";
 import { RowActions } from "@/components/ui/fragments/custom-ui/table/RowActions";
-import type { JurusanSchema } from "@/lib/validations/jurusanValidate";
+import type { JurusanSchema } from "@/lib/validations/app/jurusanValidate";
 import { Status } from "@/config/enums/status";
 import { getStatusIcon } from "@/lib/utils/index";
 import { cn } from "@/lib/utils";
@@ -34,7 +34,9 @@ export function JurusanTableRow({
 
   return (
     <TableRow className={cn(isSelected && "bg-muted")}>
-      <TableCell>
+      <TableCell
+      typeColumn="checkbox"
+      >
         <Checkbox
           checked={isSelected}
           onCheckedChange={onSelect}
@@ -69,7 +71,9 @@ export function JurusanTableRow({
           ? new Date(item.created_at).toLocaleDateString()
           : "N/A"}
       </TableCell>
-      <TableCell>
+      <TableCell
+            typeColumn="sticky"
+      >
         <RowActions onEdit={onEdit} onDelete={onDelete} />
       </TableCell>
     </TableRow>

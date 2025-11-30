@@ -1,10 +1,10 @@
 
 import SiswaDataTable from '@/components/ui/core/app/actions/table/siswa/siswa-datatable'
 import AppLayout from '@/components/ui/core/layout/app/app-layout'
-import { SiswaSchema } from '@/lib/validations/siswaValidate'
+import { SiswaSchema } from '@/lib/validations/app/siswaValidate'
 
 import { ApiResponse } from '@/types'
-import {Users2Icon } from 'lucide-react'
+import {GraduationCap, Users2Icon } from 'lucide-react'
 
 
 export type  pagePropsSiswa = ApiResponse & {
@@ -15,9 +15,9 @@ export type  pagePropsSiswa = ApiResponse & {
 
 function index({ ...props} : pagePropsSiswa) {
     
-console.log(props.data.siswa)
+ 
   return (
-    <AppLayout title={"Menagements Siswa"} icon={Users2Icon}  deskripcion='Here is your pinjaman list. Manage your Orders here'>
+    <AppLayout title={"Menagements Siswa"} icon={GraduationCap}  deskripcion='Ini daftar siswa Anda. Kelola siswa Anda di sini'>
    
     
 

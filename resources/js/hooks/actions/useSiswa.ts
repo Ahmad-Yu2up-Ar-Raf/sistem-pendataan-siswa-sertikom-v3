@@ -1,287 +1,249 @@
-// src/hooks/useSiswaForm.ts
 import { useState, useCallback, useEffect } from "react";
 import { useForm, UseFormReturn, SubmitHandler } from "react-hook-form";
 import { router } from "@inertiajs/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { siswaSchema, SiswaSchema } from "@/lib/validations/siswaValidate";
-
+import { siswaSchema, SiswaSchema } from "@/lib/validations/app/siswaValidate";
+import { AvatarUpload } from "@/lib/validations/app/fileValidate";
 export type UseSiswaFormOptions = {
-  /**
-   * notify: injection function untuk memberi notifikasi (toast).
-   * Contoh: (args) => toast.success(args.message) atau custom UI handler.
-   */
   notify?: (args: { type: "success" | "error"; message: string }) => void;
-
-  /** callback opsional ketika submit sukses */
   onSuccess?: (page?: unknown) => void;
-
-  /** callback opsional ketika ada error */
   onError?: (errors?: Record<string, unknown>) => void;
-
-  /** callback opsional dipanggil saat selesai (always) */
   onFinish?: () => void;
-
-  /** optional function to close UI sheet/dialog; jika diberikan, hook tidak perlu tahu implementasinya */
   closeSheet?: () => void;
-
-  /**
-   * route: tujuan request (POST untuk create, PUT/PATCH untuk update).
-   * Jika mau update, pass full route including id, contoh: '/dashboard/siswa/12'
-   */
   route?: string;
-
-  /** method: 'post' | 'put' | 'patch' */
   method?: "post" | "put" | "patch";
 };
 
 /**
- * Hook generik untuk create / update tahun ajar.
- * - defaultValues: initial values (dipakai untuk update: prefill form)
- * - opts.route & opts.method menentukan request yang dipanggil
+ * Build FormData payload from SiswaSchema values
+ * Handles file upload, crop data, and all other fields
  */
+function buildFormData(values: SiswaSchema): FormData {
+  const formData = new FormData();
+
+  // Process each field
+  Object.entries(values).forEach(([key, value]) => {
+    // Skip relations & audit fields that shouldn't be sent
+    if (['jurusan', 'kelas', 'tahun_masuk', 'created_at', 'updated_at', 'created_by', 'updated_by'].includes(key)) {
+      return;
+    }
+
+    // Handle FOTO field specially
+    if (key === "foto" && value) {
+      const fotoData = value as SiswaSchema["foto"];
+      
+      // Check if this is NEW upload (has File & Blob)
+      if (fotoData && 'file' in fotoData && fotoData.file instanceof File) {
+        const uploadData = fotoData as AvatarUpload;
+        
+        // 1. Append the CROPPED blob as main foto file
+        // Convert Blob to File with proper name
+        const croppedFile = new File(
+          [uploadData.croppedBlob],
+          uploadData.file.name.replace(/\.[^/.]+$/, "") + "_cropped.jpg",
+          { type: "image/jpeg" }
+        );
+        formData.append("foto", croppedFile);
+        
+        // 2. Append the ORIGINAL file (untuk backup/raw_foto)
+        formData.append("foto_original", uploadData.file);
+        
+        // 3. Append crop metadata as JSON string
+        formData.append("foto_crop_data", JSON.stringify({
+          cropData: uploadData.cropData,
+          originalName: uploadData.file.name,
+          originalSize: uploadData.file.size,
+          originalMime: uploadData.file.type,
+        }));
+      }
+      // If existing foto (edit without reupload), don't send anything
+      // Backend will keep existing data
+      
+      return; // Skip normal processing
+    }
+
+    // Handle other fields
+    if (value !== null && value !== undefined && value !== "") {
+      if (key === "tanggal_lahir" && value instanceof Date) {
+        formData.append(key, value.toISOString().split('T')[0]);
+      } else if (typeof value === "number") {
+        formData.append(key, value.toString());
+      } else if (typeof value === "boolean") {
+        formData.append(key, value ? "1" : "0");
+      } else {
+        formData.append(key, String(value));
+      }
+    }
+  });
+
+  return formData;
+}
+
+/**
+ * Convert server response to form-compatible format
+ * Used for prefilling form on edit
+ */
+function convertServerDataToFormData(serverData: any): Partial<SiswaSchema> {
+  const formData: Partial<SiswaSchema> = { ...serverData };
+
+  // Convert tanggal_lahir string to Date
+  if (serverData.tanggal_lahir) {
+    formData.tanggal_lahir = new Date(serverData.tanggal_lahir);
+  }
+
+  // Convert foto from server format to form format
+  if (serverData.foto && serverData.raw_foto) {
+    // Server returns:
+    // foto: "/storage/siswa/xyz.jpg"
+    // raw_foto: { file: {...}, croppedBlob: {...}, cropData: {...}, preview: "..." }
+    
+    formData.foto = {
+      preview: serverData.raw_foto.preview || serverData.foto,
+      cropData: serverData.raw_foto.cropData,
+      file: serverData.raw_foto.file,
+      croppedBlob: serverData.raw_foto.croppedBlob,
+    };
+  } else if (serverData.foto && !serverData.raw_foto) {
+    // Fallback: only foto URL exists (old data)
+    formData.foto = {
+      preview: serverData.foto,
+      cropData: undefined,
+      file: {
+        url: serverData.foto,
+        path: serverData.foto.replace('/storage/', ''),
+        original_name: null,
+        size: 0,
+        mime: 'image/jpeg',
+      },
+    };
+  }
+
+  return formData;
+}
+
 export function useSiswaForm(
   defaultValues?: Partial<SiswaSchema>,
   opts: UseSiswaFormOptions = {},
 ) {
-  const { notify, onSuccess, onError, onFinish, closeSheet, route = "/dashboard/siswa", method = "post" } = opts;
+  const {
+    notify,
+    onSuccess,
+    onError,
+    onFinish,
+    closeSheet,
+    route = "/dashboard/siswa",
+    method = "post"
+  } = opts;
 
-  // form type diambil dari zod schema
+  // Convert server data if needed
+  const initialValues = defaultValues 
+    ? convertServerDataToFormData(defaultValues)
+    : {};
+
   const form = useForm<SiswaSchema>({
     mode: "onSubmit",
-    // cast to any to avoid duplicate react-hook-form resolver type conflicts across packages
     resolver: zodResolver(siswaSchema) as any,
     defaultValues: {
-       id: defaultValues?.id ?? undefined,
-    nisn: defaultValues?.nisn ?? "",
-    nis: defaultValues?.nis ?? "",
-    nama_lengkap: defaultValues?.nama_lengkap ?? "",
-
-    jenis_kelamin: defaultValues?.jenis_kelamin ?? undefined,
-    tempat_lahir: defaultValues?.tempat_lahir ?? "",
-    asal_negara: defaultValues?.asal_negara ?? defaultValues?.tempat_lahir ?? "Indonesia",
-    tanggal_lahir: defaultValues?.tanggal_lahir
-      ? (defaultValues.tanggal_lahir instanceof Date ? defaultValues.tanggal_lahir : new Date(defaultValues.tanggal_lahir))
-      : undefined,
-    agama: defaultValues?.agama ?? "Islam",
-
-    // ALAMAT
-    alamat: defaultValues?.alamat ?? "",
-
-    // ORANG TUA / WALI
-    nama_ayah: defaultValues?.nama_ayah ?? "",
-    nama_ibu: defaultValues?.nama_ibu ?? "",
-    nama_wali: defaultValues?.nama_wali ?? "",
-
-    // AKADEMIK
-    tahun_ajar_id: typeof defaultValues?.tahun_ajar_id === "number" ? defaultValues.tahun_ajar_id : (defaultValues?.tahun_ajar_id ? Number(defaultValues.tahun_ajar_id) : undefined),
-    asal_sekolah: defaultValues?.asal_sekolah ?? "",
-
-    // OPTIONALS (string -> default "")
-    rt: defaultValues?.rt ?? "",
-    rw: defaultValues?.rw ?? "",
-    kelurahan: defaultValues?.kelurahan ?? "",
-    kecamatan: defaultValues?.kecamatan ?? "",
-    kota: defaultValues?.kota ?? "",
-    provinsi: defaultValues?.provinsi ?? "",
-    kode_pos: defaultValues?.kode_pos ?? "",
-
-    anak_ke: typeof defaultValues?.anak_ke === "number" ? defaultValues.anak_ke : (defaultValues?.anak_ke ? Number(defaultValues.anak_ke) : undefined),
-    jumlah_saudara: typeof defaultValues?.jumlah_saudara === "number" ? defaultValues.jumlah_saudara : (defaultValues?.jumlah_saudara ? Number(defaultValues.jumlah_saudara) : undefined),
-
-    telepon: defaultValues?.telepon ?? "",
-    email: defaultValues?.email ?? "",
-
-    pekerjaan_ayah: defaultValues?.pekerjaan_ayah ?? "",
-    pendidikan_ayah: defaultValues?.pendidikan_ayah ?? "",
-    telepon_ayah: defaultValues?.telepon_ayah ?? "",
-
-    pekerjaan_ibu: defaultValues?.pekerjaan_ibu ?? "",
-    pendidikan_ibu: defaultValues?.pendidikan_ibu ?? "",
-    telepon_ibu: defaultValues?.telepon_ibu ?? "",
-
-    hubungan_wali: defaultValues?.hubungan_wali ?? "",
-    pekerjaan_wali: defaultValues?.pekerjaan_wali ?? "",
-    telepon_wali: defaultValues?.telepon_wali ?? "",
-    alamat_wali: defaultValues?.alamat_wali ?? "",
-
-    jurusan_id: typeof defaultValues?.jurusan_id === "number" ? defaultValues.jurusan_id : (defaultValues?.jurusan_id ? Number(defaultValues.jurusan_id) : undefined),
-    kelas_id: typeof defaultValues?.kelas_id === "number" ? defaultValues.kelas_id : (defaultValues?.kelas_id ? Number(defaultValues.kelas_id) : undefined),
-
-    status: defaultValues?.status ?? undefined,
-    keterangan: defaultValues?.keterangan ?? "",
-
-    // FOTO & NESTED (biarkan apa adanya jika ada)
-    foto: defaultValues?.foto ?? undefined,
-    jurusan: defaultValues?.jurusan ?? undefined,
-    kelas: defaultValues?.kelas ?? undefined,
-    tahun_masuk: defaultValues?.tahun_masuk ?? undefined,
-
-    // AUDIT — jangan diubah (ikut permintaanmu: kecualikan dari normalisasi)
-    created_at: defaultValues?.created_at ?? undefined,
-    updated_at: defaultValues?.updated_at ?? undefined,
-    created_by: defaultValues?.created_by ?? undefined,
-    updated_by: defaultValues?.updated_by ?? undefined,
-    },
+      id: initialValues.id,
+      nisn: initialValues.nisn ?? "",
+      nis: initialValues.nis ?? "",
+      nama_lengkap: initialValues.nama_lengkap ?? "",
+      jenis_kelamin: initialValues.jenis_kelamin,
+      tempat_lahir: initialValues.tempat_lahir ?? "",
+      asal_negara: initialValues.asal_negara ?? "Indonesia",
+      tanggal_lahir: initialValues.tanggal_lahir,
+      agama: initialValues.agama ?? "Islam",
+      alamat: initialValues.alamat ?? "",
+      nama_ayah: initialValues.nama_ayah ?? "",
+      nama_ibu: initialValues.nama_ibu ?? "",
+      nama_wali: initialValues.nama_wali ?? "",
+      tahun_ajar_id: initialValues.tahun_ajar_id,
+      asal_sekolah: initialValues.asal_sekolah ?? "",
+      rt: initialValues.rt ?? "",
+      rw: initialValues.rw ?? "",
+      kelurahan: initialValues.kelurahan ?? "",
+      kecamatan: initialValues.kecamatan ?? "",
+      kota: initialValues.kota ?? "",
+      provinsi: initialValues.provinsi ?? "",
+      kode_pos: initialValues.kode_pos ?? "",
+      anak_ke: initialValues.anak_ke,
+      jumlah_saudara: initialValues.jumlah_saudara,
+      telepon: initialValues.telepon ?? "",
+      email: initialValues.email ?? "",
+      pekerjaan_ayah: initialValues.pekerjaan_ayah ?? "",
+      pendidikan_ayah: initialValues.pendidikan_ayah ?? "",
+      telepon_ayah: initialValues.telepon_ayah ?? "",
+      pekerjaan_ibu: initialValues.pekerjaan_ibu ?? "",
+      pendidikan_ibu: initialValues.pendidikan_ibu ?? "",
+      telepon_ibu: initialValues.telepon_ibu ?? "",
+      hubungan_wali: initialValues.hubungan_wali ?? "",
+      pekerjaan_wali: initialValues.pekerjaan_wali ?? "",
+      telepon_wali: initialValues.telepon_wali ?? "",
+      alamat_wali: initialValues.alamat_wali ?? "",
+      jurusan_id: initialValues.jurusan_id,
+      kelas_id: initialValues.kelas_id,
+      status: initialValues.status,
+      keterangan: initialValues.keterangan ?? "",
+      foto: initialValues.foto,
+    } as SiswaSchema,
   });
 
-  // sinkronisasi jika parent mengubah defaultValues (mis. saat open with different record)
+  // Sync with external defaultValues changes
   useEffect(() => {
     if (defaultValues) {
-      form.reset({   
-         id: defaultValues?.id ?? undefined,
-    nisn: defaultValues?.nisn ?? "",
-    nis: defaultValues?.nis ?? "",
-    nama_lengkap: defaultValues?.nama_lengkap ?? "",
-
-    jenis_kelamin: defaultValues?.jenis_kelamin ?? undefined,
-    tempat_lahir: defaultValues?.tempat_lahir ?? "",
-    asal_negara: defaultValues?.asal_negara ?? defaultValues?.tempat_lahir ?? "Indonesia",
-    tanggal_lahir: defaultValues?.tanggal_lahir
-      ? (defaultValues.tanggal_lahir instanceof Date ? defaultValues.tanggal_lahir : new Date(defaultValues.tanggal_lahir))
-      : undefined,
-    agama: defaultValues?.agama ?? "Islam",
-
-    // ALAMAT
-    alamat: defaultValues?.alamat ?? "",
-
-    // ORANG TUA / WALI
-    nama_ayah: defaultValues?.nama_ayah ?? "",
-    nama_ibu: defaultValues?.nama_ibu ?? "",
-    nama_wali: defaultValues?.nama_wali ?? "",
-
-    // AKADEMIK
-    tahun_ajar_id: typeof defaultValues?.tahun_ajar_id === "number" ? defaultValues.tahun_ajar_id : (defaultValues?.tahun_ajar_id ? Number(defaultValues.tahun_ajar_id) : undefined),
-    asal_sekolah: defaultValues?.asal_sekolah ?? "",
-
-    // OPTIONALS (string -> default "")
-    rt: defaultValues?.rt ?? "",
-    rw: defaultValues?.rw ?? "",
-    kelurahan: defaultValues?.kelurahan ?? "",
-    kecamatan: defaultValues?.kecamatan ?? "",
-    kota: defaultValues?.kota ?? "",
-    provinsi: defaultValues?.provinsi ?? "",
-    kode_pos: defaultValues?.kode_pos ?? "",
-
-    anak_ke: typeof defaultValues?.anak_ke === "number" ? defaultValues.anak_ke : (defaultValues?.anak_ke ? Number(defaultValues.anak_ke) : undefined),
-    jumlah_saudara: typeof defaultValues?.jumlah_saudara === "number" ? defaultValues.jumlah_saudara : (defaultValues?.jumlah_saudara ? Number(defaultValues.jumlah_saudara) : undefined),
-
-    telepon: defaultValues?.telepon ?? "",
-    email: defaultValues?.email ?? "",
-
-    pekerjaan_ayah: defaultValues?.pekerjaan_ayah ?? "",
-    pendidikan_ayah: defaultValues?.pendidikan_ayah ?? "",
-    telepon_ayah: defaultValues?.telepon_ayah ?? "",
-
-    pekerjaan_ibu: defaultValues?.pekerjaan_ibu ?? "",
-    pendidikan_ibu: defaultValues?.pendidikan_ibu ?? "",
-    telepon_ibu: defaultValues?.telepon_ibu ?? "",
-
-    hubungan_wali: defaultValues?.hubungan_wali ?? "",
-    pekerjaan_wali: defaultValues?.pekerjaan_wali ?? "",
-    telepon_wali: defaultValues?.telepon_wali ?? "",
-    alamat_wali: defaultValues?.alamat_wali ?? "",
-
-    jurusan_id: typeof defaultValues?.jurusan_id === "number" ? defaultValues.jurusan_id : (defaultValues?.jurusan_id ? Number(defaultValues.jurusan_id) : undefined),
-    kelas_id: typeof defaultValues?.kelas_id === "number" ? defaultValues.kelas_id : (defaultValues?.kelas_id ? Number(defaultValues.kelas_id) : undefined),
-
-    status: defaultValues?.status ?? undefined,
-    keterangan: defaultValues?.keterangan ?? "",
-
-    // FOTO & NESTED (biarkan apa adanya jika ada)
-    foto: defaultValues?.foto ?? undefined,
-    jurusan: defaultValues?.jurusan ?? undefined,
-    kelas: defaultValues?.kelas ?? undefined,
-    tahun_masuk: defaultValues?.tahun_masuk ?? undefined,
-
-    // AUDIT — jangan diubah (ikut permintaanmu: kecualikan dari normalisasi)
-    created_at: defaultValues?.created_at ?? undefined,
-    updated_at: defaultValues?.updated_at ?? undefined,
-    created_by: defaultValues?.created_by ?? undefined,
-    updated_by: defaultValues?.updated_by ?? undefined, });
+      const converted = convertServerDataToFormData(defaultValues);
+      form.reset(converted as SiswaSchema);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(defaultValues)]);
-
-  useEffect(() => {
-  const sub = form.watch((v) => console.debug("FORM WATCH:", v));
-  return () => sub.unsubscribe?.();
-}, []);
 
   const [isPending, setIsPending] = useState(false);
 
   const submit: SubmitHandler<SiswaSchema> = useCallback(
     (values) => {
-      // clear previous errors
-      console.log("SUBMIT FIRE", values);
+      console.log("🚀 SUBMIT VALUES:", values);
+      
       form.clearErrors();
-
       setIsPending(true);
-          const formData = new FormData();
-        
-      // // Add all form fields
-      Object.entries(values).forEach(([key, value]) => {
-        if (key === "foto" && value) {
-          // Handle foto field - extract the cropped blob
-          const avatarData = value as any;
-          if (avatarData?.file) {
-            // Send the cropped file
-            formData.append("foto", avatarData.file, avatarData.file.name);
-            
-            // Optional: Send crop data as JSON for backend reference
-            formData.append("crop_data", JSON.stringify({
-              x: avatarData.cropData.x,
-              y: avatarData.cropData.y,
-              width: avatarData.cropData.width,
-              height: avatarData.cropData.height,
-            }));
-          }
-        } else if (value !== null && value !== undefined && value !== "") {
-          // Handle tanggal_lahir as date
-          if (key === "tanggal_lahir" && value instanceof Date) {
-            formData.append(key, value.toISOString().split('T')[0]);
-          } else {
-            formData.append(key, String(value));
-          }
+
+      // Build FormData payload
+      const formData = buildFormData(values);
+
+      // Debug: log FormData contents
+      console.log("📦 FormData entries:");
+      for (const [key, value] of formData.entries()) {
+        if (value instanceof File) {
+          console.log(`  ${key}:`, `File(${value.name}, ${value.size} bytes, ${value.type})`);
+        } else {
+          console.log(`  ${key}:`, value);
         }
-      }); 
-      const payload = formData;
-      console.log("Raw payload:", values);
+      }
+
       const handleSuccess = (page?: unknown) => {
         try {
           form.reset();
-        } catch {
-          /* ignore */
-        }
+        } catch {}
 
-        if (typeof closeSheet === "function") closeSheet();
-        if (notify) notify({ type: "success", message: "Siswa  berhasil disimpan." });
+        if (closeSheet) closeSheet();
+        if (notify) notify({ 
+          type: "success", 
+          message: method === "post" ? "Siswa berhasil ditambahkan" : "Siswa berhasil diperbarui" 
+        });
         if (onSuccess) onSuccess(page);
       };
 
       const handleError = (errors?: unknown) => {
-        // map server errors to form errors when possible
-        if (errors && typeof errors === "object" && !Array.isArray(errors)) {
+        console.error("❌ SUBMIT ERROR:", errors);
+        
+     if (errors && typeof errors === "object" && !Array.isArray(errors)) {
           Object.entries(errors as Record<string, unknown>).forEach(([key, val]) => {
             const message = Array.isArray(val) ? (val as string[]).join(", ") : String(val ?? "Terjadi kesalahan.");
-            try {
-              // setError may accept dot-paths; cast to any to avoid TS strictness here
-              form.setError(key as any, { type: "server", message });
-            } catch {
-              // fallback: set a global form error under _form if component reads it
-              try {
-                form.setError("_form" as any, { type: "server", message });
-              } catch {
-                // swallow
-              }
-            }
+            console.log(message)
           });
         }
-
         if (notify) {
-          const msg =
-            typeof errors === "object"
-              ? (Object.values(errors as Record<string, unknown>).flat?.().join?.(", ") ?? JSON.stringify(errors))
-              : "Terjadi kesalahan.";
+          const msg = typeof errors === "object"
+            ? (Object.values(errors as Record<string, unknown>).flat().join(", ") || "Terjadi kesalahan.")
+            : "Terjadi kesalahan.";
           notify({ type: "error", message: msg });
         }
 
@@ -293,27 +255,29 @@ export function useSiswaForm(
         if (onFinish) onFinish();
       };
 
-      // choose method
+      // Send request
       if (method === "post") {
-        router.post(route, payload, {
+        router.post(route, formData, {
           preserveState: true,
           onSuccess: handleSuccess,
-          onError: (e) => handleError(e),
+          onError: handleError,
           onFinish: finalize,
         });
       } else if (method === "put") {
-        router.put(route, payload, {
+        // Laravel needs _method=PUT for FormData
+        formData.append("_method", "PUT");
+        router.post(route, formData, {
           preserveState: true,
           onSuccess: handleSuccess,
-          onError: (e) => handleError(e),
+          onError: handleError,
           onFinish: finalize,
         });
       } else {
-        // patch
-        router.patch(route, payload, {
+        formData.append("_method", "PATCH");
+        router.post(route, formData, {
           preserveState: true,
           onSuccess: handleSuccess,
-          onError: (e) => handleError(e),
+          onError: handleError,
           onFinish: finalize,
         });
       }

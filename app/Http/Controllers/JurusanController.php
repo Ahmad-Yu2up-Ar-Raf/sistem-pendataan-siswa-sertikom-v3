@@ -28,7 +28,7 @@ class JurusanController extends Controller
         
 
     
-        $query = Jurusan::query()->orderByDesc('updated_at')->withCount('kelases')->withCount('siswas');
+        $query = Jurusan::query()->orderByDesc('updated_at')->withCount(['kelases', 'siswas']) ;
     
     
        
@@ -44,16 +44,23 @@ class JurusanController extends Controller
         }
     
      
-        if ($status) {
-            if (is_array($status)) {
-                $query->whereIn('status', $status);
-            } elseif (is_string($status)) {
-                $statusArray = explode(',', $status);
-                $query->whereIn('status', $statusArray);
-            }
-        }
+         if ($request->filled('status')) {
+        $statusArray = is_array($status) ? $status : explode(',', $status);
+        $query->whereIn('status', $statusArray);
+    }
+
     
-   
+     if ($request->filled('created_at_from') || $request->filled('created_at_to')) {
+        $from = $request->input('created_at_from');
+        $to = $request->input('created_at_to');
+        
+        if ($from) {
+            $query->whereDate('created_at', '>=', $from);
+        }
+        if ($to) {
+            $query->whereDate('created_at', '<=', $to);
+        }
+    }
     
         $jurusan = $query
             ->paginate($perPage, ['*'], 'page', $page);

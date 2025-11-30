@@ -140,10 +140,10 @@ export const ProvinceSelector = ({
             ) : (
               <span className="text-muted-foreground text-sm">
                 {!countryName 
-                  ? "Select country first..." 
+                  ? "Pilih Negara Dulu..." 
                   : !hasProvinces 
-                  ? "No provinces available" 
-                  : "Select Province..."}
+                  ? "Tidak ada provinsi yang tersedia" 
+                  : "Pilih Daerah..."}
               </span>
             )}
             <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50 ml-2" />

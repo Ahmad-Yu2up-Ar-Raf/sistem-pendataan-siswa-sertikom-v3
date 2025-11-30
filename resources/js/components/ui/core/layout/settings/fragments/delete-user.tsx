@@ -92,21 +92,20 @@ export default function DeleteUser() {
                                                     resetAndClearErrors()
                                                 }
                                             >
-                                                Cancel
+                                               Batalkan
                                             </Button>
                                         </DialogClose>
 
                                         <Button
                                             variant="destructive"
                                             disabled={processing}
-                                            asChild
+                                        
+                                               type="submit"
+                                               data-test="confirm-delete-user-button"
                                         >
-                                            <button
-                                                type="submit"
-                                                data-test="confirm-delete-user-button"
-                                            >
+                                           
                                                 Delete account
-                                            </button>
+                                           
                                         </Button>
                                     </DialogFooter>
                                 </>

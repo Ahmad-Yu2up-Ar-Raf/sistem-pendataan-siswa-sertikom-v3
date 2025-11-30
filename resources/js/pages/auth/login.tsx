@@ -1,120 +1,86 @@
-import InputError from '@/components/ui/fragments/custom-ui/input-error';
-import TextLink from '@/components/ui/fragments/custom-ui/text-link';
-import { Button } from '@/components/ui/fragments/shadcn-ui/button';
-import { Checkbox } from '@/components/ui/fragments/shadcn-ui/checkbox';
-import { Input } from '@/components/ui/fragments/shadcn-ui/input';
-import { Label } from '@/components/ui/fragments/shadcn-ui/label';
-import { Spinner } from '@/components/ui/fragments/shadcn-ui/spinner';
-import AuthLayout from '@/components/ui/core/layout/auth/auth-layout';
-import { register } from '@/routes';
-import { store } from '@/routes/login';
-import { request } from '@/routes/password';
-import { Form, Head } from '@inertiajs/react';
+import { Head, router,} from '@inertiajs/react';
+
+import React from 'react';
+
+
+
+
+
+import { loginSchema, LoginSchema } from '@/lib/validations/auth/auth';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+
+import LoginForms from '@/components/ui/core/app/actions/form/login-form';
+import AuthLayoutTemplate from '@/components/ui/core/layout/auth/auth-simple-layout';
+
+
 
 interface LoginProps {
     status?: string;
     canResetPassword: boolean;
-    canRegister: boolean;
 }
 
-export default function Login({
-    status,
-    canResetPassword,
-    canRegister,
-}: LoginProps) {
-    return (
-        <AuthLayout
-            title="Log in to your account"
-            description="Enter your email and password below to log in"
-        >
-            <Head title="Log in" />
+export default function Login({ status, canResetPassword }: LoginProps) {
+    // const { data, setData, post, loading, errors, reset } = useForm<Required<LoginForm>>({
+    //     email: '',
+    //     password: '',
+    //     remember: false,
+    // });
+  const [isPending, startTransition] = React.useTransition();
+  const [loading, setLoading] = React.useState(false);  
+ const form = useForm<LoginSchema> ({
+        mode: "onSubmit", 
+    defaultValues: {
+       email: "",
+       password: "",
+       remember_token: false
+      },
+    resolver: zodResolver(loginSchema),
+  })
 
-            <Form
-                {...store.form()}
-                resetOnSuccess={['password']}
-                className="flex flex-col gap-6"
-            >
-                {({ processing, errors }) => (
-                    <>
-                        <div className="grid gap-6">
-                            <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    name="email"
-                                    required
-                                    autoFocus
-                                    tabIndex={1}
-                                    autoComplete="email"
-                                    placeholder="email@example.com"
-                                />
-                                <InputError message={errors.email} />
-                            </div>
 
-                            <div className="grid gap-2">
-                                <div className="flex items-center">
-                                    <Label htmlFor="password">Password</Label>
-                                    {canResetPassword && (
-                                        <TextLink
-                                            href={request()}
-                                            className="ml-auto text-sm"
-                                            tabIndex={5}
-                                        >
-                                            Forgot password?
-                                        </TextLink>
-                                    )}
-                                </div>
-                                <Input
-                                    id="password"
-                                    type="password"
-                                    name="password"
-                                    required
-                                    tabIndex={2}
-                                    autoComplete="current-password"
-                                    placeholder="Password"
-                                />
-                                <InputError message={errors.password} />
-                            </div>
+  function onSubmit(input: LoginSchema ) {
+    try {
+          toast.loading("Login....", {id: "login"});
+                setLoading(true)
+        startTransition(async () => { 
+     router.post('login',  input, { 
+         preserveScroll: true,
+         preserveState: true,
+         forceFormData: true, 
+         onSuccess: () => {
+           form.reset();
+         
+           toast.success("Login Succes", {id: "login"});
+           setLoading(false);
+         },
+         onError: (error) => {
+           console.error("Submit error:", error);
+           toast.error(`Error: ${Object.values(error).join(', ')}` , {id: "login"});
+           setLoading(false);
+              form.reset();
+         }
+       });
+        })
+ 
+    } catch (error) {
+      console.error("Form submission error", error);
+      toast.error("Failed to submit the form. Please try again.");
+    }
+  }
 
-                            <div className="flex items-center space-x-3">
-                                <Checkbox
-                                    id="remember"
-                                    name="remember"
-                                    tabIndex={3}
-                                />
-                                <Label htmlFor="remember">Remember me</Label>
-                            </div>
 
-                            <Button
-                                type="submit"
-                                className="mt-4 w-full"
-                                tabIndex={4}
-                                disabled={processing}
-                                data-test="login-button"
-                            >
-                                {processing && <Spinner />}
-                                Log in
-                            </Button>
-                        </div>
+return (
+     <>
+                 <Head title="Log in" />
+      <AuthLayoutTemplate formType="login" loading={loading} title="Log in to your account" className='lg:max-w-none h-dvh' description="Enter your email and password below to log in" >
+         
+  <LoginForms  form={form} onSubmit={onSubmit} isPending={loading}/>
 
-                        {canRegister && (
-                            <div className="text-center text-sm text-muted-foreground">
-                                Don't have an account?{' '}
-                                <TextLink href={register()} tabIndex={5}>
-                                    Sign up
-                                </TextLink>
-                            </div>
-                        )}
-                    </>
-                )}
-            </Form>
+            {status && <div className="mb-4 text-center text-sm font-medium text-yellow-600">{status}</div>}
+        </AuthLayoutTemplate>
+     </>
+)
 
-            {status && (
-                <div className="mb-4 text-center text-sm font-medium text-green-600">
-                    {status}
-                </div>
-            )}
-        </AuthLayout>
-    );
 }

@@ -1,25 +1,27 @@
-// resources/js/components/tahun-ajar/TahunAjarDataTable.tsx
+// resources/js/components/tahun_ajar/TahunAjarDataTable.tsx
 import * as React from "react";
 import { router } from "@inertiajs/react";
 import { toast } from "sonner";
-import { Calendar } from "lucide-react";
+import { Users2Icon } from "lucide-react";
 import { EmptyState } from "@/components/ui/fragments/custom-ui/empty-state";
 import { StatusTableActionBar } from "@/components/ui/fragments/custom-ui/table/status-action-bar";
 import DeleteDialog from "@/components/ui/fragments/custom-ui/dialog/DeleteDialog";
 import CreateTahunAjarSheet from "../../sheet/create-sheet/create-tahun-ajar-sheet";
 import UpdateTahunAjarSheet from "../../sheet/update-sheet/update-tahun-ajar-sheet";
 import { TableToolbar } from "@/components/ui/fragments/custom-ui/table/TableToolbar";
-import { TahunAjarTable } from "@/components/ui/core/app/actions/table/tahun_ajar/components/TahunAjarTable";
 import { Pagination } from "@/components/ui/fragments/custom-ui/table/data-table-paggination";
-import { useFilters } from "@/hooks/filters/useFilters";
+import { useTableFilters } from "@/hooks/filters/useTableFilters"; // ← UPDATED IMPORT
 import type { pagePropsTahunAjar } from "@/pages/dashboard/tahun_ajar";
-import type { TahunAjarSchema } from "@/lib/validations/tahunAjarValidate";
-import { StatusOptions } from "@/config/enums/status";
+import type { TahunAjarSchema } from "@/lib/validations/app/tahunAjarValidate";
 import { cn } from "@/lib/utils";
+import { TahunAjarTable } from "./components/TahunAjarTable";
+ 
+import { DateRange } from "react-day-picker";
+import { StatusOptions } from "@/config/enums/status";
 
 export default function TahunAjarDataTable({ data }: { data: pagePropsTahunAjar }) {
   const paginatedData = data.meta.pagination;
-  const tahunAjar = data.data.tahunAjar;
+  const tahun_ajar = data.data.tahunAjar;
   const initialFilters = data.meta.filters;
 
   // State management
@@ -28,35 +30,56 @@ export default function TahunAjarDataTable({ data }: { data: pagePropsTahunAjar 
   const [openUpdate, setOpenUpdate] = React.useState(false);
   const [openDelete, setOpenDelete] = React.useState(false);
   const [deletedId, setDeletedId] = React.useState<number | null>(null);
-  const [currentTahunAjar, setCurrentTahunAjar] =
-    React.useState<TahunAjarSchema | null>(null);
+  const [currentTahunAjar, setCurrentTahunAjar] = React.useState<TahunAjarSchema | null>(null);
   const [processing, setProcessing] = React.useState(false);
 
-  // Filter hook
-  const { filters, setSearch, setEnumFilter, clearFilters, hasActiveFilters } =
-    useFilters({
-      initialFilters,
-      route: "/dashboard/tahun_ajar",
-    });
+  // ✅ UPDATED: Use new useTableFilters hook
+  const { 
+    filters, 
+    setSearch, 
+    setEnumFilter, 
+    setDateRange,
+    clearFilters, 
+    hasActiveFilters 
+  } = useTableFilters({
+    initialFilters,
+    route: "/dashboard/tahun_ajar",
+  });
 
-  // Filter configurations (reusable for multiple enum columns)
+  // ✅ UPDATED: Filter configurations with type support (enum, relation, date-range)
   const filterConfigs = React.useMemo(
     () => [
       {
         column: "status",
         title: "Status",
+        type: "enum" as const,
         options: StatusOptions,
       },
-      // Add more filter configs here for other enum columns:
-      // { column: "semester", title: "Semester", options: SemesterOptions },
+      {
+        column: "created_at",
+        title: "Tanggal Dibuat",
+        type: "date-range" as const,
+      },
     ],
     []
   );
 
-  // Selection logic
+  // ✅ UPDATED: Handle filter changes (enum arrays, date ranges)
+  const handleFilterChange = React.useCallback(
+    (column: string, value: string[] | DateRange | undefined) => {
+      if (Array.isArray(value)) {
+        setEnumFilter(column, value);
+      } else {
+        setDateRange(column, value);
+      }
+    },
+    [setEnumFilter, setDateRange]
+  );
+
+  // Selection logic (unchanged)
   const allIds: number[] = React.useMemo(
-    () => tahunAjar.map((item) => item.id!),
-    [tahunAjar]
+    () => tahun_ajar.map((item) => item.id!),
+    [tahun_ajar]
   );
 
   const isAllSelected =
@@ -72,7 +95,7 @@ export default function TahunAjarDataTable({ data }: { data: pagePropsTahunAjar 
     );
   }, []);
 
-  // CRUD operations
+  // CRUD operations (unchanged)
   const handleEdit = React.useCallback((item: TahunAjarSchema) => {
     setCurrentTahunAjar(item);
     setOpenUpdate(true);
@@ -80,14 +103,14 @@ export default function TahunAjarDataTable({ data }: { data: pagePropsTahunAjar 
 
   const handleDelete = React.useCallback((taskId: number) => {
     setProcessing(true);
-    toast.loading("Deleting Tahun Ajar...", { id: "tahun_ajar-delete" });
+    toast.loading("Deleting TahunAjar...", { id: "tahun_ajar-delete" });
 
     router.delete(`/dashboard/tahun_ajar/destroy`, {
       data: { ids: [taskId] },
       preserveScroll: true,
       preserveState: true,
       onSuccess: () => {
-        toast.success("Tahun Ajar deleted successfully", {
+        toast.success("TahunAjar deleted successfully", {
           id: "tahun_ajar-delete",
         });
         setOpenDelete(false);
@@ -96,7 +119,7 @@ export default function TahunAjarDataTable({ data }: { data: pagePropsTahunAjar 
       },
       onError: (errors: Record<string, string>) => {
         console.error("Delete error:", errors);
-        toast.error(errors?.message || "Failed to delete the tahun ajar", {
+        toast.error(errors?.message || "Failed to delete the tahun_ajar", {
           id: "tahun_ajar-delete",
         });
       },
@@ -106,7 +129,7 @@ export default function TahunAjarDataTable({ data }: { data: pagePropsTahunAjar 
     });
   }, []);
 
-  // Bulk actions
+  // Bulk actions (unchanged)
   const [isPending, startTransition] = React.useTransition();
   const [currentAction, setCurrentAction] = React.useState<string | null>(null);
   const [isAnyPending, setIsAnyPending] = React.useState<boolean>(false);
@@ -122,7 +145,7 @@ export default function TahunAjarDataTable({ data }: { data: pagePropsTahunAjar 
         preserveScroll: true,
         preserveState: true,
         onSuccess: () => {
-          toast.success("Tahun Ajar deleted successfully", {
+          toast.success("TahunAjar deleted successfully", {
             id: "tahun_ajar-delete",
           });
           setSelectedIds([]);
@@ -134,7 +157,7 @@ export default function TahunAjarDataTable({ data }: { data: pagePropsTahunAjar 
           setCurrentAction(null);
           setIsAnyPending(false);
           console.error("Delete error:", errors);
-          toast.error(errors?.message || "Failed to delete tahun ajar", {
+          toast.error(errors?.message || "Failed to delete tahun_ajar", {
             id: "tahun_ajar-delete",
           });
         },
@@ -143,7 +166,7 @@ export default function TahunAjarDataTable({ data }: { data: pagePropsTahunAjar 
   }, [selectedIds]);
 
   const onTaskUpdate = React.useCallback(
-    ({ field, value }: { field: "status"; value: string }) => {
+    ({ field, value }: { field: "status" | "agama" | "jenis_kelamin"; value: string }) => {
       setIsAnyPending(true);
       setCurrentAction("update-status");
 
@@ -159,12 +182,12 @@ export default function TahunAjarDataTable({ data }: { data: pagePropsTahunAjar 
           preserveState: true,
           forceFormData: true,
           onStart: () => {
-            toast.loading("Updating tahun ajar data...", { id: "update-toast" });
+            toast.loading("Updating tahun_ajar data...", { id: "update-toast" });
           },
           onSuccess: () => {
             setCurrentAction(null);
             setIsAnyPending(false);
-            toast.success("Tahun Ajar updated successfully", {
+            toast.success("TahunAjar updated successfully", {
               id: "update-toast",
             });
           },
@@ -193,15 +216,15 @@ export default function TahunAjarDataTable({ data }: { data: pagePropsTahunAjar 
   }, []);
 
   // Empty state
-  if (tahunAjar.length === 0 && filters.search === "" && !hasActiveFilters) {
+  if (tahun_ajar.length === 0 && filters.search === "" && !hasActiveFilters) {
     return (
       <>
         <EmptyState
-          icons={[Calendar]}
-          title="No Tahun Ajar data yet"
-          description="Start by adding your first tahun ajar"
+          icons={[Users2Icon]}
+          title="Belum ada data TahunAjar"
+          description="Mulailah dengan menambahkan yang pertama"
           action={{
-            label: "Add Tahun Ajar",
+            label: "Tambahkan TahunAjar",
             onClick: () => setOpenCreate(true),
           }}
         />
@@ -217,13 +240,13 @@ export default function TahunAjarDataTable({ data }: { data: pagePropsTahunAjar 
   return (
     <>
       <div className={cn("flex w-full flex-col gap-3.5")}>
-        {/* Toolbar with search, filters, and create button */}
+        {/* ✅ UPDATED: TableToolbar with new filter support */}
         <TableToolbar
           search={filters.search}
           onSearchChange={setSearch}
           filters={filters}
           filterConfigs={filterConfigs}
-          onFilterChange={setEnumFilter}
+          onFilterChange={handleFilterChange}
           hasActiveFilters={hasActiveFilters}
           onClearFilters={clearFilters}
           onCreateClick={() => setOpenCreate(true)}
@@ -231,7 +254,7 @@ export default function TahunAjarDataTable({ data }: { data: pagePropsTahunAjar 
 
         {/* Table */}
         <TahunAjarTable
-          data={tahunAjar}
+          data={tahun_ajar}
           selectedIds={selectedIds}
           onSelectAll={handleSelectAll}
           onSelectRow={handleSelectRow}
@@ -249,7 +272,7 @@ export default function TahunAjarDataTable({ data }: { data: pagePropsTahunAjar 
         pagination={paginatedData}
         filters={initialFilters}
         selectedCount={selectedIds.length}
-        totalCount={tahunAjar.length}
+        totalCount={tahun_ajar.length}
         route="/dashboard/tahun_ajar"
       />
 
@@ -284,7 +307,7 @@ export default function TahunAjarDataTable({ data }: { data: pagePropsTahunAjar 
       )}
 
       <CreateTahunAjarSheet
-      trigger
+        trigger
         open={openCreate}
         onOpenChange={() => setOpenCreate(!openCreate)}
       />

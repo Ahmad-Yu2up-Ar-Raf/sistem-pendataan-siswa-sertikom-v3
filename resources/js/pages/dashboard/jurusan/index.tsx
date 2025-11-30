@@ -1,6 +1,6 @@
 import JurusanDataTable from '@/components/ui/core/app/actions/table/jurusan/jurusan-datatable'
 import AppLayout from '@/components/ui/core/layout/app/app-layout'
-import { JurusanSchema } from '@/lib/validations/jurusanValidate'
+import { JurusanSchema } from '@/lib/validations/app/jurusanValidate'
 import { ApiResponse } from '@/types'
 import { PencilRuler } from 'lucide-react'
 

@@ -126,7 +126,7 @@ export const CountrySelector = ({
               <span className="truncate text-sm">{selectedCountry.name}</span>
             </div>
           ) : (
-            <span className="text-muted-foreground text-sm">Select Country...</span>
+            <span className="text-muted-foreground text-sm">Pilih Negara...</span>
           )}
           <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50 ml-2" />
         </Button>

@@ -43,8 +43,7 @@ import { CountrySelector } from "@/components/ui/fragments/custom-ui/input/selec
 import TahunAjarCombobox from "@/components/ui/fragments/custom-ui/input/combobox/tahunAjarCombobox";
 import KelasCombobox from "@/components/ui/fragments/custom-ui/input/combobox/kelasCombobox";
 import JurusanCombobox from "@/components/ui/fragments/custom-ui/input/combobox/jurusanCombobox";
-import { SiswaSchema } from "@/lib/validations/siswaValidate";
-
+import { SiswaSchema } from "@/lib/validations/app/siswaValidate";
 import { ProvinceSelector } from "@/components/ui/fragments/custom-ui/input/select/province-input";
 
 
@@ -158,7 +157,7 @@ export default function SiswaForm<T extends FieldValues>({
                 />
               </FormControl>
               <FormDescription className='text-xs sr-only text-muted-foreground'>
-                Select your country
+                Pilih your country
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -182,7 +181,7 @@ export default function SiswaForm<T extends FieldValues>({
                 />
               </FormControl>
               <FormDescription className='text-xs sr-only text-muted-foreground'>
-                Select your province (if available)
+                Pilih your province (if available)
               </FormDescription>
               <FormMessage  className=' sr-only'/>
             </FormItem>

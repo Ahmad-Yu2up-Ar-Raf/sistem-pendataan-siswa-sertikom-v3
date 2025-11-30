@@ -58,14 +58,14 @@ export default function CreateSiswaSheet({ ...props }: type) {
           <SheetTrigger asChild>
             <Button className="text-sm w-fit">
               <Plus className="mr-3" />
-              Add New
+              Tambahkan Baru
             </Button>
           </SheetTrigger>
         )}
         <SheetContent className="flex flex-col gap-6 overflow-y-scroll">
           <SheetHeader className="text-left sm:px-6 space-y-1 bg-background z-30 sticky top-0 p-4 border-b">
             <SheetTitle className="text-lg">
-              Add New{" "}
+              Tambahkan Baru{" "}
               <Button
                 type="button"
                 variant={"outline"}
@@ -93,7 +93,7 @@ export default function CreateSiswaSheet({ ...props }: type) {
                   variant="outline"
                 >
                   {isPending && <Spinner className="" />}
-                  Cancel
+                 Batalkan
                 </Button>
               </SheetClose>
               <Button
@@ -103,7 +103,7 @@ export default function CreateSiswaSheet({ ...props }: type) {
                 size={"sm"}
               >
                 {isPending && <Spinner className="" />}
-                Add
+                Tambahkan
               </Button>
             </SheetFooter>
           </SiswaForm>
@@ -118,14 +118,14 @@ export default function CreateSiswaSheet({ ...props }: type) {
         <DrawerTrigger asChild>
           <Button className="w-fit text-sm">
             <Plus className="mr-3" />
-            Add New
+            Tambahkan Baru
           </Button>
         </DrawerTrigger>
       )}
       <DrawerContent className="flex flex-col">
         <DrawerHeader className="text-left sm:px-6 space-y-1 bg-background p-4 border-b">
           <DrawerTitle className="text-xl">
-            Add New{" "}
+            Tambahkan Baru{" "}
             <Button
               type="button"
               variant={"outline"}
@@ -154,7 +154,7 @@ export default function CreateSiswaSheet({ ...props }: type) {
                 variant="outline"
               >
                 {isPending && <Spinner className="" />}
-                Cancel
+               Batalkan
               </Button>
             </DrawerClose>
             <Button
@@ -164,7 +164,7 @@ export default function CreateSiswaSheet({ ...props }: type) {
               size={"sm"}
             >
               {isPending && <Spinner className="" />}
-              Add
+              Tambahkan
             </Button>
           </DrawerFooter>
         </SiswaForm>

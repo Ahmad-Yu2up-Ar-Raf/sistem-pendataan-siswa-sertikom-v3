@@ -92,7 +92,7 @@ class SiswaUpdateRequest extends FormRequest
 
             // Status & Media
             'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // 2MB max
-            'crop_data' => 'nullable|json', // Optional: Store crop coordinates
+            'raw_foto' => 'nullable|json', // Optional: Store crop coordinates
             'status' => [
                 'nullable',
                 Rule::in(StatusSiswaEnums::values()),

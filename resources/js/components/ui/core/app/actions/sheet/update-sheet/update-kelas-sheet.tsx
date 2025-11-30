@@ -24,7 +24,7 @@ import {
 
 import KelasForm from "../../form/kelas-form";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { KelasSchema } from "@/lib/validations/kelasValidate";
+import { KelasSchema } from "@/lib/validations/app/kelasValidate";
 import { useKelasForm } from "@/hooks/actions/useKelas";
 import { toast } from "sonner";
 
@@ -65,7 +65,7 @@ export default function UpdateKelasSheet({ kelas, open = false, onOpenChange }: 
         <SheetContent className="flex flex-col gap-6 overflow-y-scroll ">
           <SheetHeader className="text-left sm:px-6 space-y-1 bg-background z-30  sticky top-0   p-4 border-b  ">
             <SheetTitle className=" text-lg">
-              Update {" "}
+              Perbarui {" "}
               <Button
                 type="button"
                 variant={"outline"}
@@ -97,7 +97,7 @@ export default function UpdateKelasSheet({ kelas, open = false, onOpenChange }: 
                   variant="outline"
                 >
                   {isPending && <Spinner className="animate-spin" />}
-                  Cancel
+                 Batalkan
                 </Button>
               </SheetClose>
               <Button
@@ -122,7 +122,7 @@ export default function UpdateKelasSheet({ kelas, open = false, onOpenChange }: 
       <DrawerContent className="flex flex-col  ">
         <DrawerHeader className="text-left sm:px-6 space-y-1 bg-background    p-4 border-b  ">
           <DrawerTitle className=" text-xl">
-          Update {" "}
+          Perbarui {" "}
             <Button
               type="button"
               variant={"outline"}
@@ -155,7 +155,7 @@ export default function UpdateKelasSheet({ kelas, open = false, onOpenChange }: 
                 variant="outline"
               >
                 {isPending && <Spinner className="animate-spin" />}
-                Cancel
+               Batalkan
               </Button>
             </DrawerClose>
             <Button

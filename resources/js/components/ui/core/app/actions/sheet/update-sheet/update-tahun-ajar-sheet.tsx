@@ -25,7 +25,7 @@ import {
 
 import TahunAjarForm from "../../form/tahun-ajar-form";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { TahunAjarSchema } from "@/lib/validations/tahunAjarValidate";
+import { TahunAjarSchema } from "@/lib/validations/app/tahunAjarValidate";
 import { useTahunAjarForm } from "@/hooks/actions/useTahunAjar";
 import { toast } from "sonner";
 
@@ -66,7 +66,7 @@ export default function UpdateTahunAjarSheet({ tahunAjar, open = false, onOpenCh
         <SheetContent className="flex flex-col gap-6 overflow-y-scroll ">
           <SheetHeader className="text-left sm:px-6 space-y-1 bg-background z-30  sticky top-0   p-4 border-b  ">
             <SheetTitle className=" text-lg">
-              Update {" "}
+              Perbarui {" "}
               <Button
                 type="button"
                 variant={"outline"}
@@ -99,7 +99,7 @@ export default function UpdateTahunAjarSheet({ tahunAjar, open = false, onOpenCh
                   variant="outline"
                 >
                   {isPending && <Spinner className="animate-spin" />}
-                  Cancel
+                 Batalkan
                 </Button>
               </SheetClose>
               <Button
@@ -124,7 +124,7 @@ export default function UpdateTahunAjarSheet({ tahunAjar, open = false, onOpenCh
       <DrawerContent className="flex flex-col  ">
         <DrawerHeader className="text-left sm:px-6 space-y-1 bg-background    p-4 border-b  ">
           <DrawerTitle className=" text-xl">
-          Update {" "}
+          Perbarui {" "}
             <Button
               type="button"
               variant={"outline"}
@@ -157,7 +157,7 @@ export default function UpdateTahunAjarSheet({ tahunAjar, open = false, onOpenCh
                 variant="outline"
               >
                 {isPending && <Spinner className="animate-spin" />}
-                Cancel
+               Batalkan
               </Button>
             </DrawerClose>
             <Button

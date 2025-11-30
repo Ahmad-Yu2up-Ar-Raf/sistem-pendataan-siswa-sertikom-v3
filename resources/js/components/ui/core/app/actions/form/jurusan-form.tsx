@@ -147,7 +147,7 @@ export default function JurusanForm<T extends FieldValues, >({
                     >
                       <FormControl>
                         <SelectTrigger       disabled={isPending}>
-                          <SelectValue placeholder="Select status" />
+                          <SelectValue placeholder="Pilih status" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -159,7 +159,7 @@ export default function JurusanForm<T extends FieldValues, >({
                       </SelectContent>
                     </Select>
                     <FormDescription className="sr-only">
-                      Select tahun ajar status
+                      Pilih tahun ajar status
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

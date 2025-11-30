@@ -89,7 +89,7 @@ export default  function DeleteDialog({
           <DrawerClose asChild>
             <Button variant="outline"  disabled={processing}>   {processing && (
               <Spinner className="mr-2 size-4 animate-spin" aria-hidden="true" />
-            )} Cancel</Button>
+            )}Batalkan</Button>
           </DrawerClose>
           <Button
             aria-label="Delete selected rows"
@@ -128,7 +128,7 @@ export default  function DeleteDialog({
             <DialogClose asChild>
                 <Button variant="outline"  disabled={processing}>   {processing && (
               <Spinner className="mr-2 size-4 animate-spin" aria-hidden="true" />
-            )} Cancel</Button>
+            )}Batalkan</Button>
             </DialogClose>
             <Button
               aria-label="Delete selected rows"

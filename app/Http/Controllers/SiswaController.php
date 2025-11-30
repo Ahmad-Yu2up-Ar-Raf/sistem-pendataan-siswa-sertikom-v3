@@ -2,372 +2,366 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\StatusEnums;
 use App\Http\Requests\SiswaStoreRequest;
 use App\Http\Requests\SiswaUpdateRequest;
 use App\Models\Siswa;
-use App\Models\TahunAjar;
+use App\Services\FileUploadService; // ← TAMBAH INI
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class SiswaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request)
+    protected FileUploadService $fileUploadService; // ← TAMBAH INI
+
+    // ← TAMBAH CONSTRUCTOR
+    public function __construct(FileUploadService $fileUploadService)
     {
-        $perPage = $request->input('perPage', 10);
-        $search = $request->input('search');
-      
-        $page = $request->input('page', 1);
-        $status = $request->input('status');
-        $agama = $request->input('agama');
-        $jenis_kelamin = $request->input('jenis_kelamin');
+        $this->fileUploadService = $fileUploadService;
+    }
+
+    /**
+     * Store a newly created siswa
+     */
+    public function store(SiswaStoreRequest $request)
+    {
+        DB::beginTransaction();
         
-
-    
-        $query = Siswa::orderByDesc('updated_at')->with('jurusan')->with('tahunMasuk')->with('kelasAktif')->with('kelas')->with('kelasAktif');
-    
-    
-       
-      
-    
-    
-        if ($search) {
-            $query->where(function($q) use ($search) {
-                $searchLower = strtolower($search);
-                $q->whereRaw('LOWER(nama_lengkap) LIKE ?', ["%{$searchLower}%"])
-                  ->orWhereRaw('LOWER(nisn) LIKE ?', ["%{$searchLower}%"]);
-            });
-        }
-    
-     
-        if ($status) {
-            if (is_array($status)) {
-                $query->whereIn('status', $status);
-            } elseif (is_string($status)) {
-                $statusArray = explode(',', $status);
-                $query->whereIn('status', $statusArray);
+        try {
+            $validated = $request->validated();
+            
+            // ===== HANDLE FOTO UPLOAD =====
+            $photoData = $this->fileUploadService->handlePhotoUpload($request, 'siswa'); // ← FIX INI
+            
+            if ($photoData) {
+                $validated['foto'] = $photoData['foto'];
+                $validated['raw_foto'] = $photoData['raw_foto'];
             }
+            
+            $validated['created_by'] = Auth::id();
+            $validated['updated_by'] = Auth::id();
+            
+            $siswa = Siswa::create($validated);
+            
+            DB::commit();
+            
+            return redirect()
+                ->route('dashboard.siswa.index')
+                ->with('success', 'Siswa berhasil ditambahkan');
+                
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            Log::error('Siswa creation failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            
+            return redirect()
+                ->back()
+                ->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])
+                ->withInput();
         }
-    
-       
-        if ($agama) {
-            if (is_array($agama)) {
-                $query->whereIn('agama', $agama);
-            } elseif (is_string($agama)) {
-                $agamaArray = explode(',', $agama);
-                $query->whereIn('agama', $agamaArray);
-            }
-        }
-        if ($jenis_kelamin) {
-            if (is_array($jenis_kelamin)) {
-                $query->whereIn('jenis_kelamin', $jenis_kelamin);
-            } elseif (is_string($jenis_kelamin)) {
-                $jenis_kelaminArray = explode(',', $jenis_kelamin);
-                $query->whereIn('jenis_kelamin', $jenis_kelaminArray);
-            }
-        }
-    
-    
-        $siswa = $query
-            ->paginate($perPage, ['*'], 'page', $page);
-    
-    
-        $siswa->through(function ($item) {
-           
-    
-            return [
-                ...$item->toArray(),
-                'foto' => $item->foto ? url($item->foto) : null,
-              
-              
-            ];
-        });
-        return Inertia::render('dashboard/siswa/index',[
-            'status' => true,
-            'message' => 'Siswa retrieved successfully',
-            'data' => [
-                'siswa' => $siswa->items() ?? [],
-            ],
-            'meta' => [
-                'filters' => [
-                    'search' => $search ?? '',
-                    'status' => $status ?? [],
-                    'agama' => $agama ?? [],
-                    'jenis_kelamin' => $jenis_kelamin ?? [],
-                ],
-                'pagination' => [
-                    'total' => $siswa->total(),
-                    'currentPage' => $siswa->currentPage(),
-                    'perPage' => $siswa->perPage(),
-                    'lastPage' => $siswa->lastPage(),
-                    'hasMore' => $siswa->currentPage() < $siswa->lastPage(),
-                ],
-            ],
-        ]);
-    
     }
 
-    
-
     /**
-     * Show the form for creating a new resource.
+     * Update existing siswa
      */
-    public function create()
+    public function update(SiswaUpdateRequest $request, Siswa $siswa)
     {
-        //
+        DB::beginTransaction();
+        
+        try {
+            $validated = $request->validated();
+            
+            // ===== HANDLE FOTO UPLOAD (if new file) =====
+            if ($request->hasFile('foto')) {
+                // Delete old files
+                $this->fileUploadService->deleteOldPhotos($request, 'siswa'); // ← FIX INI
+                
+                // Upload new files
+                $photoData = $this->fileUploadService->handlePhotoUpload($request, 'siswa'); // ← FIX INI
+                
+                if ($photoData) {
+                    $validated['foto'] = $photoData['foto'];
+                    $validated['raw_foto'] = $photoData['raw_foto'];
+                }
+            }
+            
+            $validated['updated_by'] = Auth::id();
+            
+            $siswa->update($validated);
+            
+            DB::commit();
+            
+            return redirect()
+                ->route('dashboard.siswa.index')
+                ->with('success', 'Siswa berhasil diperbarui');
+                
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            Log::error('Siswa update failed', [
+                'siswa_id' => $siswa->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            
+            return redirect()
+                ->back()
+                ->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])
+                ->withInput();
+        }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-public function store(SiswaStoreRequest $request)
+ 
+
+/**
+ * Display a listing of siswa with advanced filtering
+ * Supports: enum filters (status, agama, jenis_kelamin), 
+ * relation filters (jurusan, kelas, tahun_ajar), date range, search
+ */
+public function index(Request $request)
 {
-    DB::beginTransaction();
-    try {
-        // Ambil validated data sekali saja
-        $validated = $request->validated();
-        
-        // ===== Handle foto: 3 kemungkinan =====
-        // 1) UploadedFile via multipart/form-data ($request->hasFile('foto'))
-        // 2) Frontend mengirim object/file metadata (array) yang berisi base64 -> $validated['foto']['base64Data']
-        // 3) Tidak ada foto (optional)
+    $perPage = $request->input('perPage', 10);
+    $search = $request->input('search');
+    $page = $request->input('page', 1);
+    
+    // Initialize query with relations and counts
+    $query = Siswa::orderByDesc('updated_at')
+        ->with(['jurusan', 'tahunMasuk', 'kelasAktif', 'kelas']);
 
-        if ($request->hasFile('foto')) {
-            $file = $request->file('foto'); // instance of UploadedFile
-            $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('siswa/', $filename, 'public');
-            $validated['foto'] = 'storage/' . $path;
-        } elseif (isset($validated['foto']) && is_array($validated['foto'])) {
-            // contoh struktur dari frontend: ['file' => {...}, 'base64Data' => 'data:image/png;base64,....', 'preview'=>..., ...]
-            if (!empty($validated['foto']['base64Data'])) {
-                $base64 = $validated['foto']['base64Data'];
-                // Jika termasuk prefix data:, strip header
-                if (preg_match('/^data:\s*image\/(\w+);base64,/', $base64, $m)) {
-                    $ext = $m[1];
-                    $base64 = substr($base64, strpos($base64, ',') + 1);
-                } else {
-                    // default ext
-                    $ext = 'png';
-                }
-
-                $decoded = base64_decode($base64);
-                if ($decoded === false) {
-                    throw new \RuntimeException("Invalid base64 image data");
-                }
-
-                $filename = Str::uuid() . '.' . $ext;
-                $path = 'siswa/' . $filename;
-                Storage::disk('public')->put($path, $decoded);
-                $validated['foto'] = 'storage/' . $path;
-            } elseif (!empty($validated['foto']['file']) && $validated['foto']['file'] instanceof \Illuminate\Http\UploadedFile) {
-                // in case the front sent a file object in validated (rare)
-                $file = $validated['foto']['file'];
-                $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
-                $path = $file->storeAs('siswa/', $filename, 'public');
-                $validated['foto'] = 'storage/' . $path;
-            } else {
-                // tidak ada foto usable, hapus agar tidak masuk DB sebagai array
-                unset($validated['foto']);
-            }
-        } else {
-            // tidak ada foto, pastikan tidak passing a non-scalar
-            if (isset($validated['foto'])) {
-                unset($validated['foto']);
-            }
-        }
-
-        // ===== crop_data: simpan sebagai JSON string atau simpan ke kolom terpisah (recommended: json column) =====
-        if (isset($validated['crop_data'])) {
-            // simpan ke kolom json, pastikan migration punya kolom 'foto_crop_data' json nullable
-            // contoh: $validated['foto_crop_data'] = json_encode($validated['crop_data']);
-            // atau jika tabel punya kolom 'crop_data' bertipe json, langsung biarkan sebagai array (Eloquent cast akan handle)
-            // Di kasus sekarang kita pindahkan ke 'foto_crop_data' dan hapus 'crop_data'
-            $validated['foto_crop_data'] = $validated['crop_data']; // keep as array if model casts to array
-            unset($validated['crop_data']);
-        }
-
-        // Tambah created_by / updated_by
-        $validated['created_by'] = Auth::id();
-        $validated['updated_by'] = Auth::id();
-
-        // Pastikan numeric/string types sesuai migration, cast jika perlu:
-        // contoh: if nisn should be string, cast: $validated['nisn'] = (string) $validated['nisn'];
-
-        // Create siswa menggunakan $validated yang sudah dimodifikasi (penting)
-        $siswa = Siswa::create($validated);
-
-        DB::commit();
-
-        return redirect()->back()->with('success', 'Siswa berhasil ditambahkan');
-    } catch (\Exception $e) {
-        DB::rollBack();
-        Log::error('Error creating siswa: ' . $e->getMessage(), [
-            'trace' => $e->getTraceAsString(),
-            'validated' => isset($validated) ? $validated : null,
-        ]);
-        return redirect()
-            ->back()
-            ->withErrors(['error' => 'Terjadi kesalahan saat menambahkan siswa: ' . $e->getMessage()])
-            ->withInput();
+    // ==========================================
+    // SEARCH FILTER
+    // ==========================================
+    if ($search) {
+        $query->where(function($q) use ($search) {
+            $searchLower = strtolower($search);
+            $q->whereRaw('LOWER(nama_lengkap) LIKE ?', ["%{$searchLower}%"])
+              ->orWhereRaw('LOWER(nisn) LIKE ?', ["%{$searchLower}%"])
+              ->orWhereRaw('LOWER(nis) LIKE ?', ["%{$searchLower}%"]);
+        });
     }
+
+    // ==========================================
+    // ENUM FILTERS (Multi-select arrays)
+    // ==========================================
+    
+    // Status filter
+    if ($request->filled('status')) {
+        $statusArray = is_array($request->input('status')) 
+            ? $request->input('status') 
+            : explode(',', $request->input('status'));
+        $query->whereIn('status', $statusArray);
+    }
+
+    // Agama filter
+    if ($request->filled('agama')) {
+        $agamaArray = is_array($request->input('agama')) 
+            ? $request->input('agama') 
+            : explode(',', $request->input('agama'));
+        $query->whereIn('agama', $agamaArray);
+    }
+
+    // Jenis Kelamin filter
+    if ($request->filled('jenis_kelamin')) {
+        $jenisKelaminArray = is_array($request->input('jenis_kelamin')) 
+            ? $request->input('jenis_kelamin') 
+            : explode(',', $request->input('jenis_kelamin'));
+        $query->whereIn('jenis_kelamin', $jenisKelaminArray);
+    }
+
+    // ==========================================
+    // RELATION FILTERS (Dynamic multi-select)
+    // ==========================================
+    
+    // Jurusan filter
+    if ($request->filled('jurusan')) {
+
+        $jurusanIds = (array) $request->input('jurusan');
+        $query->whereIn('jurusan_id', $jurusanIds);
+    }
+
+    // Kelas filter
+    if ($request->filled('kelas')) {
+        $kelasIds = (array) $request->input('kelas');
+        $query->whereIn('kelas_id', $kelasIds);
+    }
+
+    // Tahun Ajar filter
+    if ($request->filled('tahun_ajar')) {
+        $tahunAjarIds = (array) $request->input('tahun_ajar');
+        $query->whereIn('tahun_ajar_id', $tahunAjarIds);
+    }
+
+    // ==========================================
+    // DATE RANGE FILTER (created_at)
+    // ==========================================
+    if ($request->filled('created_at_from') || $request->filled('created_at_to')) {
+        $from = $request->input('created_at_from');
+        $to = $request->input('created_at_to');
+        
+        if ($from) {
+            $query->whereDate('created_at', '>=', $from);
+        }
+        if ($to) {
+            $query->whereDate('created_at', '<=', $to);
+        }
+    }
+
+    // Paginate results
+    $siswa = $query->paginate($perPage, ['*'], 'page', $page);
+
+    // Transform foto URLs
+    $siswa->through(function ($item) {
+        return [
+            ...$item->toArray(),
+            'foto' => $item->foto ? url($item->foto) : null,
+        ];
+    });
+
+    return Inertia::render('dashboard/siswa/index', [
+        'status' => true,
+        'message' => 'Siswa retrieved successfully',
+        'data' => [
+            'siswa' => $siswa->items() ?? [],
+        ],
+        'meta' => [
+            'filters' => [
+                'search' => $search ?? '',
+                'status' => $request->input('status', []),
+                'agama' => $request->input('agama', []),
+                'jenis_kelamin' => $request->input('jenis_kelamin', []),
+                'jurusan' => $request->input('jurusan', []),
+                'kelas' => $request->input('kelas', []),
+                'tahun_ajar' => $request->input('tahun_ajar', []),
+                'created_at' => [
+                    'from' => $request->input('created_at_from'),
+                    'to' => $request->input('created_at_to'),
+                ],
+            ],
+            'pagination' => [
+                'total' => $siswa->total(),
+                'currentPage' => $siswa->currentPage(),
+                'perPage' => $siswa->perPage(),
+                'lastPage' => $siswa->lastPage(),
+                'hasMore' => $siswa->currentPage() < $siswa->lastPage(),
+            ],
+        ],
+    ]);
 }
 
-
     /**
-     * Display the specified resource.
+     * Show single siswa (for edit)
      */
     public function show(Siswa $siswa)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Siswa $siswa)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-   public function update(SiswaUpdateRequest $request, Siswa $siswa)
-    {
-        try {
-
-       
-     
-            DB::beginTransaction();
-
-            $validatedData = $request->validated();
-
-             if (request()->hasFile('foto')) {
-                // Delete old cover image if exists
-                if ($siswa->foto && Storage::disk('public')->exists(str_replace('storage/', '', $siswa->foto))) {
-                    Storage::disk('public')->delete(str_replace('storage/', '', $siswa->foto));
-                }
-
-                $file = request()->file('foto');
-                $filename = time() . '_' . $file->getClientOriginalName();
-                $path = $file->storeAs('siswa/', $filename, 'public');
-                $validatedData['foto'] = 'storage/' . $path;
-            }
-
-            // Update siswa data (showcase_images will be handled by observer)
-            $siswa->update($validatedData);
-
-            DB::commit();
-     
-     return redirect()->route('dashboard.siswa.index')
-                ->with('success');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            Log::error('Siswa update error: ' . $e->getMessage());
-
-            return response()->json([
-                'status' => false,
-                'message' => 'Failed to update siswa: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-    /**
-     * Remove the specified resource from storage.
-     */
- public function destroy(Request $request)
-    {
+        $siswa->load(['jurusan', 'kelas', 'tahunMasuk']);
         
+        return response()->json([
+            'status' => true,
+            'data' => [
+                ...$siswa->toArray(),
+                'foto' => $siswa->foto ? url($siswa->foto) : null,
+                'raw_foto' => $siswa->raw_foto 
+                    ? $this->fileUploadService->transformRawFotoUrls($siswa->raw_foto) // ← FIX INI
+                    : null,
+            ],
+        ]);
+    }
+
+    /**
+     * Delete siswa
+     */
+    public function destroy(Request $request)
+    {
         $ids = $request->input('ids');
+        
         if (empty($ids)) {
-            return redirect()->route('dashboard.siswa.index')
-                ->with('error', 'Tidak ada event yang dipilih untuk dihapus.');
+            return redirect()
+                ->route('dashboard.siswa.index')
+                ->with('error', 'Tidak ada siswa yang dipilih untuk dihapus.');
         }
 
-        // Validasi apakah semua ID milik user yang sedang login
         $siswa = Siswa::whereIn('id', $ids)->get();
+        
         if ($siswa->count() !== count($ids)) {
-            return redirect()->route('dashboard.siswa.index')
-                ->with('error', 'Unauthorized access atau event tidak ditemukan.');
+            return redirect()
+                ->route('dashboard.siswa.index')
+                ->with('error', 'Unauthorized access atau siswa tidak ditemukan.');
         }
 
         try {
             DB::beginTransaction();
-              
-            // SOLUSI: Delete satu per satu agar Observer terpicu
-            foreach ($siswa as $event) {
-                if ($event->foto && Storage::disk('public')->exists(str_replace('storage/', '', $event->foto))) {
-                    Storage::disk('public')->delete(str_replace('storage/', '', $event->foto));
-                }
-        
-                $event->delete(); // Ini akan trigger observer siswa
+
+            foreach ($siswa as $item) {
+                // Delete photos
+                $this->fileUploadService->deleteOldPhotos($item); // ← FIX INI
+                
+                // Delete siswa
+                $item->delete();
             }
-            
+
             DB::commit();
 
             $deletedCount = $siswa->count();
-            return redirect()->route('dashboard.siswa.index')
-                ->with('success', "{$deletedCount} Siswa berhasil dihapus beserta semua file terkait.");
+            
+            return redirect()
+                ->route('dashboard.siswa.index')
+                ->with('success', "{$deletedCount} Siswa berhasil dihapus beserta file terkait.");
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Siswa deletion error: ' . $e->getMessage());
-            return redirect()->route('dashboard.siswa.index')
+            
+            Log::error('Siswa deletion error', ['error' => $e->getMessage()]);
+            
+            return redirect()
+                ->route('dashboard.siswa.index')
                 ->with('error', 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage());
         }
     }
 
+    /**
+     * Update status siswa (bulk)
+     */
     public function statusUpdate(Request $request)
     {
-        
         $ids = $request->input('ids');
         $value = $request->input('value');
         $colum = $request->input('colum');
         
         if (empty($ids)) {
-            return redirect()->route('dashboard.siswa.index')
-                ->with('error', 'Tidak ada event yang dipilih untuk dihapus.');
+            return redirect()->back()
+                ->with('error', 'Tidak ada siswa yang dipilih.');
         }
 
-        // Validasi apakah semua ID milik user yang sedang login
         $siswa = Siswa::whereIn('id', $ids)->get();
+        
         if ($siswa->count() !== count($ids)) {
-            return redirect()->route('dashboard.siswa.index')
-                ->with('error', 'Unauthorized access atau event tidak ditemukan.');
+            return redirect()->back()
+                ->with('error', 'Unauthorized access atau siswa tidak ditemukan.');
         }
 
         try {
             DB::beginTransaction();
               
-             foreach ($siswa as $event) {
-                $event->update([$colum => $value]);
+            foreach ($siswa as $item) {
+                $item->update([$colum => $value]);
             }
-
-   
-
-            
             
             DB::commit();
-            
 
-            $deletedCount = $siswa->count();
-            return redirect()->route('dashboard.siswa.index')
-                ->with('success', "{$deletedCount} Siswa berhasil dihapus beserta semua file terkait.");
+            $updatedCount = $siswa->count();
+            return redirect()->back()
+                ->with('success', "{$updatedCount} Siswa berhasil diperbarui.");
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Siswa deletion error: ' . $e->getMessage());
-            return redirect()->route('dashboard.siswa.index')
-                ->with('error', 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage());
+            Log::error('Siswa status update error: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 }

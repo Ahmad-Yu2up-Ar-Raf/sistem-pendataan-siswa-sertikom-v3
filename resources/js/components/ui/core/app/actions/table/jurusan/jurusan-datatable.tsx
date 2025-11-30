@@ -2,20 +2,22 @@
 import * as React from "react";
 import { router } from "@inertiajs/react";
 import { toast } from "sonner";
-import { Calendar } from "lucide-react";
+import { Users2Icon } from "lucide-react";
 import { EmptyState } from "@/components/ui/fragments/custom-ui/empty-state";
 import { StatusTableActionBar } from "@/components/ui/fragments/custom-ui/table/status-action-bar";
 import DeleteDialog from "@/components/ui/fragments/custom-ui/dialog/DeleteDialog";
 import CreateJurusanSheet from "../../sheet/create-sheet/create-jurusan-sheet";
 import UpdateJurusanSheet from "../../sheet/update-sheet/update-jurusan-sheet";
 import { TableToolbar } from "@/components/ui/fragments/custom-ui/table/TableToolbar";
-import { JurusanTable } from "./components/JurusanTable";
 import { Pagination } from "@/components/ui/fragments/custom-ui/table/data-table-paggination";
-import { useFilters } from "@/hooks/filters/useFilters";
-import type { pagePropsJurusan } from "@/pages/dashboard/jurusan/index";
-import type { JurusanSchema } from "@/lib/validations/jurusanValidate";
-import { StatusOptions } from "@/config/enums/status";
+import { useTableFilters } from "@/hooks/filters/useTableFilters"; // ← UPDATED IMPORT
+import type { pagePropsJurusan } from "@/pages/dashboard/jurusan";
+import type { JurusanSchema } from "@/lib/validations/app/jurusanValidate";
 import { cn } from "@/lib/utils";
+import { JurusanTable } from "./components/JurusanTable";
+ 
+import { DateRange } from "react-day-picker";
+import { StatusOptions } from "@/config/enums/status";
 
 export default function JurusanDataTable({ data }: { data: pagePropsJurusan }) {
   const paginatedData = data.meta.pagination;
@@ -28,32 +30,53 @@ export default function JurusanDataTable({ data }: { data: pagePropsJurusan }) {
   const [openUpdate, setOpenUpdate] = React.useState(false);
   const [openDelete, setOpenDelete] = React.useState(false);
   const [deletedId, setDeletedId] = React.useState<number | null>(null);
-  const [currentJurusan, setCurrentJurusan] =
-    React.useState<JurusanSchema | null>(null);
+  const [currentJurusan, setCurrentJurusan] = React.useState<JurusanSchema | null>(null);
   const [processing, setProcessing] = React.useState(false);
 
-  // Filter hook
-  const { filters, setSearch, setEnumFilter, clearFilters, hasActiveFilters } =
-    useFilters({
-      initialFilters,
-      route: "/dashboard/jurusan",
-    });
+  // ✅ UPDATED: Use new useTableFilters hook
+  const { 
+    filters, 
+    setSearch, 
+    setEnumFilter, 
+    setDateRange,
+    clearFilters, 
+    hasActiveFilters 
+  } = useTableFilters({
+    initialFilters,
+    route: "/dashboard/jurusan",
+  });
 
-  // Filter configurations (reusable for multiple enum columns)
+  // ✅ UPDATED: Filter configurations with type support (enum, relation, date-range)
   const filterConfigs = React.useMemo(
     () => [
       {
         column: "status",
         title: "Status",
+        type: "enum" as const,
         options: StatusOptions,
       },
-      // Add more filter configs here for other enum columns:
-      // { column: "semester", title: "Semester", options: SemesterOptions },
+      {
+        column: "created_at",
+        title: "Tanggal Dibuat",
+        type: "date-range" as const,
+      },
     ],
     []
   );
 
-  // Selection logic
+  // ✅ UPDATED: Handle filter changes (enum arrays, date ranges)
+  const handleFilterChange = React.useCallback(
+    (column: string, value: string[] | DateRange | undefined) => {
+      if (Array.isArray(value)) {
+        setEnumFilter(column, value);
+      } else {
+        setDateRange(column, value);
+      }
+    },
+    [setEnumFilter, setDateRange]
+  );
+
+  // Selection logic (unchanged)
   const allIds: number[] = React.useMemo(
     () => jurusan.map((item) => item.id!),
     [jurusan]
@@ -72,7 +95,7 @@ export default function JurusanDataTable({ data }: { data: pagePropsJurusan }) {
     );
   }, []);
 
-  // CRUD operations
+  // CRUD operations (unchanged)
   const handleEdit = React.useCallback((item: JurusanSchema) => {
     setCurrentJurusan(item);
     setOpenUpdate(true);
@@ -106,7 +129,7 @@ export default function JurusanDataTable({ data }: { data: pagePropsJurusan }) {
     });
   }, []);
 
-  // Bulk actions
+  // Bulk actions (unchanged)
   const [isPending, startTransition] = React.useTransition();
   const [currentAction, setCurrentAction] = React.useState<string | null>(null);
   const [isAnyPending, setIsAnyPending] = React.useState<boolean>(false);
@@ -143,7 +166,7 @@ export default function JurusanDataTable({ data }: { data: pagePropsJurusan }) {
   }, [selectedIds]);
 
   const onTaskUpdate = React.useCallback(
-    ({ field, value }: { field: "status"; value: string }) => {
+    ({ field, value }: { field: "status" | "agama" | "jenis_kelamin"; value: string }) => {
       setIsAnyPending(true);
       setCurrentAction("update-status");
 
@@ -197,11 +220,11 @@ export default function JurusanDataTable({ data }: { data: pagePropsJurusan }) {
     return (
       <>
         <EmptyState
-          icons={[Calendar]}
-          title="No Jurusan data yet"
-          description="Start by adding your first jurusan"
+          icons={[Users2Icon]}
+          title="Belum ada data Jurusan"
+          description="Mulailah dengan menambahkan yang pertama"
           action={{
-            label: "Add Jurusan",
+            label: "Tambahkan Jurusan",
             onClick: () => setOpenCreate(true),
           }}
         />
@@ -217,13 +240,13 @@ export default function JurusanDataTable({ data }: { data: pagePropsJurusan }) {
   return (
     <>
       <div className={cn("flex w-full flex-col gap-3.5")}>
-        {/* Toolbar with search, filters, and create button */}
+        {/* ✅ UPDATED: TableToolbar with new filter support */}
         <TableToolbar
           search={filters.search}
           onSearchChange={setSearch}
           filters={filters}
           filterConfigs={filterConfigs}
-          onFilterChange={setEnumFilter}
+          onFilterChange={handleFilterChange}
           hasActiveFilters={hasActiveFilters}
           onClearFilters={clearFilters}
           onCreateClick={() => setOpenCreate(true)}
@@ -284,7 +307,7 @@ export default function JurusanDataTable({ data }: { data: pagePropsJurusan }) {
       )}
 
       <CreateJurusanSheet
-      trigger
+        trigger
         open={openCreate}
         onOpenChange={() => setOpenCreate(!openCreate)}
       />

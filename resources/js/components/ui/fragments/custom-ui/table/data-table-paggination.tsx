@@ -65,11 +65,11 @@ export function Pagination({
   return (
     <footer className="flex w-full flex-col-reverse items-center justify-between gap-4 overflow-auto p-1 sm:flex-row sm:gap-8">
       <div className="flex-1 whitespace-nowrap text-sm text-muted-foreground">
-        {selectedCount} of {totalCount} row(s) selected.
+        {selectedCount} dari {totalCount} baris dipilih.
       </div>
       <div className="flex flex-col-reverse items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8">
         <div className="flex items-center space-x-2">
-          <p className="text-sm font-medium">Rows per page</p>
+          <p className="text-sm font-medium">Baris per halaman</p>
           <Select value={`${pagination.perPage}`} onValueChange={changePerPage}>
             <SelectTrigger className="h-8 w-[70px]">
               <SelectValue placeholder={`${pagination.perPage}`} />
@@ -83,8 +83,8 @@ export function Pagination({
             </SelectContent>
           </Select>
         </div>
-        <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-          Page {pagination.currentPage} of {pagination.lastPage}
+        <div className="flex w-fit items-center justify-center text-sm font-medium">
+          Halaman {pagination.currentPage} dari {pagination.lastPage}
         </div>
         <div className="flex items-center space-x-2">
           <Button

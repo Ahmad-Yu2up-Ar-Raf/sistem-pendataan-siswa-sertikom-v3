@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/fragments/shadcn-ui/table";
 import { Checkbox } from "@/components/ui/fragments/shadcn-ui/checkbox";
 import { KelasTableRow } from "./KelasTableRow";
-import type { KelasSchema } from "@/lib/validations/kelasValidate";
+import type { KelasSchema } from "@/lib/validations/app/kelasValidate";
 
 
 interface KelasTableProps {
@@ -32,28 +32,7 @@ export function KelasTable({
   onDelete,
   isAllSelected,
 }: KelasTableProps) {
-  if (data.length === 0) {
-    return (
-      <main className="overflow-hidden rounded-xl border">
-        <Table>
-          <TableCaption className="sr-only">No data available.</TableCaption>
-          <TableHeader className="bg-muted/20">
-            <TableRow>
-              <TableHead className="sr-only">Select</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow>
-              <TableCell colSpan={10} className="h-24 text-center">
-                No results.
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </main>
-    );
-  }
-
+ 
   return (
     <main className="overflow-hidden rounded-xl border">
       <Table>
@@ -62,7 +41,9 @@ export function KelasTable({
         </TableCaption>
         <TableHeader className="bg-muted/20">
           <TableRow>
-            <TableHead>
+            <TableHead
+            typeColumn="checkbox"
+            >
               <Checkbox
                 checked={isAllSelected}
                 onCheckedChange={onSelectAll}
@@ -71,7 +52,7 @@ export function KelasTable({
               />
             </TableHead>
             <TableHead>Nama</TableHead>
-            <TableHead>Tahun Ajar</TableHead>
+            <TableHead >Tahun Ajar</TableHead>
 
             <TableHead>Wali Kelas</TableHead>
             <TableHead>Total SIswa</TableHead>
@@ -80,11 +61,17 @@ export function KelasTable({
             <TableHead>Ruangan</TableHead>
             <TableHead>Kapasitas</TableHead>
             <TableHead>Dibuat Pada</TableHead>
-            <TableHead>Action</TableHead>
+            <TableHead
+                  typeColumn="sticky"
+            >
+              <span className="sr-only">
+                Action
+                </span>
+                </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((item) => (
+           {data.length > 0 ? data.map((item) => (
             <KelasTableRow
               key={item.id}
               item={item}
@@ -93,7 +80,13 @@ export function KelasTable({
               onEdit={() => onEdit(item)}
               onDelete={() => onDelete(item.id!)}
             />
-          ))}
+       )) : (
+             <TableRow>
+              <TableCell colSpan={12} className="h-24 text-center">
+                No results.
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     </main>

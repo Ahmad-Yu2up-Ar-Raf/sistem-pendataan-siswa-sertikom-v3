@@ -69,7 +69,7 @@ return new class extends Migration
 
             // Status & Media
             $table->string('foto', 255)->nullable();
-              $table->json('crop_data')->nullable();
+            $table->json('raw_foto')->nullable()->after('foto');
             $table->enum('status', StatusSiswaEnums::values())->default(StatusSiswaEnums::Aktif->value);
             $table->text('keterangan')->nullable();
 

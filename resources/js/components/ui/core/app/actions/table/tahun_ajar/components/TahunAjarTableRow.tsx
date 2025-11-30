@@ -9,7 +9,7 @@ import {
   Users2Icon,
 } from "lucide-react";
 import { RowActions } from "../../../../../../fragments/custom-ui/table/RowActions";
-import type { TahunAjarSchema } from "@/lib/validations/tahunAjarValidate";
+import type { TahunAjarSchema } from "@/lib/validations/app/tahunAjarValidate";
 import { Status } from "@/config/enums/status";
 import { getStatusIcon } from "@/lib/utils/index";
 import { cn } from "@/lib/utils";
@@ -34,7 +34,9 @@ export function TahunAjarTableRow({
 
   return (
     <TableRow className={cn(isSelected && "bg-muted")}>
-      <TableCell>
+      <TableCell
+      typeColumn="checkbox"
+      >
         <Checkbox
           checked={isSelected}
           onCheckedChange={onSelect}
@@ -82,7 +84,9 @@ export function TahunAjarTableRow({
           ? new Date(item.created_at).toLocaleDateString()
           : "N/A"}
       </TableCell>
-      <TableCell>
+      <TableCell
+      typeColumn="sticky"
+      >
         <RowActions onEdit={onEdit} onDelete={onDelete} />
       </TableCell>
     </TableRow>

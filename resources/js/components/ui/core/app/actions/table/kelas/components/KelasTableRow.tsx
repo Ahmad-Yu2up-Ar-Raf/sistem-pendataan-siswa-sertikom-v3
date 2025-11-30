@@ -15,7 +15,7 @@ import {
   UsersRoundIcon,
 } from "lucide-react";
 import { RowActions } from "../../../../../../fragments/custom-ui/table/RowActions";
-import type { KelasSchema } from "@/lib/validations/kelasValidate";
+import type { KelasSchema } from "@/lib/validations/app/kelasValidate";
 import { Status } from "@/config/enums/status";
 import { getStatusIcon } from "@/lib/utils/index";
 import { cn } from "@/lib/utils";
@@ -40,7 +40,9 @@ export function KelasTableRow({
 
   return (
     <TableRow className={cn(isSelected && "bg-muted")}>
-      <TableCell>
+      <TableCell
+            typeColumn="sticky"
+      >
         <Checkbox
           checked={isSelected}
           onCheckedChange={onSelect}
@@ -94,7 +96,9 @@ export function KelasTableRow({
           ? new Date(item.created_at).toLocaleDateString()
           : "N/A"}
       </TableCell>
-      <TableCell>
+      <TableCell
+            typeColumn="sticky"
+      >
         <RowActions onEdit={onEdit} onDelete={onDelete} />
       </TableCell>
     </TableRow>

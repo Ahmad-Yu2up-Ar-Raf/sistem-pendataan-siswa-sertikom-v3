@@ -57,14 +57,14 @@ export default function CreateTahunAjarSheet({ ...props }: type) {
               className=" text-sm mr-0  w-fit "
             >
               <Plus className=" mr-3 " />
-              Add New
+              Tambahkan Baru
             </Button>
           </SheetTrigger>
         )}
         <SheetContent className="flex flex-col gap-6 overflow-y-scroll ">
           <SheetHeader className="text-left sm:px-6 space-y-1 bg-background z-30  sticky top-0   p-4 border-b  ">
             <SheetTitle className=" text-lg">
-              Add New{" "}
+              Tambahkan Baru{" "}
               <Button
                 type="button"
                 variant={"outline"}
@@ -96,7 +96,7 @@ export default function CreateTahunAjarSheet({ ...props }: type) {
                   variant="outline"
                 >
                   {isPending && <Spinner className="" />}
-                  Cancel
+                 Batalkan
                 </Button>
               </SheetClose>
               <Button
@@ -106,7 +106,7 @@ export default function CreateTahunAjarSheet({ ...props }: type) {
                 size={"sm"}
               >
                 {isPending && <Spinner className="" />}
-                Add
+                Tambahkan
               </Button>
             </SheetFooter>
           </TahunAjarForm>
@@ -126,7 +126,7 @@ export default function CreateTahunAjarSheet({ ...props }: type) {
           >
             <Plus className=" mr-3 " />
            <span className="">
-             Add New
+             Tambahkan Baru
             </span>
           </Button>
         </DrawerTrigger>
@@ -134,7 +134,7 @@ export default function CreateTahunAjarSheet({ ...props }: type) {
       <DrawerContent className="flex flex-col  ">
         <DrawerHeader className="text-left sm:px-6 space-y-1 bg-background    p-4 border-b  ">
           <DrawerTitle className=" text-xl">
-            Add New{" "}
+            Tambahkan Baru{" "}
             <Button
               type="button"
               variant={"outline"}
@@ -167,7 +167,7 @@ export default function CreateTahunAjarSheet({ ...props }: type) {
                 variant="outline"
               >
                 {isPending && <Spinner className="" />}
-                Cancel
+               Batalkan
               </Button>
             </DrawerClose>
             <Button
@@ -177,7 +177,7 @@ export default function CreateTahunAjarSheet({ ...props }: type) {
               size={"sm"}
             >
               {isPending && <Spinner className="" />}
-              Add
+              Tambahkan
             </Button>
           </DrawerFooter>
         </TahunAjarForm>

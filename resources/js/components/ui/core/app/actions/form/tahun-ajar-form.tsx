@@ -60,33 +60,7 @@ export default function TahunAjarForm<T extends FieldValues, >({
       >
         <main className="space-y-6 mb-6">
           <section className="space-y-10  pb-8 pt-2 px-4 sm:px-6 border-b">
-            <FormField
-              control={form.control}
-              name={"kode_tahun_ajar" as FieldPath<T>}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className={cn(isPending && "text-muted-foreground")}>
-                    Kode Tahun Ajar
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder={`003`}
-                      type="number"
-                      disabled={isPending}
-                      
-                      {...field}
-                    
-                    />
-                  </FormControl>
-                  <FormDescription className="sr-only">
-                    Kode tahun ajar
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
+               <FormField
               control={form.control}
               name={"nama_tahun_ajar" as FieldPath<T>}
               render={({ field }) => (
@@ -96,7 +70,7 @@ export default function TahunAjarForm<T extends FieldValues, >({
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="e.g., Tahun Ajaran 2024/2025"
+                      placeholder="2024/2025"
                       type="text"
                       disabled={isPending}
                       {...field}
@@ -111,6 +85,33 @@ export default function TahunAjarForm<T extends FieldValues, >({
               )}
             />
 
+            <FormField
+              control={form.control}
+              name={"kode_tahun_ajar" as FieldPath<T>}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className={cn(isPending && "text-muted-foreground")}>
+                    Kode Tahun Ajar
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder={`003`}
+                      type="text"
+                      disabled={isPending}
+                      
+                      {...field}
+                    
+                    />
+                  </FormControl>
+                  <FormDescription className="sr-only">
+                    Kode tahun ajar
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+         
             <FormField
               control={form.control}
               name={"tanggal_mulai" as FieldPath<T>}
@@ -223,7 +224,7 @@ export default function TahunAjarForm<T extends FieldValues, >({
                         <SelectTrigger
                                 disabled={isPending}
                         >
-                          <SelectValue placeholder="Select status" />
+                          <SelectValue placeholder="Pilih status" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -235,7 +236,7 @@ export default function TahunAjarForm<T extends FieldValues, >({
                       </SelectContent>
                     </Select>
                     <FormDescription className="sr-only">
-                      Select tahun ajar status
+                      Pilih tahun ajar status
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

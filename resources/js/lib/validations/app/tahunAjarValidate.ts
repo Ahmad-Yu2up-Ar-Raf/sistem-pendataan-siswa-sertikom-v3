@@ -8,8 +8,8 @@ export const tahunAjarSchema = z
   .object({
     id: z.number().optional(),
     kode_tahun_ajar: z
-    .coerce
-      .number()
+   
+      .string()
       .min(1, "Kode tahun ajar wajib diisi")
       .max(20, "Kode tahun ajar maksimal 20 karakter"),
     nama_tahun_ajar: z

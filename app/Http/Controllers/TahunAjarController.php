@@ -17,80 +17,85 @@ class TahunAjarController extends Controller
     /**
      * Display a listing of the resource.
      */
-  public function index(Request $request)
-    {
-        $perPage = $request->input('perPage', 10);
-        $search = $request->input('search');
-      
-        $page = $request->input('page', 1);
-        $status = $request->input('status');
-       
-        
+ 
 
-    
-        $query = tahunAjar::query()->orderByDesc('updated_at')->withCount('kelases')->withCount('siswas');
-    
-    
-       
-      
-    
-    
-        if ($search) {
-            $query->where(function($q) use ($search) {
-                $searchLower = strtolower($search);
-                $q->whereRaw('LOWER(nama_tahun_ajar) LIKE ?', ["%{$searchLower}%"])
-                  ->orWhereRaw('LOWER(kode_tahun_ajar) LIKE ?', ["%{$searchLower}%"]);
-            });
-        }
-    
-     
-        if ($status) {
-            if (is_array($status)) {
-                $query->whereIn('status', $status);
-            } elseif (is_string($status)) {
-                $statusArray = explode(',', $status);
-                $query->whereIn('status', $statusArray);
-            }
-        }
-    
-   
-    
-        $tahunAjar = $query
-            ->paginate($perPage, ['*'], 'page', $page);
-    
-    
-        $tahunAjar->through(function ($item) {
-           
-    
-            return [
-                ...$item->toArray(),
-              
-              
-              
-            ];
+public function index(Request $request)
+{
+    $perPage = $request->input('perPage', 10);
+    $search = $request->input('search');
+    $page = $request->input('page', 1);
+    $status = $request->input('status');
+
+    $query = TahunAjar::query()
+        ->orderByDesc('updated_at')
+        ->withCount(['kelases', 'siswas'])
+      ;
+
+    // Search filter
+    if ($search) {
+        $query->where(function($q) use ($search) {
+            $searchLower = strtolower($search);
+            $q->whereRaw('LOWER(nama_tahun_ajar) LIKE ?', ["%{$searchLower}%"])
+              ->orWhereRaw('LOWER(kode_tahun_ajar) LIKE ?', ["%{$searchLower}%"]);
         });
-        return Inertia::render('dashboard/tahun_ajar',[
-            'status' => true,
-            'message' => 'tahunAjar retrieved successfully',
-            'data' => [
-                'tahunAjar' => $tahunAjar->items() ?? [],
-            ],
-            'meta' => [
-                'filters' => [
-                    'search' => $search ?? '',
-                    'status' => $status ?? [],
-                ],
-                'pagination' => [
-                    'total' => $tahunAjar->total(),
-                    'currentPage' => $tahunAjar->currentPage(),
-                    'perPage' => $tahunAjar->perPage(),
-                    'lastPage' => $tahunAjar->lastPage(),
-                    'hasMore' => $tahunAjar->currentPage() < $tahunAjar->lastPage(),
-                ],
-            ],
-        ]);
-    
     }
+
+    // Status enum filter (multi-select)
+    if ($request->filled('status')) {
+        $statusArray = is_array($status) ? $status : explode(',', $status);
+        $query->whereIn('status', $statusArray);
+    }
+
+   
+
+    // Date range filter: created_at
+    if ($request->filled('created_at_from') || $request->filled('created_at_to')) {
+        $from = $request->input('created_at_from');
+        $to = $request->input('created_at_to');
+        
+        if ($from) {
+            $query->whereDate('created_at', '>=', $from);
+        }
+        if ($to) {
+            $query->whereDate('created_at', '<=', $to);
+        }
+    }
+
+    $tahunAjar = $query->paginate($perPage, ['*'], 'page', $page);
+
+    $tahunAjar->through(function ($item) {
+        return [
+            ...$item->toArray(),
+        ];
+    });
+
+    return Inertia::render('dashboard/tahun_ajar', [
+        'status' => true,
+        'message' => 'Tahun Ajar retrieved successfully',
+        'data' => [
+            'tahunAjar' => $tahunAjar->items() ?? [],
+        ],
+        'meta' => [
+            'filters' => [
+                'search' => $search ?? '',
+                'status' => $status ?? [],
+                'jurusan' => $request->input('jurusan', []),
+                'kelas' => $request->input('kelas', []),
+                'created_at' => [
+                    'from' => $request->input('created_at_from'),
+                    'to' => $request->input('created_at_to'),
+                ],
+            ],
+            'pagination' => [
+                'total' => $tahunAjar->total(),
+                'currentPage' => $tahunAjar->currentPage(),
+                'perPage' => $tahunAjar->perPage(),
+                'lastPage' => $tahunAjar->lastPage(),
+                'hasMore' => $tahunAjar->currentPage() < $tahunAjar->lastPage(),
+            ],
+        ],
+    ]);
+}
 
 
 
@@ -195,11 +200,12 @@ class TahunAjarController extends Controller
      */
  public function update(TahunAjarUpdateRequest $request, TahunAjar $tahun_ajar)
     {
+        
         try {
             DB::beginTransaction();
-
+            
             $validatedData = $request->validated();
-
+            
           
 
             // Update tahun_ajar data (showcase_images will be handled by observer)

@@ -2,24 +2,23 @@
 import * as React from "react";
 import { router } from "@inertiajs/react";
 import { toast } from "sonner";
-import { Calendar } from "lucide-react";
+import { Users2Icon } from "lucide-react";
 import { EmptyState } from "@/components/ui/fragments/custom-ui/empty-state";
 import { StatusTableActionBar } from "@/components/ui/fragments/custom-ui/table/siswa-action-bar";
 import DeleteDialog from "@/components/ui/fragments/custom-ui/dialog/DeleteDialog";
 import CreateSiswaSheet from "../../sheet/create-sheet/create-siswa-sheet";
 import UpdateSiswaSheet from "../../sheet/update-sheet/update-siswa-sheet";
 import { TableToolbar } from "@/components/ui/fragments/custom-ui/table/TableToolbar";
-
 import { Pagination } from "@/components/ui/fragments/custom-ui/table/data-table-paggination";
-import { useFilters } from "@/hooks/filters/useFilters";
+import { useTableFilters } from "@/hooks/filters/useTableFilters"; // ← UPDATED IMPORT
 import type { pagePropsSiswa } from "@/pages/dashboard/siswa";
-import type { SiswaSchema } from "@/lib/validations/siswaValidate";
-import { StatusOptions } from "@/config/enums/status";
+import type { SiswaSchema } from "@/lib/validations/app/siswaValidate";
 import { cn } from "@/lib/utils";
 import { SiswaTable } from "./components/SiswaTable";
 import { AgamaOptions } from "@/config/enums/agama";
 import { JenisKelaminOptions } from "@/config/enums/jenis-kelamin";
 import { StatusSiswaOptions } from "@/config/enums/StatusSiswa";
+import { DateRange } from "react-day-picker";
 
 export default function SiswaDataTable({ data }: { data: pagePropsSiswa }) {
   const paginatedData = data.meta.pagination;
@@ -32,44 +31,88 @@ export default function SiswaDataTable({ data }: { data: pagePropsSiswa }) {
   const [openUpdate, setOpenUpdate] = React.useState(false);
   const [openDelete, setOpenDelete] = React.useState(false);
   const [deletedId, setDeletedId] = React.useState<number | null>(null);
-  const [currentSiswa, setCurrentSiswa] =
-    React.useState<SiswaSchema | null>(null);
+  const [currentSiswa, setCurrentSiswa] = React.useState<SiswaSchema | null>(null);
   const [processing, setProcessing] = React.useState(false);
 
-  // Filter hook
-  const { filters, setSearch, setEnumFilter, clearFilters, hasActiveFilters } =
-    useFilters({
-      initialFilters,
-      route: "/dashboard/siswa",
-    });
+  // ✅ UPDATED: Use new useTableFilters hook
+  const { 
+    filters, 
+    setSearch, 
+    setEnumFilter, 
+    setDateRange,
+    clearFilters, 
+    hasActiveFilters 
+  } = useTableFilters({
+    initialFilters,
+    route: "/dashboard/siswa",
+  });
 
-  // Filter configurations (reusable for multiple enum columns)
+  // ✅ UPDATED: Filter configurations with type support (enum, relation, date-range)
   const filterConfigs = React.useMemo(
     () => [
       {
-        column: "agama",
-        title: "agama",
-        options: AgamaOptions,
-      },
-      {
         column: "status",
         title: "Status",
+        type: "enum" as const,
         options: StatusSiswaOptions,
+      },
+      {
+        column: "agama",
+        title: "Agama",
+        type: "enum" as const,
+        options: AgamaOptions,
       },
       {
         column: "jenis_kelamin",
         title: "Gender",
+        type: "enum" as const,
         options: JenisKelaminOptions,
       },
-     
-    
-      // Add more filter configs here for other enum columns:
-      // { column: "semester", title: "Semester", options: SemesterOptions },
+      // ✅ NEW: Relation filters (dynamic from backend)
+      {
+        column: "jurusan",
+        title: "Jurusan",
+        type: "relation" as const,
+        endpoint: "/dashboard/jurusan/json_data",
+        perPage: 10,
+      },
+      {
+        column: "kelas",
+        title: "Kelas",
+        type: "relation" as const,
+        endpoint: "/dashboard/kelas/json_data",
+        perPage: 10,
+      },
+      {
+        column: "tahun_ajar",
+        title: "Tahun Ajar",
+        type: "relation" as const,
+        endpoint: "/dashboard/tahun_ajar/json_data",
+        perPage: 10,
+      },
+      // ✅ NEW: Date range filter
+      {
+        column: "created_at",
+        title: "Tanggal Dibuat",
+        type: "date-range" as const,
+      },
     ],
     []
   );
 
-  // Selection logic
+  // ✅ UPDATED: Handle filter changes (enum arrays, date ranges)
+  const handleFilterChange = React.useCallback(
+    (column: string, value: string[] | DateRange | undefined) => {
+      if (Array.isArray(value)) {
+        setEnumFilter(column, value);
+      } else {
+        setDateRange(column, value);
+      }
+    },
+    [setEnumFilter, setDateRange]
+  );
+
+  // Selection logic (unchanged)
   const allIds: number[] = React.useMemo(
     () => siswa.map((item) => item.id!),
     [siswa]
@@ -88,7 +131,7 @@ export default function SiswaDataTable({ data }: { data: pagePropsSiswa }) {
     );
   }, []);
 
-  // CRUD operations
+  // CRUD operations (unchanged)
   const handleEdit = React.useCallback((item: SiswaSchema) => {
     setCurrentSiswa(item);
     setOpenUpdate(true);
@@ -122,7 +165,7 @@ export default function SiswaDataTable({ data }: { data: pagePropsSiswa }) {
     });
   }, []);
 
-  // Bulk actions
+  // Bulk actions (unchanged)
   const [isPending, startTransition] = React.useTransition();
   const [currentAction, setCurrentAction] = React.useState<string | null>(null);
   const [isAnyPending, setIsAnyPending] = React.useState<boolean>(false);
@@ -158,17 +201,9 @@ export default function SiswaDataTable({ data }: { data: pagePropsSiswa }) {
     });
   }, [selectedIds]);
 
-
-  const actions = [
-    "update-status",
-    "update-visiblity",
-    "delete",
-  ] as const;
-    type Action = (typeof actions)[number];
   const onTaskUpdate = React.useCallback(
-    ({ field, value }: { field:  "status"  | "agama" | "jenis_kelamin"; value: string }) => {
+    ({ field, value }: { field: "status" | "agama" | "jenis_kelamin"; value: string }) => {
       setIsAnyPending(true);
-    
       setCurrentAction("update-status");
 
       startTransition(() => {
@@ -221,11 +256,11 @@ export default function SiswaDataTable({ data }: { data: pagePropsSiswa }) {
     return (
       <>
         <EmptyState
-          icons={[Calendar]}
-          title="No Siswa data yet"
-          description="Start by adding your first siswa"
+          icons={[Users2Icon]}
+          title="Belum ada data Siswa"
+          description="Mulailah dengan menambahkan yang pertama"
           action={{
-            label: "Add Siswa",
+            label: "Tambahkan Siswa",
             onClick: () => setOpenCreate(true),
           }}
         />
@@ -241,13 +276,13 @@ export default function SiswaDataTable({ data }: { data: pagePropsSiswa }) {
   return (
     <>
       <div className={cn("flex w-full flex-col gap-3.5")}>
-        {/* Toolbar with search, filters, and create button */}
+        {/* ✅ UPDATED: TableToolbar with new filter support */}
         <TableToolbar
           search={filters.search}
           onSearchChange={setSearch}
           filters={filters}
           filterConfigs={filterConfigs}
-          onFilterChange={setEnumFilter}
+          onFilterChange={handleFilterChange}
           hasActiveFilters={hasActiveFilters}
           onClearFilters={clearFilters}
           onCreateClick={() => setOpenCreate(true)}
@@ -308,7 +343,7 @@ export default function SiswaDataTable({ data }: { data: pagePropsSiswa }) {
       )}
 
       <CreateSiswaSheet
-      trigger
+        trigger
         open={openCreate}
         onOpenChange={() => setOpenCreate(!openCreate)}
       />

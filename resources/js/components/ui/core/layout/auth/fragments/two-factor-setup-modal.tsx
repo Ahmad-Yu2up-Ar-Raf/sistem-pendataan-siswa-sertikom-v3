@@ -21,6 +21,7 @@ import { Check, Copy, ScanLine } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AlertError from '../../../../fragments/custom-ui/alert-error';
 import { Spinner } from '../../../../fragments/shadcn-ui/spinner';
+import { Input } from '@/components/ui/fragments/shadcn-ui/input';
 
 function GridScanIcon() {
     return (
@@ -107,18 +108,18 @@ function TwoFactorSetupStep({
                                 </div>
                             ) : (
                                 <>
-                                    <input
+                                    <Input
                                         type="text"
                                         readOnly
                                         value={manualSetupKey}
                                         className="h-full w-full bg-background p-3 text-foreground outline-none"
                                     />
-                                    <button
+                                    <Button
                                         onClick={() => copy(manualSetupKey)}
                                         className="border-l border-border px-3 hover:bg-muted"
                                     >
                                         <IconComponent className="w-4" />
-                                    </button>
+                                    </Button>
                                 </>
                             )}
                         </div>

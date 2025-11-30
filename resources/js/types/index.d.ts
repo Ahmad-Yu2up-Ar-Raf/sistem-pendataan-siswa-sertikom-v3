@@ -46,7 +46,7 @@ export interface User {
     id: number;
     name: string;
     email: string;
-    avatar?: string;
+    foto?: string;
     email_verified_at: string | null;
     two_factor_enabled?: boolean;
     created_at: string;
@@ -82,14 +82,21 @@ export interface PaginatedData {
 }
 
 
+// Add to existing types/index.d.ts
+
+import { DateRange } from "react-day-picker";
+
 export interface Filters {
     search: string;
     status?: string[] | string;
     agama?: string[] | string;
-    jenis_kelamin? : string[] | string;
-    [key: string]: unknown;
+    jenis_kelamin?: string[] | string;
+    jurusan?: string[] | number[];
+    kelas?: string[] | number[];
+    tahun_ajar?: string[] | number[];
+    created_at?: DateRange;
+    [key: string]: string | string[] | number[] | DateRange | undefined;
 }
-
 
 export interface Meta {
     filters : Filters

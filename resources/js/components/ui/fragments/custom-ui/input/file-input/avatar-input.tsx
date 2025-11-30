@@ -26,6 +26,8 @@ import {
   DialogTitle,
 } from "@/components/ui/fragments/shadcn-ui/dialog";
 import { Slider } from "@/components/ui/fragments/shadcn-ui/slider";
+import { Input } from "../../../shadcn-ui/input";
+import MediaItem from "../../media/MediaItem";
 
 // Define type for pixel crop area
 type Area = { x: number; y: number; width: number; height: number };
@@ -93,9 +95,10 @@ interface AvatarInputProps {
   value?: AvatarData;
   onChange?: (data: AvatarData) => void;
   disabled?: boolean;
+  title?: string;
 }
 
-export default function AvatarInput({ value, onChange, disabled }: AvatarInputProps) {
+export default function AvatarInput({ value, onChange, disabled , title = "Siswa" }: AvatarInputProps) {
   const [
     { files, isDragging },
     {
@@ -221,9 +224,10 @@ export default function AvatarInput({ value, onChange, disabled }: AvatarInputPr
   return (
     <div className="flex flex-col items-center gap-2">
       <div className="relative inline-flex">
-        <button
+        <Button
+          variant={"outline"}
           aria-label={finalImageUrl ? "Change image" : "Upload image"}
-          className="relative flex size-16 items-center justify-center overflow-hidden rounded-full border border-input border-dashed outline-none transition-colors hover:bg-accent/50 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 has-disabled:pointer-events-none has-[img]:border-none has-disabled:opacity-50 data-[dragging=true]:bg-accent/50"
+          className="relative flex size-16 items-center justify-center overflow-hidden rounded-full border border-input border-dashed outline-none transition-colors hover:bg-accent/50 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 has-disabled:pointer-events-none has-[img]:border-none has-disabled:opacity-50 data-[dragging=true]:bg-accent/50 p-0"
           data-dragging={isDragging || undefined}
           onClick={openFileDialog}
           onDragEnter={handleDragEnter}
@@ -234,20 +238,20 @@ export default function AvatarInput({ value, onChange, disabled }: AvatarInputPr
           disabled={disabled}
         >
           {finalImageUrl ? (
-            <img
-              alt="User avatar"
+            <MediaItem
+              
               className="size-full object-cover"
-              height={64}
-              src={finalImageUrl}
-              style={{ objectFit: "cover" }}
-              width={64}
+               
+              webViewLink={finalImageUrl}
+           
+           
             />
           ) : (
             <div aria-hidden="true">
               <CircleUserRoundIcon className="size-4 opacity-60" />
             </div>
           )}
-        </button>
+        </Button>
         
         {finalImageUrl && !disabled && (
           <Button
@@ -260,7 +264,7 @@ export default function AvatarInput({ value, onChange, disabled }: AvatarInputPr
           </Button>
         )}
         
-        <input
+        <Input
           {...getInputProps()}
           aria-label="Upload image file"
           className="sr-only"
@@ -337,7 +341,7 @@ export default function AvatarInput({ value, onChange, disabled }: AvatarInputPr
           </DialogFooter>
         </DialogContent>
       </Dialog>
-          <h1 className=" font-medium tracking-tight text-sm">Foto Siswa</h1>
+          <h1 className=" font-medium tracking-tight text-sm">Foto {title}</h1>
       <p
         aria-live="polite"
         className="mt-2 text-muted-foreground text-xs"

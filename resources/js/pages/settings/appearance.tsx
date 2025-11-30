@@ -5,6 +5,7 @@ import HeadingSmall from '@/components/ui/core/layout/app/fragments/heading-smal
 
 import AppLayout from '@/components/ui/core/layout/app/app-layout';
 import SettingsLayout from '@/components/ui/core/layout/settings/layout';
+import AppearanceToggleTab from '@/components/ui/core/layout/settings/fragments/appearance-tabs';
 
 export default function Appearance() {
     return (
@@ -17,7 +18,7 @@ export default function Appearance() {
                         title="Appearance settings"
                         description="Update your account's appearance settings"
                     />
-                    <AppearanceTabs />
+                    <AppearanceToggleTab />
                 </div>
             </SettingsLayout>
         </AppLayout>

@@ -1,31 +1,26 @@
 "use client"
 
-import * as React from "react"
-import { ChevronsUpDown, LucideIcon, Plus } from "lucide-react"
+ 
+import {  LucideIcon, Plus } from "lucide-react"
 
 
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/fragments/shadcn-ui/sidebar"
+  useSidebar, } from "@/components/ui/fragments/shadcn-ui/sidebar"
 import { Auth } from "@/types"
 
 
-import AppLogoIcon from "./app-logo-icon"
+ 
 import AppLogo from "./app-logo"
 
 
-export function TeamSwitcher({
-  teams,
+export default function SidebarHeaderLogo({
+ 
   user,
 }: {
-  teams: {
-    name: string
-    logo: LucideIcon
-    plan: string
-  }[]
+ 
     user: Auth
 }) {
 
@@ -41,7 +36,7 @@ export function TeamSwitcher({
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">Sundress</span>
-                <span className="truncate text-xs">{user.user.roles}</span>
+                <span className="truncate text-xs capitalize">{user.user.roles[0].replace(/_/g, ' ')}</span>
               </div>
             
             </SidebarMenuButton>

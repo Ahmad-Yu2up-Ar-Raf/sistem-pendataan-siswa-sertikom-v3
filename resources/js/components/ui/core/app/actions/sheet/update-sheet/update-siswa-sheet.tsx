@@ -24,7 +24,7 @@ import {
 
 import SiswaForm from "../../form/siswa-form";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { SiswaSchema } from "@/lib/validations/siswaValidate";
+import { SiswaSchema } from "@/lib/validations/app/siswaValidate";
 import { useSiswaForm } from "@/hooks/actions/useSiswa";
 import { toast } from "sonner";
 
@@ -35,7 +35,7 @@ interface Props {
 }
 
 export default function UpdateSiswaSheet({ siswa, open = false, onOpenChange }: Props) {
-  console.log("siswa update", siswa)
+ 
   const isDesktop = useIsMobile();
   const internalOpen = open
   const setInternalOpen = onOpenChange
@@ -65,7 +65,7 @@ export default function UpdateSiswaSheet({ siswa, open = false, onOpenChange }: 
         <SheetContent className="flex flex-col gap-6 overflow-y-scroll ">
           <SheetHeader className="text-left sm:px-6 space-y-1 bg-background z-30  sticky top-0   p-4 border-b  ">
             <SheetTitle className=" text-lg">
-              Update {" "}
+              Perbarui {" "}
               <Button
                 type="button"
                 variant={"outline"}
@@ -98,7 +98,7 @@ export default function UpdateSiswaSheet({ siswa, open = false, onOpenChange }: 
                   variant="outline"
                 >
                   {isPending && <Spinner className="animate-spin" />}
-                  Cancel
+                 Batalkan
                 </Button>
               </SheetClose>
  
@@ -126,7 +126,7 @@ export default function UpdateSiswaSheet({ siswa, open = false, onOpenChange }: 
       <DrawerContent className="flex flex-col  ">
         <DrawerHeader className="text-left sm:px-6 space-y-1 bg-background    p-4 border-b  ">
           <DrawerTitle className=" text-xl">
-          Update {" "}
+          Perbarui {" "}
             <Button
               type="button"
               variant={"outline"}
@@ -160,7 +160,7 @@ export default function UpdateSiswaSheet({ siswa, open = false, onOpenChange }: 
                 variant="outline"
               >
                 {isPending && <Spinner className="animate-spin" />}
-                Cancel
+               Batalkan
               </Button>
             </DrawerClose>
             <Button

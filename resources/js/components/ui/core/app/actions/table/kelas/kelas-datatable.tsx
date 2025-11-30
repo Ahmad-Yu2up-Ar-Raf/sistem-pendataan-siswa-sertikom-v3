@@ -2,20 +2,22 @@
 import * as React from "react";
 import { router } from "@inertiajs/react";
 import { toast } from "sonner";
-import { Calendar } from "lucide-react";
+import { Users2Icon } from "lucide-react";
 import { EmptyState } from "@/components/ui/fragments/custom-ui/empty-state";
 import { StatusTableActionBar } from "@/components/ui/fragments/custom-ui/table/status-action-bar";
 import DeleteDialog from "@/components/ui/fragments/custom-ui/dialog/DeleteDialog";
 import CreateKelasSheet from "../../sheet/create-sheet/create-kelas-sheet";
 import UpdateKelasSheet from "../../sheet/update-sheet/update-kelas-sheet";
 import { TableToolbar } from "@/components/ui/fragments/custom-ui/table/TableToolbar";
-import { KelasTable } from "./components/KelasTable";
 import { Pagination } from "@/components/ui/fragments/custom-ui/table/data-table-paggination";
-import { useFilters } from "@/hooks/filters/useFilters";
-import type { pagePropsKelas } from "@/pages/dashboard/kelas/index";
-import type { KelasSchema } from "@/lib/validations/kelasValidate";
-import { StatusOptions } from "@/config/enums/status";
+import { useTableFilters } from "@/hooks/filters/useTableFilters"; // ← UPDATED IMPORT
+import type { pagePropsKelas } from "@/pages/dashboard/kelas";
+import type { KelasSchema } from "@/lib/validations/app/kelasValidate";
 import { cn } from "@/lib/utils";
+import { KelasTable } from "./components/KelasTable";
+ 
+import { DateRange } from "react-day-picker";
+import { StatusOptions } from "@/config/enums/status";
 
 export default function KelasDataTable({ data }: { data: pagePropsKelas }) {
   const paginatedData = data.meta.pagination;
@@ -28,30 +30,53 @@ export default function KelasDataTable({ data }: { data: pagePropsKelas }) {
   const [openUpdate, setOpenUpdate] = React.useState(false);
   const [openDelete, setOpenDelete] = React.useState(false);
   const [deletedId, setDeletedId] = React.useState<number | null>(null);
-  const [currentKelas, setCurrentKelas] =
-    React.useState<KelasSchema | null>(null);
+  const [currentKelas, setCurrentKelas] = React.useState<KelasSchema | null>(null);
   const [processing, setProcessing] = React.useState(false);
 
-  // Filter hook
-  const { filters, setSearch, setEnumFilter, clearFilters, hasActiveFilters } =
-    useFilters({
-      initialFilters,
-      route: "/dashboard/kelas",
-    });
+  // ✅ UPDATED: Use new useTableFilters hook
+  const { 
+    filters, 
+    setSearch, 
+    setEnumFilter, 
+    setDateRange,
+    clearFilters, 
+    hasActiveFilters 
+  } = useTableFilters({
+    initialFilters,
+    route: "/dashboard/kelas",
+  });
 
-  // Filter configurations (reusable for multiple enum columns)
+  // ✅ UPDATED: Filter configurations with type support (enum, relation, date-range)
   const filterConfigs = React.useMemo(
     () => [
       {
         column: "status",
         title: "Status",
+        type: "enum" as const,
         options: StatusOptions,
+      },
+      {
+        column: "created_at",
+        title: "Tanggal Dibuat",
+        type: "date-range" as const,
       },
     ],
     []
   );
 
-  // Selection logic
+  // ✅ UPDATED: Handle filter changes (enum arrays, date ranges)
+  const handleFilterChange = React.useCallback(
+    (column: string, value: string[] | DateRange | undefined) => {
+      if (Array.isArray(value)) {
+        setEnumFilter(column, value);
+      } else {
+        setDateRange(column, value);
+      }
+    },
+    [setEnumFilter, setDateRange]
+  );
+
+  // Selection logic (unchanged)
   const allIds: number[] = React.useMemo(
     () => kelas.map((item) => item.id!),
     [kelas]
@@ -70,7 +95,7 @@ export default function KelasDataTable({ data }: { data: pagePropsKelas }) {
     );
   }, []);
 
-  // CRUD operations
+  // CRUD operations (unchanged)
   const handleEdit = React.useCallback((item: KelasSchema) => {
     setCurrentKelas(item);
     setOpenUpdate(true);
@@ -104,7 +129,7 @@ export default function KelasDataTable({ data }: { data: pagePropsKelas }) {
     });
   }, []);
 
-  // Bulk actions
+  // Bulk actions (unchanged)
   const [isPending, startTransition] = React.useTransition();
   const [currentAction, setCurrentAction] = React.useState<string | null>(null);
   const [isAnyPending, setIsAnyPending] = React.useState<boolean>(false);
@@ -141,7 +166,7 @@ export default function KelasDataTable({ data }: { data: pagePropsKelas }) {
   }, [selectedIds]);
 
   const onTaskUpdate = React.useCallback(
-    ({ field, value }: { field: "status"; value: string }) => {
+    ({ field, value }: { field: "status" | "agama" | "jenis_kelamin"; value: string }) => {
       setIsAnyPending(true);
       setCurrentAction("update-status");
 
@@ -195,11 +220,11 @@ export default function KelasDataTable({ data }: { data: pagePropsKelas }) {
     return (
       <>
         <EmptyState
-          icons={[Calendar]}
-          title="No Kelas data yet"
-          description="Start by adding your first kelas"
+          icons={[Users2Icon]}
+          title="Belum ada data Kelas"
+          description="Mulailah dengan menambahkan yang pertama"
           action={{
-            label: "Add Kelas",
+            label: "Tambahkan Kelas",
             onClick: () => setOpenCreate(true),
           }}
         />
@@ -215,13 +240,13 @@ export default function KelasDataTable({ data }: { data: pagePropsKelas }) {
   return (
     <>
       <div className={cn("flex w-full flex-col gap-3.5")}>
-        {/* Toolbar with search, filters, and create button */}
+        {/* ✅ UPDATED: TableToolbar with new filter support */}
         <TableToolbar
           search={filters.search}
           onSearchChange={setSearch}
           filters={filters}
           filterConfigs={filterConfigs}
-          onFilterChange={setEnumFilter}
+          onFilterChange={handleFilterChange}
           hasActiveFilters={hasActiveFilters}
           onClearFilters={clearFilters}
           onCreateClick={() => setOpenCreate(true)}
@@ -282,7 +307,7 @@ export default function KelasDataTable({ data }: { data: pagePropsKelas }) {
       )}
 
       <CreateKelasSheet
-      trigger
+        trigger
         open={openCreate}
         onOpenChange={() => setOpenCreate(!openCreate)}
       />

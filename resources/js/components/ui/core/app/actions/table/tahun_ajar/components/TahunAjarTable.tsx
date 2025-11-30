@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/fragments/shadcn-ui/table";
 import { Checkbox } from "@/components/ui/fragments/shadcn-ui/checkbox";
 import { TahunAjarTableRow } from "./TahunAjarTableRow";
-import type { TahunAjarSchema } from "@/lib/validations/tahunAjarValidate";
+import type { TahunAjarSchema } from "@/lib/validations/app/tahunAjarValidate";
 
 
 interface TahunAjarTableProps {
@@ -32,27 +32,6 @@ export function TahunAjarTable({
   onDelete,
   isAllSelected,
 }: TahunAjarTableProps) {
-  if (data.length === 0) {
-    return (
-      <main className="overflow-hidden rounded-xl border">
-        <Table>
-          <TableCaption className="sr-only">No data available.</TableCaption>
-          <TableHeader className="bg-muted/20">
-            <TableRow>
-              <TableHead className="sr-only">Select</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow>
-              <TableCell colSpan={10} className="h-24 text-center">
-                No results.
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </main>
-    );
-  }
 
   return (
     <main className="overflow-hidden rounded-xl border">
@@ -62,7 +41,9 @@ export function TahunAjarTable({
         </TableCaption>
         <TableHeader className="bg-muted/20">
           <TableRow>
-            <TableHead>
+            <TableHead
+            typeColumn="checkbox"
+            >
               <Checkbox
                 checked={isAllSelected}
                 onCheckedChange={onSelectAll}
@@ -78,11 +59,17 @@ export function TahunAjarTable({
             <TableHead>Total Kelas</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Dibuat Pada</TableHead>
-            <TableHead>Action</TableHead>
+              <TableHead
+                             typeColumn="sticky"
+                       >
+                         <span className="sr-only">
+                           Action
+                           </span>
+                           </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((item) => (
+          {data.length > 0 ? data.map((item) => (
             <TahunAjarTableRow
               key={item.id}
               item={item}
@@ -91,7 +78,13 @@ export function TahunAjarTable({
               onEdit={() => onEdit(item)}
               onDelete={() => onDelete(item.id!)}
             />
-          ))}
+          )) : (
+             <TableRow>
+              <TableCell colSpan={10} className="h-24 text-center">
+                No results.
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     </main>

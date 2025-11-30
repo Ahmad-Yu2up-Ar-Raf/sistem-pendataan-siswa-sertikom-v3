@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/fragments/shadcn-ui/table";
 import { Checkbox } from "@/components/ui/fragments/shadcn-ui/checkbox";
 import { JurusanTableRow } from "./JurusanTableRow";
-import type { JurusanSchema } from "@/lib/validations/jurusanValidate";
+import type { JurusanSchema } from "@/lib/validations/app/jurusanValidate";
 
 
 interface JurusanTableProps {
@@ -32,27 +32,7 @@ export function JurusanTable({
   onDelete,
   isAllSelected,
 }: JurusanTableProps) {
-  if (data.length === 0) {
-    return (
-      <main className="overflow-hidden rounded-xl border">
-        <Table>
-          <TableCaption className="sr-only">No data available.</TableCaption>
-          <TableHeader className="bg-muted/20">
-            <TableRow>
-              <TableHead className="sr-only">Select</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow>
-              <TableCell colSpan={10} className="h-24 text-center">
-                No results.
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </main>
-    );
-  }
+  
 
   return (
     <main className="overflow-hidden rounded-xl border">
@@ -62,7 +42,8 @@ export function JurusanTable({
         </TableCaption>
         <TableHeader className="bg-muted/20">
           <TableRow>
-            <TableHead>
+            <TableHead
+            typeColumn="checkbox">
               <Checkbox
                 checked={isAllSelected}
                 onCheckedChange={onSelectAll}
@@ -77,11 +58,17 @@ export function JurusanTable({
             <TableHead>Total Kelas</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Dibuat Pada</TableHead>
-            <TableHead>Action</TableHead>
+             <TableHead
+                            typeColumn="sticky"
+                      >
+                        <span className="sr-only">
+                          Action
+                          </span>
+                          </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((item) => (
+          {data.length > 0 ? data.map((item) => (
             <JurusanTableRow
               key={item.id}
               item={item}
@@ -90,7 +77,13 @@ export function JurusanTable({
               onEdit={() => onEdit(item)}
               onDelete={() => onDelete(item.id!)}
             />
-          ))}
+             )) : (
+             <TableRow>
+              <TableCell colSpan={10} className="h-24 text-center">
+                No results.
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     </main>

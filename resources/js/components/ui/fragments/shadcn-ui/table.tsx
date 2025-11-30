@@ -63,7 +63,9 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
   )
 }
 
-function TableHead({ className, ...props }: React.ComponentProps<"th">) {
+function TableHead({ className, typeColumn, ...props }: React.ComponentProps<"th"> & {
+  typeColumn ?: "normal" | "sticky" | "checkbox";
+}) {
   return (
     <th
       data-slot="table-head"
@@ -71,23 +73,58 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
         "text-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
         className
       )}
+       style={{
+    right: typeColumn == "sticky" ? "0px" : "auto",
+
+         
+             
+              width: (typeColumn == "checkbox" || typeColumn == "sticky") ?   "40px" :  "150px",
+              zIndex: typeColumn == "sticky" ? 1 : 0,
+        opacity: typeColumn == "sticky" ? 0.97 : 1,
+        position: typeColumn == "sticky" ? "sticky" : "relative",
+        background: "hsl(var(--background))",
+    
+      ...props.style
+        
+      }}
       {...props}
     />
   )
 }
 
-function TableCell({ className, ...props }: React.ComponentProps<"td">) {
+
+
+function TableCell({ className, typeColumn = "normal", ...props }: React.ComponentProps<"td"> & {
+  typeColumn ?: "normal" | "sticky" | "checkbox";
+}) {
   return (
     <td
       data-slot="table-cell"
+ 
       className={cn(
         "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
         className
       )}
+       
+   style={{
+      right: typeColumn == "sticky" ? "0px" : "auto",
+
+         
+             
+            width: (typeColumn == "checkbox" || typeColumn == "sticky") ?   "40px" :  "150px",
+              zIndex: typeColumn == "sticky" ? 1 : 0,
+        opacity: typeColumn == "sticky" ? 0.97 : 1,
+        position: typeColumn == "sticky" ? "sticky" : "relative",
+        background: "hsl(var(--background))",
+    
+        ...props.style
+        
+      }}
       {...props}
     />
   )
 }
+
 
 function TableCaption({
   className,

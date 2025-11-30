@@ -13,7 +13,7 @@ import {
   Users2Icon,
 } from "lucide-react";
 import { RowActions } from "../../../../../../fragments/custom-ui/table/RowActions";
-import type { SiswaSchema } from "@/lib/validations/siswaValidate";
+import type { SiswaSchema } from "@/lib/validations/app/siswaValidate";
 import { Status } from "@/config/enums/status";
 import { getAgamaIcon, getJenisKelaminIcon, getStatusIcon, getStatusSiswaIcon } from "@/lib/utils/index";
 import { cn } from "@/lib/utils";
@@ -22,6 +22,7 @@ import { useInitials } from "@/hooks/use-initials";
 import { Agama } from "@/config/enums/agama";
 import { JenisKelamin } from "@/config/enums/jenis-kelamin";
 import { StatusSiswa } from "@/config/enums/StatusSiswa";
+import { batasiHuruf, batasiKata } from "@/hooks/useWord";
 interface SiswaTableRowProps {
   item: SiswaSchema;
   isSelected: boolean;
@@ -44,9 +45,12 @@ export function SiswaTableRow({
   const IconAgama = getAgamaIcon(agama);
   const IconGender = getJenisKelaminIcon(jenis_kelamin);
   const getInitial = useInitials()
+  const batasiHurufNama = batasiKata(item.nama_lengkap, 2)
   return (
     <TableRow className={cn(isSelected && "bg-muted")}>
-      <TableCell>
+      <TableCell
+        typeColumn="checkbox"
+      >
         <Checkbox
           checked={isSelected}
           onCheckedChange={onSelect}
@@ -54,7 +58,11 @@ export function SiswaTableRow({
           className="mx-3 mr-4 translate-y-0.5"
         />
       </TableCell>
-       <TableCell className="  flex items-center gap-5" 
+       <TableCell 
+       style={{
+        width: "220px"
+       }}
+       className="  flex items-center gap-3" 
               
    
               > 
@@ -66,7 +74,7 @@ export function SiswaTableRow({
                                           </AvatarFallback>
                                       </Avatar>
               <h4 className=" font-medium">
-                {item.nama_lengkap}
+                {batasiHurufNama}
                 </h4>
               </TableCell>
    
@@ -76,26 +84,26 @@ export function SiswaTableRow({
    
       <TableCell>
         <Badge icon={PencilRuler} variant="outline" className="py-1 [&>svg]:size-3.5">
-          {item.jurusan?.nama_jurusan}
+          {item.jurusan?.nama_jurusan || "N/A"}
         </Badge>
       </TableCell>
    
       <TableCell>
         <Badge icon={CalendarCheck} variant="outline" className="py-1 [&>svg]:size-3.5">
-          {item.tahun_masuk?.nama_tahun_ajar}
+          {item.tahun_masuk?.nama_tahun_ajar || "N/A"}
         </Badge>
       </TableCell>
      
       <TableCell>
         <Badge icon={DoorOpen} variant="outline" className="py-1 [&>svg]:size-3.5">
-          {item.kelas?.nama_kelas}
+          {item.kelas?.nama_kelas || "N/A"}
         </Badge>
       </TableCell>
-      <TableCell>
+      {/* <TableCell>
         <Badge icon={Globe} variant="outline" className="py-1 [&>svg]:size-3.5">
           {item.asal_negara}
         </Badge>
-      </TableCell>
+      </TableCell> */}
       <TableCell>
         <Badge icon={Map} variant="outline" className="py-1 [&>svg]:size-3.5">
           {item.tempat_lahir}
@@ -113,7 +121,7 @@ export function SiswaTableRow({
       </TableCell>
       <TableCell>
         <Badge icon={IconGender} variant="outline" className="py-1 [&>svg]:size-3.5">
-          {item.jenis_kelamin}
+          { item.jenis_kelamin.replace(/_/g, ' ')}
         </Badge>
       </TableCell>
       <TableCell>
@@ -121,14 +129,20 @@ export function SiswaTableRow({
           ? new Date(item.tanggal_lahir).toLocaleDateString()
           : "N/A"}
       </TableCell>
-      <TableCell>
+      <TableCell
+      
+    
+      >
         {item.created_at
           ? new Date(item.created_at).toLocaleDateString()
           : "N/A"}
       </TableCell>
-      <TableCell>
+      <TableCell
+    typeColumn="sticky"
+      >
         <RowActions onEdit={onEdit} onDelete={onDelete} />
       </TableCell>
+     
     </TableRow>
   );
 }

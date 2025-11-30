@@ -3,7 +3,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useForm, UseFormReturn, SubmitHandler } from "react-hook-form";
 import { router } from "@inertiajs/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { jurusanSchema, JurusanSchema } from "@/lib/validations/jurusanValidate";
+import { jurusanSchema, JurusanSchema } from "@/lib/validations/app/jurusanValidate";
 
 export type UseJurusanFormOptions = {
   /**
@@ -137,20 +137,10 @@ export function useJurusanForm(
 
       const handleError = (errors?: unknown) => {
         // map server errors to form errors when possible
-        if (errors && typeof errors === "object" && !Array.isArray(errors)) {
+       if (errors && typeof errors === "object" && !Array.isArray(errors)) {
           Object.entries(errors as Record<string, unknown>).forEach(([key, val]) => {
             const message = Array.isArray(val) ? (val as string[]).join(", ") : String(val ?? "Terjadi kesalahan.");
-            try {
-              // setError may accept dot-paths; cast to any to avoid TS strictness here
-              form.setError(key as any, { type: "server", message });
-            } catch {
-              // fallback: set a global form error under _form if component reads it
-              try {
-                form.setError("_form" as any, { type: "server", message });
-              } catch {
-                // swallow
-              }
-            }
+            console.log(message)
           });
         }
 

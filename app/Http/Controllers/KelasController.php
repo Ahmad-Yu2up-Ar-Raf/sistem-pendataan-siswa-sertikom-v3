@@ -29,7 +29,7 @@ class KelasController extends Controller
         
 
     
-        $query = Kelas::query()->orderByDesc('updated_at')->with('jurusan')->with('tahunAjar')->withCount('siswasAktif')->withCount('siswa');
+        $query = Kelas::query()->orderByDesc('updated_at')->with(['jurusan' , 'tahunAjar'])->withCount(['siswasAktif' , 'siswa']);
     
         
    
@@ -44,17 +44,23 @@ class KelasController extends Controller
         }
     
      
-        if ($status) {
-            if (is_array($status)) {
-                $query->whereIn('status', $status);
-            } elseif (is_string($status)) {
-                $statusArray = explode(',', $status);
-                $query->whereIn('status', $statusArray);
-            }
-        }
-    
+          if ($request->filled('status')) {
+        $statusArray = is_array($status) ? $status : explode(',', $status);
+        $query->whereIn('status', $statusArray);
+    }
+
    
-    
+          if ($request->filled('created_at_from') || $request->filled('created_at_to')) {
+        $from = $request->input('created_at_from');
+        $to = $request->input('created_at_to');
+        
+        if ($from) {
+            $query->whereDate('created_at', '>=', $from);
+        }
+        if ($to) {
+            $query->whereDate('created_at', '<=', $to);
+        }
+    }
         $kelas = $query
             ->paginate($perPage, ['*'], 'page', $page);
     
@@ -271,7 +277,7 @@ class KelasController extends Controller
 
     public function statusUpdate(Request $request)
     {
-        dd($request->all());
+   
         $ids = $request->input('ids');
         $value = $request->input('value');
         $colum = $request->input('colum');

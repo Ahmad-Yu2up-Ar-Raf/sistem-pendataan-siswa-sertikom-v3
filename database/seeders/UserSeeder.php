@@ -10,14 +10,10 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Log;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Assumptions / defaults:
-     * - USERS_COUNT: number of users with nested tahun_ajars/kelas/siswa
-     * - each user will own TAHUN_PER_USER tahun ajar, each tahun has KELAS_PER_TAHUN kelas, each kelas has SISWA_PER_KELAS siswa
-     */
     public function run(): void
     {
         $USERS_COUNT = 6;
@@ -27,9 +23,6 @@ class UserSeeder extends Seeder
 
         DB::transaction(function () use ($USERS_COUNT, $TAHUN_PER_USER, $KELAS_PER_TAHUN, $SISWA_PER_KELAS) {
             Schema::disableForeignKeyConstraints();
-
-            // optional truncation for idempotency (be conservative)
-            // DB::table('users')->truncate();
 
             User::factory()
                 ->count($USERS_COUNT)
@@ -49,11 +42,38 @@ class UserSeeder extends Seeder
                 )
                 ->create()
                 ->each(function ($user) {
-                    // assign a role if Spatie or similar exists; wrap if not
                     try {
-                        $user->assignRole(RoleEnums::SuperAdmin->value);
+                        // PENTING: Cek dulu role-nya ada gak
+                        $roleName = RoleEnums::SuperAdmin->value;
+                        
+                        // Verify role exists
+                        $role = \Spatie\Permission\Models\Role::where('name', $roleName)
+                            ->where('guard_name', 'web')
+                            ->first();
+                        
+                        if (!$role) {
+                            Log::error("Role not found: {$roleName}");
+                            throw new \Exception("Role {$roleName} not found in database");
+                        }
+                        
+                        // Assign role
+                        $user->assignRole($roleName);
+                        
+                        Log::info("Role assigned to user", [
+                            'user_id' => $user->id,
+                            'role' => $roleName
+                        ]);
+                        
                     } catch (\Throwable $e) {
-                        // role package not available in this environment — skip
+                        // JANGAN SKIP! Log error-nya
+                        Log::error('Failed to assign role to user', [
+                            'user_id' => $user->id,
+                            'error' => $e->getMessage(),
+                            'trace' => $e->getTraceAsString()
+                        ]);
+                        
+                        // Rethrow biar seeder fail (lebih baik fail daripada silent)
+                        throw $e;
                     }
                 });
 

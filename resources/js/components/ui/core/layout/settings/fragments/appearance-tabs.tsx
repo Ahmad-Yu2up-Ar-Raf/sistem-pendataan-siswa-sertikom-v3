@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/fragments/shadcn-ui/button';
 import { Appearance, useAppearance } from '@/hooks/use-appearance';
 import { cn } from '@/lib/utils';
 import { LucideIcon, Monitor, Moon, Sun } from 'lucide-react';
@@ -24,7 +25,7 @@ export default function AppearanceToggleTab({
             {...props}
         >
             {tabs.map(({ value, icon: Icon, label }) => (
-                <button
+                <Button
                     key={value}
                     onClick={() => updateAppearance(value)}
                     className={cn(
@@ -36,7 +37,7 @@ export default function AppearanceToggleTab({
                 >
                     <Icon className="-ml-1 h-4 w-4" />
                     <span className="ml-1.5 text-sm">{label}</span>
-                </button>
+                </Button>
             ))}
         </div>
     );

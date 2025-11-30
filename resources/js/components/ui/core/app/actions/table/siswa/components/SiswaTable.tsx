@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/fragments/shadcn-ui/table";
 import { Checkbox } from "@/components/ui/fragments/shadcn-ui/checkbox";
 import { SiswaTableRow } from "./SiswaTableRow";
-import type { SiswaSchema } from "@/lib/validations/siswaValidate";
+import type { SiswaSchema } from "@/lib/validations/app/siswaValidate";
 
 
 interface SiswaTableProps {
@@ -32,27 +32,7 @@ export function SiswaTable({
   onDelete,
   isAllSelected,
 }: SiswaTableProps) {
-  if (data.length === 0) {
-    return (
-      <main className="overflow-hidden rounded-xl border">
-        <Table>
-          <TableCaption className="sr-only">No data available.</TableCaption>
-          <TableHeader className="bg-muted/20">
-            <TableRow>
-              <TableHead className="sr-only">Select</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow>
-              <TableCell colSpan={10} className="h-24 text-center">
-                No results.
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </main>
-    );
-  }
+  
 
   return (
     <main className="overflow-hidden rounded-xl border">
@@ -62,7 +42,10 @@ export function SiswaTable({
         </TableCaption>
         <TableHeader className="bg-muted/20">
           <TableRow>
-            <TableHead>
+            <TableHead
+            
+            typeColumn="checkbox"
+            >
               <Checkbox
                 checked={isAllSelected}
                 onCheckedChange={onSelectAll}
@@ -75,18 +58,24 @@ export function SiswaTable({
             <TableHead>Jurusan</TableHead>
             <TableHead>Tahun Ajar</TableHead>
             <TableHead>Kelas</TableHead>
-            <TableHead>Warga Negara</TableHead>
+            {/* <TableHead>Warga Negara</TableHead> */}
             <TableHead>Asal Kota</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Agama</TableHead>
             <TableHead>Kelamin</TableHead>
             <TableHead>Tanggal Lahir</TableHead>
             <TableHead>Dibuat Pada</TableHead>
-            <TableHead className=" sr-only">Action</TableHead>
+            <TableHead 
+            typeColumn="sticky"
+      >
+              
+              <span       className=" sr-only">
+                Action
+                </span></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody className=" relative">
-          {data.map((item) => (
+              {data.length > 0 ? data.map((item) => (
             <SiswaTableRow
               key={item.id}
               item={item}
@@ -95,7 +84,13 @@ export function SiswaTable({
               onEdit={() => onEdit(item)}
               onDelete={() => onDelete(item.id!)}
             />
-          ))}
+           )) : (
+             <TableRow>
+              <TableCell colSpan={13} className="h-24 text-center">
+                No results.
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     </main>
