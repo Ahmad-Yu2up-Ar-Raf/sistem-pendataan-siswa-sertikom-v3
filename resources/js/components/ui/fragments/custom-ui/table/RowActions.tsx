@@ -8,14 +8,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/fragments/shadcn-ui/dropdown-menu";
 import { Button } from "@/components/ui/fragments/shadcn-ui/button";
-import { EllipsisIcon } from "lucide-react";
+import { EllipsisIcon, LucideIcon } from "lucide-react";
 
 interface RowActionsProps {
   onEdit: () => void;
   onDelete: () => void;
+  Icon?: LucideIcon
 }
 
-export function RowActions({ onEdit, onDelete }: RowActionsProps) {
+export function RowActions({ onEdit, onDelete , Icon = EllipsisIcon   }: RowActionsProps) {
   return (
     <DropdownMenu modal={false}  >
       <DropdownMenuTrigger asChild className="sticky right-2">
@@ -24,7 +25,7 @@ export function RowActions({ onEdit, onDelete }: RowActionsProps) {
           variant="ghost"
           className="flex size-8 p-0 sticky right-2 data-[state=open]:bg-muted"
         >
-          <EllipsisIcon className="size-4" aria-hidden="true" />
+          <Icon className="size-4" aria-hidden="true" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40">

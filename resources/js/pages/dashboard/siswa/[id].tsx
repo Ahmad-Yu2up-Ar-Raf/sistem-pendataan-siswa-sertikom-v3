@@ -20,7 +20,7 @@ export type pagePropsSiswa = ApiResponse & {
 
 
 
-    kelas_detail : KelasDetailSchema[]
+    kelas_detail : KelasDetailSchema[] 
   }
 }
 

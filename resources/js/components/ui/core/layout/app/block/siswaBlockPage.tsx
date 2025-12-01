@@ -11,34 +11,53 @@ import DeleteDialog from '@/components/ui/fragments/custom-ui/dialog/DeleteDialo
 import UpdateSiswaSheet from '../../../app/actions/sheet/update-sheet/update-siswa-sheet';
 import RiwayatCard from '@/components/ui/fragments/custom-ui/card/history-card';
 import CreateKelasDetailSheet from '../../../app/actions/sheet/create-sheet/create-kelas-detail-sheet';
+import { KelasDetailSchema } from '@/lib/validations/app/kelasDetailValidate';
+import UpdateKelasDetailSheet from '../../../app/actions/sheet/update-sheet/update-kelas-detail-sheet';
 
  function SiswaBlockPage({ pageProps}: { pageProps : pagePropsSiswa} ) {
     const [openCreate, setOpenCreate] = React.useState(false);
   const [openUpdate, setOpenUpdate] = React.useState(false);
+   const [currentHistory, setCurrentHistory] = React.useState<KelasDetailSchema | null>(null);
+    const [openUpdateHistory, setOpenUpdateUpdateHistory] = React.useState(false);
+    const [openDeleteHistory, setOpenDeleteHistory] = React.useState(false);
+    const [deletedId, setDeletedId] = React.useState<number | null>(null);
     const [openDelete, setOpenDelete] = React.useState(false);
      const [processing, setProcessing] = React.useState(false);
-    const siswa = pageProps.data.siswa
-      const getInitial = useInitials()
-        const handleDelete = React.useCallback((taskId: number) => {
+       // ✅ FIX: Safe edit handler with validation
+       const handleEdit = React.useCallback((item: KelasDetailSchema) => {
+         setCurrentHistory(item);
+         setOpenUpdateUpdateHistory(true);
+       }, []);
+       
+ const handleUpdateClose = React.useCallback((open: boolean) => {
+    setOpenUpdateUpdateHistory(open);
+    if (!open) {
+ 
+      setTimeout(() => {
+        setCurrentHistory(null);
+      }, 300);
+    }
+  }, []);
+  const handleDeleteHistory = React.useCallback((taskId: number) => {
     setProcessing(true);
-    toast.loading("Deleting Siswa...", { id: "siswa-delete" });
+    toast.loading("Deleting History...", { id: "history-delete" });
 
-    router.delete(`/dashboard/siswa/destroy`, {
+    router.delete(`/dashboard/kelasDetail/destroy`, {
       data: { ids: [taskId] },
       preserveScroll: true,
       preserveState: true,
       onSuccess: () => {
-        toast.success("Siswa deleted successfully", {
-          id: "siswa-delete",
+        toast.success("History deleted successfully", {
+          id: "history-delete",
         });
         setOpenDelete(false);
-     
+        setDeletedId(null);
         router.reload();
       },
       onError: (errors: Record<string, string>) => {
         console.error("Delete error:", errors);
-        toast.error(errors?.message || "Failed to delete the siswa", {
-          id: "siswa-delete",
+        toast.error(errors?.message || "Failed to delete the history", {
+          id: "history-delete",
         });
       },
       onFinish: () => {
@@ -46,6 +65,37 @@ import CreateKelasDetailSheet from '../../../app/actions/sheet/create-sheet/crea
       },
     });
   }, []);
+
+
+    const siswa = pageProps.data.siswa
+      const getInitial = useInitials()
+  //       const handleDelete = React.useCallback((taskId: number) => {
+  //   setProcessing(true);
+  //   toast.loading("Deleting Siswa...", { id: "siswa-delete" });
+
+  //   router.delete(`/dashboard/siswa/destroy`, {
+  //     data: { ids: [taskId] },
+  //     preserveScroll: true,
+  //     preserveState: true,
+  //     onSuccess: () => {
+  //       toast.success("Siswa deleted successfully", {
+  //         id: "siswa-delete",
+  //       });
+  //       setOpenDelete(false);
+     
+  //       router.reload();
+  //     },
+  //     onError: (errors: Record<string, string>) => {
+  //       console.error("Delete error:", errors);
+  //       toast.error(errors?.message || "Failed to delete the siswa", {
+  //         id: "siswa-delete",
+  //       });
+  //     },
+  //     onFinish: () => {
+  //       setProcessing(false);
+  //     },
+  //   });
+  // }, []);
    return (
     <>
     <main className=' space-y-6'>
@@ -59,24 +109,36 @@ import CreateKelasDetailSheet from '../../../app/actions/sheet/create-sheet/crea
    
 
     {/* <DetailCard dataSiswa={siswa}/> */}
-    <RiwayatCard  Siswa={siswa} setOpen={setOpenCreate} kelas_details={pageProps.data.kelas_detail}      />
- 
     </main>
+    <RiwayatCard   onEdit={handleEdit}
+          onDelete={(id) => {
+            setOpenDeleteHistory(true);
+            setDeletedId(id);
+          }} Siswa={siswa} setOpen={setOpenCreate} kelas_details={pageProps.data.kelas_detail}      />
+
+    {currentHistory?.id && (
+          <UpdateKelasDetailSheet
+            kelasDetail={currentHistory}
+            open={openUpdateHistory}
+            onOpenChange={handleUpdateClose}
+          />
+        )}
              <CreateKelasDetailSheet
              siswa={siswa}
                     trigger={true}
                     open={openCreate}
                     onOpenChange={() => setOpenCreate(!openCreate)}
                   />
+                     {deletedId && (
             <DeleteDialog
-              open={openDelete}
-              handledeDelete={handleDelete}
+              open={openDeleteHistory}
+              handledeDelete={handleDeleteHistory}
               processing={processing}
-              id={siswa.id!}
+              id={deletedId}
               trigger={false}
-              onOpenChange={setOpenDelete}
+              onOpenChange={setOpenDeleteHistory}
             />
-        
+                     )}
              <UpdateSiswaSheet
                siswa={siswa}
                open={openUpdate}

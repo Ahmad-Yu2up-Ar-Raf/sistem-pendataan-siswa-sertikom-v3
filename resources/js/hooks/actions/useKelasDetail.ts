@@ -92,7 +92,7 @@ export function useKelasDetailForm(
     (values) => {
       // clear previous errors
       form.clearErrors();
-
+      console.log(values)
       setIsPending(true);
 
       const payload = values;

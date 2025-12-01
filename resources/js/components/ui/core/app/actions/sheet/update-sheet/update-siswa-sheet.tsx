@@ -39,13 +39,7 @@ export default function UpdateSiswaSheet({ siswa, open = false, onOpenChange }: 
   const internalOpen = open;
   const setInternalOpen = onOpenChange;
 
-  // ✅ Debug: Log siswa data when component mounts or siswa changes
-  React.useEffect(() => {
-    if (siswa) {
-      console.log("📋 Siswa data received:", siswa);
-    }
-  }, [siswa]);
-
+ 
   // ✅ Validate siswa.id exists
   React.useEffect(() => {
     if (open && !siswa?.id) {
@@ -84,26 +78,8 @@ export default function UpdateSiswaSheet({ siswa, open = false, onOpenChange }: 
     method,
   });
 
-  // ✅ Debug: Log form state changes
-  React.useEffect(() => {
-    if (open && form) {
-      const subscription = form.watch((value) => {
-        console.log("📝 Form state changed:", value);
-      });
-      return () => subscription.unsubscribe();
-    }
-  }, [form, open]);
-
-  // ✅ Debug: Log form errors
-  React.useEffect(() => {
-    if (open) {
-      const errors = form.formState.errors;
-      if (Object.keys(errors).length > 0) {
-        console.log("❌ Form validation errors:", errors);
-      }
-    }
-  }, [form.formState.errors, open]);
-
+ 
+ 
   // Don't render if no valid siswa
   if (!siswa?.id) {
     return null;

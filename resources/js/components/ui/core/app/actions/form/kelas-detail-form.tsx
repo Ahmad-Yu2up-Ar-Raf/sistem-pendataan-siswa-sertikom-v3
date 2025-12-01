@@ -105,22 +105,7 @@ export default function SiswaForm<T extends FieldValues>({
            
 
         
-        
-        
-          </section>
-
-          {/* Bidang Opsional */}
-          <section className="space-y-10 px-4 sm:px-6">
-            <header>
-              <h1 className="text-lg font-semibold">Bidang Opsional</h1>
-              <p className="text-sm text-muted-foreground">
-                Field opsional yang tidak wajib diisi
-              </p>
-            </header>
-
-            <section className="space-y-10">
-
-             <FormField
+            <FormField
                           control={form.control}
                           name={"tanggal_masuk" as FieldPath<T>}
                           render={({ field }) => (
@@ -163,6 +148,21 @@ export default function SiswaForm<T extends FieldValues>({
                             </FormItem>
                           )}
                         />
+        
+          </section>
+
+          {/* Bidang Opsional */}
+          <section className="space-y-10 px-4 sm:px-6">
+            <header>
+              <h1 className="text-lg font-semibold">Bidang Opsional</h1>
+              <p className="text-sm text-muted-foreground">
+                Field opsional yang tidak wajib diisi
+              </p>
+            </header>
+
+            <section className="space-y-10">
+
+         
             
                         <FormField
                           control={form.control}

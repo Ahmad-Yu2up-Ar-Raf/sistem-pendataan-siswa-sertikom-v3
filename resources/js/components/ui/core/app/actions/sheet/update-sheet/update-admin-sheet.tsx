@@ -57,7 +57,7 @@ export default function UpdateUserSheet({ user, open = false, onOpenChange }: Pr
     route,
     method: user?.id ? "put" : "post", // if no id treat as create fallback
   });
-  console.log("Rendering UpdateUserSheet for user:", user);
+  
   if (!isDesktop) {
     return (
       <Sheet open={internalOpen} onOpenChange={setInternalOpen} modal={true}>

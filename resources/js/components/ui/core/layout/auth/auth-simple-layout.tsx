@@ -75,7 +75,7 @@ const AuthLayoutTemplate = ({
                 <div className="relative dark:border-l hidden bg-muted lg:block">
        <MediaItem
        
-          webViewLink="https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          webViewLink="https://images.unsplash.com/photo-1600792170156-7fdc12ed6733?q=80&w=1167&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           
           
           className="  "

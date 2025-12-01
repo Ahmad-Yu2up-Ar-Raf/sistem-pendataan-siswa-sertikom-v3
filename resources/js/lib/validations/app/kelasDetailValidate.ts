@@ -17,10 +17,8 @@ export const kelasDetailSchema = z.object({
       .min(1, "Tahun ajar wajib dipilih"),
      tanggal_masuk: z.coerce.date({
       message: "Tanggal mulai wajib diisi",
-    }).optional(),
-    tanggal_keluar: z.coerce.date({
-      message: "Tanggal selesai wajib diisi",
-    }).optional(),
+    }) ,
+    tanggal_keluar: z.coerce.date().optional(),
     status_kelas: z.string(),
     semester: z.string().optional().nullable(),
     no_urut_absen: z.coerce

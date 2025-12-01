@@ -1,4 +1,4 @@
-import { GitCompare, GitFork, GitMerge, GitPullRequest, HistoryIcon } from "lucide-react";
+import { EllipsisVertical, GitCompare, GitFork, GitMerge, GitPullRequest, HistoryIcon } from "lucide-react";
 
 import {
   Timeline,
@@ -14,6 +14,8 @@ import { KelasDetailSchema } from "@/lib/validations/app/kelasDetailValidate";
 import { getStatusKelasIcon } from "@/lib/utils/index";
 import { StatusKelas } from "@/config/enums/StatusKelas";
     import { formatDistanceToNow } from 'date-fns';
+import { RowActions } from "./table/RowActions";
+import { SiswaSchema } from "@/lib/validations/app/siswaValidate";
 // const items = [
 //   {
 //     date: "15 minutes ago",
@@ -48,17 +50,19 @@ import { StatusKelas } from "@/config/enums/StatusKelas";
 //   },
 // ];
 
-export default function TimelineCard({ History }: {History : KelasDetailSchema[]}) {
+export default function TimelineCard({ History  , onDelete, onEdit , siswa}: {History : KelasDetailSchema[] , siswa: SiswaSchema ,   onEdit: (item: KelasDetailSchema) => void;
+  onDelete: (id: number) => void;} ) {
   return (
     <Timeline defaultValue={3}>
       {History.map((item, i) => 
       {
               const pastDate = new Date(item.created_at!).toLocaleDateString();
       const timeAgo = formatDistanceToNow(pastDate, { addSuffix: true });
-
+        
         const status = item.status_kelas as StatusKelas
         const Icon = getStatusKelasIcon(status)
         return(
+          <div className=" w-full flex justify-between">
         <TimelineItem
           className="group-data-[orientation=vertical]/timeline:ms-10"
           key={item.id}
@@ -66,16 +70,21 @@ export default function TimelineCard({ History }: {History : KelasDetailSchema[]
         >
           <TimelineHeader>
             <TimelineSeparator className="group-data-[orientation=vertical]/timeline:-left-7 group-data-[orientation=vertical]/timeline:h-[calc(100%-1.5rem-0.25rem)] group-data-[orientation=vertical]/timeline:translate-y-6.5" />
-            <TimelineTitle className="mt-0.5">{item.status_kelas}</TimelineTitle>
+            <TimelineTitle className="mt-0.5 capitalize">{item.status_kelas}</TimelineTitle>
             <TimelineIndicator className="group-data-[orientation=vertical]/timeline:-left-7 flex size-6 items-center justify-center border-none bg-primary/10 group-data-completed/timeline-item:bg-primary group-data-completed/timeline-item:text-primary-foreground">
               <Icon size={14} />
             </TimelineIndicator>
           </TimelineHeader>
           <TimelineContent>
-            {item.keterangan}
-            <TimelineDate className="mt-2 mb-0">{timeAgo ||  "N/A"}</TimelineDate>
+            {item.keterangan || `Berikut ini adalah Riwayat kelas dari ${siswa.nama_lengkap}`}
+            <TimelineDate className="mt-2 mb-0"> {item.created_at
+          ? new Date(item.created_at).toLocaleDateString()
+          : "N/A"}</TimelineDate>
           </TimelineContent>
         </TimelineItem>
+              <RowActions  Icon={EllipsisVertical}  onEdit={() => onEdit(item)}
+              onDelete={() => onDelete(item.id!)}/>
+          </div>
       )})}
     </Timeline>
   );

@@ -16,6 +16,10 @@ import { EmptyState } from "../empty-state"
  
 import { Button } from "../../shadcn-ui/button"
 import TimelineCard from "../time-line"
+import { RowActions } from "../table/RowActions"
+import { JurusanSchema } from "@/lib/validations/app/jurusanValidate"
+import { KelasSchema } from "@/lib/validations/app/kelasValidate"
+import { TahunAjarSchema } from "@/lib/validations/app/tahunAjarValidate"
 
 
 
@@ -29,34 +33,26 @@ interface DetailCardProps {
   className?: string
   description?: string
   setOpen: React.Dispatch<React.SetStateAction<boolean>> 
-  Siswa? : SiswaSchema
+  Siswa :  SiswaSchema & {
+        jurusan?: JurusanSchema,
+        kelas?: KelasSchema,
+        tahun_masuk?: TahunAjarSchema,
+       
+      };
+    
+   onEdit: (item: KelasDetailSchema) => void;
+  onDelete: (id: number) => void;
       kelas_details?: KelasDetailSchema[]
   
 }
  
-const InfoItem = ({data} : {data : KelasDetailSchema}) => (
-  <div className={cn(" flex w-full justify-between py-3 border-b border-border/50 last:border-b-0")}>
-    <div className="flex content-center items-start gap-3 ">
-
-    <History className="size-4 text-muted-foreground   flex-shrink-0" />
-    <div className="">
-      <h4>
-        Lorem ipsum dolor sit amet.
-      </h4>
-      <p className="text-xs font-medium text-muted-foreground">Lorem ipsum dolor sit amet.</p>
-    </div>
-    </div>
- 
-     
- 
-  </div>
-)
-
 export default function RiwayatCard({
   title = "Riwayat Kelas",
   className,
   description = "Menampilkan riwayat kelas siswa secara detail",
   Siswa,
+  onDelete,
+  onEdit,
  setOpen,
     ...props
 }: DetailCardProps) {
@@ -88,7 +84,15 @@ export default function RiwayatCard({
       </CardHeader>
 
       <CardContent className="space-y-1 pt-3 content-center">
-        {dataRiwayat && dataRiwayat?.length > 0  ? <TimelineCard History={dataRiwayat}/> : 
+        {dataRiwayat && dataRiwayat?.length > 0  ? (
+
+            <TimelineCard siswa={Siswa} onDelete={onDelete}  onEdit={onEdit} History={dataRiwayat}/>
+
+
+        )
+        
+        
+        : 
 
 
           <EmptyState  icons={[History]}

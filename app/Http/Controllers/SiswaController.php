@@ -242,8 +242,8 @@ class SiswaController extends Controller
     $page = $request->input('page', 1);
     $status = $request->input('status');
 
-    $query = KelasDetail::whereSiswaId($siswa->id)
-        ->orderByDesc('updated_at');
+    $query = KelasDetail::with(['kelas' , 'siswa' , 'tahunAjar'])->whereSiswaId($siswa->id)
+        ->orderBy('updated_at', 'asc');
 
     // Search filter
     if ($search) {
