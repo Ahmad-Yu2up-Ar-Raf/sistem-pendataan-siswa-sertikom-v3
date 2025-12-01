@@ -5,7 +5,7 @@ import { Semester, SemesterOptions } from "@/config/enums/Semester";
 import {
     Status,
     StatusOptions,
- 
+
     StatusSiswa,
     StatusSiswaOptions,
 
@@ -13,16 +13,16 @@ import {
 import { StatusKelas, StatusKelasOptions } from "@/config/enums/StatusKelas";
 import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
   import { CircleIcon, LucideIcon } from "lucide-react";
-  
+
   // ==========================================
   // STATUS UTILS
   // ==========================================
-  
+
   export function getStatusIcon(status?: Status): LucideIcon {
     const found = StatusOptions.find((s) => s.value === status);
     return found?.icon || CircleIcon;
   }
-  
+
   export function getStatusColor(status: Status): string {
     const statusColors: Record<Status, string> = {
       [Status.Aktif]: "text-green-500",
@@ -30,7 +30,7 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
     };
     return statusColors[status] || "text-gray-400";
   }
-  
+
   export function getStatusBadgeColor(status: Status): string {
     const statusBadgeColors: Record<Status, string> = {
       [Status.Aktif]: "bg-green-100 text-green-800 border-green-200",
@@ -38,7 +38,7 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
     };
     return statusBadgeColors[status] || "bg-gray-100 text-gray-800 border-gray-200";
   }
-  
+
   export function getStatusLabel(status: Status): string {
     const statusLabels: Record<Status, string> = {
       [Status.Aktif]: "Aktif",
@@ -46,16 +46,16 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
     };
     return statusLabels[status] || "Unknown";
   }
-  
+
   // ==========================================
   // JENIS KELAMIN UTILS
   // ==========================================
-  
+
   export function getJenisKelaminIcon(jenisKelamin?: JenisKelamin): LucideIcon {
     const found = JenisKelaminOptions.find((jk) => jk.value === jenisKelamin);
     return found?.icon || CircleIcon;
   }
-  
+
   export function getJenisKelaminColor(jenisKelamin: JenisKelamin): string {
     const jenisKelaminColors: Record<JenisKelamin, string> = {
       [JenisKelamin.LakiLaki]: "text-blue-500",
@@ -63,7 +63,7 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
     };
     return jenisKelaminColors[jenisKelamin] || "text-gray-400";
   }
-  
+
   export function getJenisKelaminBadgeColor(jenisKelamin: JenisKelamin): string {
     const jenisKelaminBadgeColors: Record<JenisKelamin, string> = {
       [JenisKelamin.LakiLaki]: "bg-blue-100 text-blue-800 border-blue-200",
@@ -71,7 +71,7 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
     };
     return jenisKelaminBadgeColors[jenisKelamin] || "bg-gray-100 text-gray-800 border-gray-200";
   }
-  
+
   export function getJenisKelaminLabel(jenisKelamin: JenisKelamin): string {
     const jenisKelaminLabels: Record<JenisKelamin, string> = {
       [JenisKelamin.LakiLaki]: "Laki-Laki",
@@ -79,16 +79,16 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
     };
     return jenisKelaminLabels[jenisKelamin] || "Unknown";
   }
-  
+
   // ==========================================
   // AGAMA UTILS
   // ==========================================
-  
+
   export function getAgamaIcon(agama?: Agama): LucideIcon {
     const found = AgamaOptions.find((a) => a.value === agama);
     return found?.icon || CircleIcon;
   }
-  
+
   export function getAgamaColor(agama: Agama): string {
     const agamaColors: Record<Agama, string> = {
       [Agama.Islam]: "text-green-600",
@@ -100,7 +100,7 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
     };
     return agamaColors[agama] || "text-gray-400";
   }
-  
+
   export function getAgamaBadgeColor(agama: Agama): string {
     const agamaBadgeColors: Record<Agama, string> = {
       [Agama.Islam]: "bg-green-100 text-green-800 border-green-200",
@@ -112,7 +112,7 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
     };
     return agamaBadgeColors[agama] || "bg-gray-100 text-gray-800 border-gray-200";
   }
-  
+
   export function getAgamaLabel(agama: Agama): string {
     const agamaLabels: Record<Agama, string> = {
       [Agama.Islam]: "Islam",
@@ -124,16 +124,16 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
     };
     return agamaLabels[agama] || "Unknown";
   }
-  
+
   // ==========================================
   // TINGKAT UTILS
   // ==========================================
-  
+
   export function getTingkatIcon(tingkat?: Tingkat): LucideIcon {
     const found = TingkatOptions.find((t) => t.value === tingkat);
     return found?.icon || CircleIcon;
   }
-  
+
   export function getTingkatColor(tingkat: Tingkat): string {
     const tingkatColors: Record<Tingkat, string> = {
       [Tingkat.X]: "text-blue-500",
@@ -142,7 +142,7 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
     };
     return tingkatColors[tingkat] || "text-gray-400";
   }
-  
+
   export function getTingkatBadgeColor(tingkat: Tingkat): string {
     const tingkatBadgeColors: Record<Tingkat, string> = {
       [Tingkat.X]: "bg-blue-100 text-blue-800 border-blue-200",
@@ -151,7 +151,7 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
     };
     return tingkatBadgeColors[tingkat] || "bg-gray-100 text-gray-800 border-gray-200";
   }
-  
+
   export function getTingkatLabel(tingkat: Tingkat): string {
     const tingkatLabels: Record<Tingkat, string> = {
       [Tingkat.X]: "Kelas X",
@@ -160,16 +160,16 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
     };
     return tingkatLabels[tingkat] || "Unknown";
   }
-  
+
   // ==========================================
   // SEMESTER UTILS
   // ==========================================
-  
+
   export function getSemesterIcon(semester?: Semester): LucideIcon {
     const found = SemesterOptions.find((s) => s.value === semester);
     return found?.icon || CircleIcon;
   }
-  
+
   export function getSemesterColor(semester: Semester): string {
     const semesterColors: Record<Semester, string> = {
       [Semester.Ganjil]: "text-blue-600",
@@ -177,7 +177,7 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
     };
     return semesterColors[semester] || "text-gray-400";
   }
-  
+
   export function getSemesterBadgeColor(semester: Semester): string {
     const semesterBadgeColors: Record<Semester, string> = {
       [Semester.Ganjil]: "bg-blue-100 text-blue-800 border-blue-200",
@@ -185,7 +185,7 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
     };
     return semesterBadgeColors[semester] || "bg-gray-100 text-gray-800 border-gray-200";
   }
-  
+
   export function getSemesterLabel(semester: Semester): string {
     const semesterLabels: Record<Semester, string> = {
       [Semester.Ganjil]: "Semester Ganjil",
@@ -193,16 +193,16 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
     };
     return semesterLabels[semester] || "Unknown";
   }
-  
+
   // ==========================================
   // STATUS SISWA UTILS
   // ==========================================
-  
+
   export function getStatusSiswaIcon(statusSiswa?: StatusSiswa): LucideIcon {
     const found = StatusSiswaOptions.find((ss) => ss.value === statusSiswa);
     return found?.icon || CircleIcon;
   }
-  
+
   export function getStatusSiswaColor(statusSiswa: StatusSiswa): string {
     const statusSiswaColors: Record<StatusSiswa, string> = {
       [StatusSiswa.Aktif]: "text-green-500",
@@ -213,7 +213,7 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
     };
     return statusSiswaColors[statusSiswa] || "text-gray-400";
   }
-  
+
   export function getStatusSiswaBadgeColor(statusSiswa: StatusSiswa): string {
     const statusSiswaBadgeColors: Record<StatusSiswa, string> = {
       [StatusSiswa.Aktif]: "bg-green-100 text-green-800 border-green-200",
@@ -224,7 +224,7 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
     };
     return statusSiswaBadgeColors[statusSiswa] || "bg-gray-100 text-gray-800 border-gray-200";
   }
-  
+
   export function getStatusSiswaLabel(statusSiswa: StatusSiswa): string {
     const statusSiswaLabels: Record<StatusSiswa, string> = {
       [StatusSiswa.Aktif]: "Aktif",
@@ -235,16 +235,16 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
     };
     return statusSiswaLabels[statusSiswa] || "Unknown";
   }
-  
+
   // ==========================================
   // STATUS KELAS UTILS
   // ==========================================
-  
+
   export function getStatusKelasIcon(statusKelas?: StatusKelas): LucideIcon {
     const found = StatusKelasOptions.find((sk) => sk.value === statusKelas);
     return found?.icon || CircleIcon;
   }
-  
+
   export function getStatusKelasColor(statusKelas: StatusKelas): string {
     const statusKelasColors: Record<StatusKelas, string> = {
       [StatusKelas.Aktif]: "text-green-500",
@@ -256,7 +256,7 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
     };
     return statusKelasColors[statusKelas] || "text-gray-400";
   }
-  
+
   export function getStatusKelasBadgeColor(statusKelas: StatusKelas): string {
     const statusKelasBadgeColors: Record<StatusKelas, string> = {
       [StatusKelas.Aktif]: "bg-green-100 text-green-800 border-green-200",
@@ -268,7 +268,7 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
     };
     return statusKelasBadgeColors[statusKelas] || "bg-gray-100 text-gray-800 border-gray-200";
   }
-  
+
   export function getStatusKelasLabel(statusKelas: StatusKelas): string {
     const statusKelasLabels: Record<StatusKelas, string> = {
       [StatusKelas.Aktif]: "Aktif",
@@ -280,44 +280,56 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
     };
     return statusKelasLabels[statusKelas] || "Unknown";
   }
-  
+
   // ==========================================
   // ROLE UTILS
   // ==========================================
-  
+
   export function getRoleIcon(role?: Role): LucideIcon {
     const found = RoleOptions.find((r) => r.value === role);
     return found?.icon || CircleIcon;
   }
-  
+
   export function getRoleColor(role: Role): string {
     const roleColors: Record<Role, string> = {
-      [Role.SuperAdmin]: "text-purple-600",
-      [Role.Admin]: "text-blue-600",
+        [Role.SuperAdmin]: "text-purple-600",
+        [Role.Admin]: "text-blue-600",
+        [Role.KepalaKurikulum]: "",
+        [Role.Guru]: "",
+        [Role.Operator]: "",
+        [Role.Siswa]: ""
     };
     return roleColors[role] || "text-gray-400";
   }
-  
+
   export function getRoleBadgeColor(role: Role): string {
     const roleBadgeColors: Record<Role, string> = {
-      [Role.SuperAdmin]: "bg-purple-100 text-purple-800 border-purple-200",
-      [Role.Admin]: "bg-blue-100 text-blue-800 border-blue-200",
+        [Role.SuperAdmin]: "bg-purple-100 text-purple-800 border-purple-200",
+        [Role.Admin]: "bg-blue-100 text-blue-800 border-blue-200",
+        [Role.KepalaKurikulum]: "",
+        [Role.Guru]: "",
+        [Role.Operator]: "",
+        [Role.Siswa]: ""
     };
     return roleBadgeColors[role] || "bg-gray-100 text-gray-800 border-gray-200";
   }
-  
+
   export function getRoleLabel(role: Role): string {
     const roleLabels: Record<Role, string> = {
-      [Role.SuperAdmin]: "Super Admin",
-      [Role.Admin]: "Admin",
+        [Role.SuperAdmin]: "Super Admin",
+        [Role.Admin]: "Admin",
+        [Role.KepalaKurikulum]: "",
+        [Role.Guru]: "",
+        [Role.Operator]: "",
+        [Role.Siswa]: ""
     };
     return roleLabels[role] || "Unknown";
   }
-  
+
   // ==========================================
   // GENERIC ENUM FINDER
   // ==========================================
-  
+
   /**
    * Find enum option by value from any enum options array
    */
@@ -327,7 +339,7 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
   ) {
     return options.find((opt) => opt.value === value);
   }
-  
+
   /**
    * Get label from any enum
    */

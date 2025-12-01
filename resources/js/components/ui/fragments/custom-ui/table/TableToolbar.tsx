@@ -1,6 +1,6 @@
 /**
  * TableToolbar Component (Enhanced)
- * 
+ *
  * CHANGES: Added date range filter support, maintains backward compatibility
  */
 
@@ -60,8 +60,8 @@ export function TableToolbar({
   <div className="flex  w-full sm:w-fit sm:order-2 justify-end  items-center gap-2">
         {children}
          <Button onClick={onCreateClick} size={"sm"} className=" h-8    w-full text-xs ">
-          <Plus /> 
-          
+          <Plus />
+
           <span className="  ">
             Tambahkan Baru
             </span>
@@ -71,7 +71,7 @@ export function TableToolbar({
       <div
         className={cn(
           "w-full grid md:flex md:flex-wrap items-center gap-y-2 gap-x-1.5",
-          filterConfigs.length > 1 ? "grid-cols-3" : "grid-cols-1"
+          filterConfigs.length > 1 ? "grid-cols-2" : "grid-cols-1"
         )}
       >
         <Input
@@ -80,7 +80,7 @@ export function TableToolbar({
           onChange={(e) => onSearchChange(e.target.value)}
           className="md:max-w-[17em] col-span-4  sm:text-base text-xs h-8 w-full"
         />
-    
+
         {filterConfigs.map((config) => {
           if (config.type === 'date-range') {
             return (

@@ -4,16 +4,16 @@ import { Checkbox } from "@/components/ui/fragments/shadcn-ui/checkbox";
 import { Badge } from "@/components/ui/fragments/shadcn-ui/badge";
 import {
   CalendarCheck,
- 
+
   DoorOpen,
- 
+
   Map,
   PencilRuler,
- 
+
 } from "lucide-react";
 import { RowActions } from "../../../../../../fragments/custom-ui/table/RowActions";
 import type { SiswaSchema } from "@/lib/validations/app/siswaValidate";
- 
+
 import { getAgamaIcon, getJenisKelaminIcon, getStatusSiswaIcon } from "@/lib/utils/index";
 import { cn } from "@/lib/utils";
   import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/fragments/shadcn-ui/avatar";
@@ -54,9 +54,9 @@ export function SiswaTableRow({
   const getInitial = useInitials()
   const batasiHurufNama = batasiKata(item.nama_lengkap, 2)
   return (
-    <TableRow  
-    
-     onClick={() => router.visit(`/dashboard/siswa/${item?.id!}`, { preserveScroll: true })}
+    <TableRow
+
+
     className={cn(isSelected && "bg-muted cursor-pointer")}>
       <TableCell
         typeColumn="checkbox"
@@ -68,48 +68,48 @@ export function SiswaTableRow({
           className="mx-3 mr-4 translate-y-0.5"
         />
       </TableCell>
-       <TableCell 
+       <TableCell
        style={{
         width: "220px"
        }}
-       className="  flex items-center gap-3" 
-              
-   
-              > 
-              
+       className="  flex items-center gap-3"
+
+
+              >
+
                  <Avatar className=" rounded-xl  relative flex size-10 shrink-0 overflow-hidden">
                                           <AvatarImage src={`${item?.foto!}`} alt={item.nama_lengkap} />
                                           <AvatarFallback className="rounded-xl  bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
                                               {getInitial(item.nama_lengkap)}
                                           </AvatarFallback>
                                       </Avatar>
-              <h4 className=" font-medium">
+              <span className=" font-medium offset-3 cursor-pointer hover:underline"      onClick={() => router.visit(`/dashboard/siswa/${item?.id!}`, { preserveScroll: true })}>
                 {batasiHurufNama}
-                </h4>
+                </span>
               </TableCell>
-   
+
       <TableCell>
         <span>{item.nisn}</span>
       </TableCell>
-   
+
       <TableCell>
         <Badge icon={PencilRuler} variant="outline" className="py-1 [&>svg]:size-3.5">
           {item.jurusan?.nama_jurusan || "N/A"}
         </Badge>
       </TableCell>
-   
+
       <TableCell>
         <Badge icon={CalendarCheck} variant="outline" className="py-1 [&>svg]:size-3.5">
           {item.tahun_masuk?.nama_tahun_ajar || "N/A"}
         </Badge>
       </TableCell>
-     
+
       <TableCell>
         <Badge icon={DoorOpen} variant="outline" className="py-1 [&>svg]:size-3.5">
           {item.kelas?.nama_kelas || "N/A"}
         </Badge>
       </TableCell>
- 
+
       <TableCell>
         <Badge icon={Map} variant="outline" className="py-1 [&>svg]:size-3.5">
           {item.provinsi || "N/A"}
@@ -136,8 +136,8 @@ export function SiswaTableRow({
           : "N/A"}
       </TableCell>
       <TableCell
-      
-    
+
+
       >
         {item.created_at
           ? new Date(item.created_at).toLocaleDateString()
@@ -148,7 +148,7 @@ export function SiswaTableRow({
       >
         <RowActions onEdit={onEdit} onDelete={onDelete} />
       </TableCell>
-     
+
     </TableRow>
   );
 }
