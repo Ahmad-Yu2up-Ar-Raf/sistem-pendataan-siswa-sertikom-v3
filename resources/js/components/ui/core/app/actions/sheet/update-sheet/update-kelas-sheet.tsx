@@ -103,7 +103,7 @@ export default function UpdateKelasSheet({ kelas, open = false, onOpenChange }: 
               <Button
                 disabled={isPending}
                 type="submit"
-                className="w-fit dark:bg-primary  pointer-events-auto  dark:text-primary-foreground  bg-primary text-primary-foreground "
+                className="w-fit dark:bg-primary  text-primary-foreground  pointer-events-auto  dark:primary-foreground  bg-primary  text-primary-foreground "
                 size={"sm"}
               >
                 {isPending && <Spinner className="animate-spin" />}
@@ -161,7 +161,7 @@ export default function UpdateKelasSheet({ kelas, open = false, onOpenChange }: 
             <Button
               type="submit"
               disabled={isPending}
-              className="w-fit   !pointer-events-auto  dark:bg-primary  dark:text-primary-foreground  bg-primary text-primary-foreground "
+              className="w-fit   !pointer-events-auto  dark:bg-primary  text-primary-foreground  dark:primary-foreground  bg-primary  text-primary-foreground "
               size={"sm"}
             >
               {isPending && <Spinner className="animate-spin" />}

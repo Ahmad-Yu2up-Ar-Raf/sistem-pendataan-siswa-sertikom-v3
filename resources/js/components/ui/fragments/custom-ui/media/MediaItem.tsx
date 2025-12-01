@@ -129,7 +129,7 @@ const MediaItem = ({ webViewLink, className, mediaclassName, mediaType = "image"
                 </video>
                 {isBuffering && (
                     <div className="absolute inset-0 flex items-center justify-center bg-accent-foreground/10">
-                        <Spinner className="w-6 h-6  text-accent rounded-full animate-spin" />
+                        <Spinner className="w-6 h-6  text-accent rounded-xl animate-spin" />
                     </div>
                 )}
             </div>
@@ -151,7 +151,7 @@ const MediaItem = ({ webViewLink, className, mediaclassName, mediaType = "image"
             />
             {!imageLoaded && (
                 <div className="absolute inset-0 flex items-center justify-center bg-accent-foreground">
-                    <Spinner className="w-6 h-6 text-accent rounded-full animate-spin" />
+                    <Spinner className="w-6 h-6 text-accent rounded-xl animate-spin" />
                 </div>
             )}
         </div>

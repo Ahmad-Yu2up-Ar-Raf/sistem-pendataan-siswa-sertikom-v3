@@ -113,20 +113,16 @@ class JurusanController extends Controller
     public function store(JurusanStoreRequest $request)
     {
         try {
-            $product = Jurusan::create([
+         Jurusan::create([
                 ...$request->validated(),
                 'created_by' => Auth::id(),
                 'updated_by' => Auth::id(),
                     
             ]);
 
-            $fileCount = count($product->showcase_images ?? []);
-            $message = $fileCount > 0 
-                ? "Jurusan berhasil ditambahkan dengan {$fileCount} file."
-                : "Jurusan berhasil ditambahkan.";
-
+         
             return redirect()->route('dashboard.jurusan.index')
-                ->with('success', $message);
+                ->with('success', "Data Jurusan Berhasil Di Buat");
 
         } catch (\Exception $e) {
             Log::error('Jurusan creation error: ' . $e->getMessage());

@@ -1,31 +1,23 @@
 import { PlaceholderPattern } from '@/components/ui/fragments/svg-icon/placeholder-pattern';
 import AppLayout from '@/components/ui/core/layout/app/app-layout';
+import Wrapper from '@/components/ui/core/app/reports/wrapper';
+import MainSection from '@/components/ui/core/app/reports/overview';
+import { PagePropsOverview } from '@/types';
  
 
 
-export default function Dashboard() {
+
+export default function dashboard(props: PagePropsOverview) {
+    console.log(props.reports)
+
     return (
         <>
- 
-        <AppLayout >
-          
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                </div>
-                <div className="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                </div>
-            </div>
-        </AppLayout>
+     <AppLayout>
+      <Wrapper>
+
+<MainSection data={props} />
+      </Wrapper>
+    </AppLayout>
         </>
     );
 }

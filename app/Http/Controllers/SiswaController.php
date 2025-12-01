@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\StatusSiswaEnums;
 use App\Http\Requests\SiswaStoreRequest;
 use App\Http\Requests\SiswaUpdateRequest;
+use App\Models\KelasDetail;
 use App\Models\Siswa;
 use App\Services\FileUploadService;
 use Illuminate\Http\Request;
@@ -96,7 +98,7 @@ class SiswaController extends Controller
             DB::commit();
             
             return redirect()
-                ->route('dashboard.siswa.index')
+                ->back()
                 ->with('success', 'Siswa berhasil diperbarui');
                 
         } catch (\Exception $e) {
@@ -171,8 +173,8 @@ class SiswaController extends Controller
         }
 
         if ($request->filled('tahun_ajar')) {
-            $tahunAjarIds = (array) $request->input('tahun_ajar');
-            $query->whereIn('tahun_ajar_id', $tahunAjarIds);
+            $kelasDetailIds = (array) $request->input('tahun_ajar');
+            $query->whereIn('tahun_ajar_id', $kelasDetailIds);
         }
 
         // DATE RANGE FILTER
@@ -231,16 +233,129 @@ class SiswaController extends Controller
     /**
      * Show single siswa (for edit)
      */
-    public function show(Siswa $siswa)
-    {
-        $siswa->load(['jurusan', 'kelas', 'tahunMasuk']);
+    public function show(Siswa $siswa , Request $request)
+    {   
+
+
+         $perPage = $request->input('perPage', 10);
+    $search = $request->input('search');
+    $page = $request->input('page', 1);
+    $status = $request->input('status');
+
+    $query = KelasDetail::whereSiswaId($siswa->id)
+        ->orderByDesc('updated_at');
+
+    // Search filter
+    if ($search) {
+        $query->where(function($q) use ($search) {
+            $searchLower = strtolower($search);
+            $q->whereRaw('LOWER(siswa_id) LIKE ?', ["%{$searchLower}%"])
+              ->orWhereRaw('LOWER(kelas_id) LIKE ?', ["%{$searchLower}%"]);
+        });
+    }
+
+    // Status enum filter (multi-select)
+    if ($request->filled('status')) {
+        $statusArray = is_array($status) ? $status : explode(',', $status);
+        $query->whereIn('status', $statusArray);
+    }
+
+   
+
+    // Date range filter: created_at
+    if ($request->filled('created_at_from') || $request->filled('created_at_to')) {
+        $from = $request->input('created_at_from');
+        $to = $request->input('created_at_to');
+        
+        if ($from) {
+            $query->whereDate('created_at', '>=', $from);
+        }
+        if ($to) {
+            $query->whereDate('created_at', '<=', $to);
+        }
+    }
+
+    $kelasDetail = $query->paginate($perPage, ['*'], 'page', $page);
+
+    $kelasDetail->through(function ($item) {
+        return [
+            ...$item->toArray(),
+        ];
+    });
+
+        $siswa->load(['jurusan', 'kelas', 'tahunMasuk' ]);
         
         return Inertia::render('dashboard/siswa/[id]', [
             'status' => true,
             'data' => [
-                ...$siswa->toArray(),
+            'siswa' => [
+  ...$siswa->toArray(),
                 'foto' => $siswa->foto ? url($siswa->foto) : null,
-      
+            ] ,    
+                'kelas_detail' => $kelasDetail->items() ?? [],
+            ],
+             'meta' => [
+            'filters' => [
+                'search' => $search ?? '',
+                'status' => $status ?? [],
+                'jurusan' => $request->input('jurusan', []),
+                'kelas' => $request->input('kelas', []),
+                'created_at' => [
+                    'from' => $request->input('created_at_from'),
+                    'to' => $request->input('created_at_to'),
+                ],
+            ],
+            'pagination' => [
+                'total' => $kelasDetail->total(),
+                'currentPage' => $kelasDetail->currentPage(),
+                'perPage' => $kelasDetail->perPage(),
+                'lastPage' => $kelasDetail->lastPage(),
+                'hasMore' => $kelasDetail->currentPage() < $kelasDetail->lastPage(),
+            ],
+        ],
+        ]);
+    }
+
+
+
+        public function json_data(Request $request)
+    {
+        $perPage = $request->input('perPage', 10); // ubah default jadi 10
+        $search = $request->input('search', ''); // tambah default empty string
+        $page = $request->input('page', 1);
+
+        $query = Siswa::select(['id', 'nama_lengkap' ]) // tambah kode_tahun_ajar
+            ->where('status', StatusSiswaEnums::Aktif->value);
+
+        // Search filter
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $searchLower = strtolower($search);
+                $q->whereRaw('LOWER(nama_lengkap) LIKE ?', ["%{$searchLower}%"])
+                  ->orWhereRaw('LOWER(id) LIKE ?', ["%{$searchLower}%"]);
+            });
+        }
+
+        $siswa = $query->orderByDesc('updated_at') // ubah order by
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        // PERBAIKI: Return struktur yang benar
+        return response()->json([
+            'status' => true,
+            'message' => 'Siswa retrieved successfully',
+            'data' => $siswa->items(), // ← LANGSUNG ITEMS, bukan nested
+            'meta' => [
+                'filters' => [
+                    'search' => $search,
+                    'perPage' => $perPage,
+                ],
+                'pagination' => [
+                    'total' => $siswa->total(),
+                    'currentPage' => $siswa->currentPage(),
+                    'perPage' => $siswa->perPage(),
+                    'lastPage' => $siswa->lastPage(),
+                    'hasMore' => $siswa->hasMorePages(),
+                ],
             ],
         ]);
     }

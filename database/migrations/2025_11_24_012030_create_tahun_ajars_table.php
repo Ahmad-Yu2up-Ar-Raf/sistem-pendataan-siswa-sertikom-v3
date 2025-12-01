@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('tahun_ajars', function (Blueprint $table) {
              $table->id();
             $table->string('kode_tahun_ajar', 20)->unique();
-            $table->string('nama_tahun_ajar', 100);
+            $table->string('nama_tahun_ajar', 100)->unique();
             $table->date('tanggal_mulai');
             $table->date('tanggal_selesai');
             $table->enum('status', StatusEnums::values())->default(StatusEnums::Aktif->value);

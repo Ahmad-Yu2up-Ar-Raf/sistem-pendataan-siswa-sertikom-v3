@@ -257,7 +257,7 @@ export default function TahunAjarCombobox<T extends FieldValues>({
                           {TahunAjarResults.map((TahunAjar) => (
                             <CommandItem
                               key={TahunAjar.id}
-                              value={TahunAjar.nama_tahun_ajar}
+                              value={`${TahunAjar.id}`}
                               onSelect={() => {
                                 form.setValue('tahun_ajar_id' as FieldPath<T>, TahunAjar.id as T[FieldPath<T>]);
                                 setSelectedTahunAjar(TahunAjar);

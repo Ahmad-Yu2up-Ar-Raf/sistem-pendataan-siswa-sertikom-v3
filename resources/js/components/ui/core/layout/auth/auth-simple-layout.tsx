@@ -4,12 +4,11 @@ import { Link } from "@inertiajs/react";
 import { cn } from "@/lib/utils";
 import { useLottie } from "lottie-react";
 import * as React from "react";
+import { Package } from "lucide-react";
+import MediaItem from "@/components/ui/fragments/custom-ui/media/MediaItem";
+import AppLogo from "../app/fragments/app-logo";
  
-import animationData from "@/config/assets/animations/Phoenix.json";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { ChevronLeft } from "lucide-react";
-import { buttonVariants } from "@/components/ui/fragments/shadcn-ui/button";
-import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/fragments/shadcn-ui/card";
+ 
 type AuthLayoutProps = {
   children?: React.ReactNode;
   title?: string;
@@ -31,110 +30,65 @@ const AuthLayoutTemplate = ({
   description = `Perjalanan akan segera dimulai `,
   ...props
 }: AuthLayoutProps) => {
-  const formTypeLabel = formType == "register" ? "login" : "register";
-  const formTypeLink = formType == "register" ? "login" : "register";
-    
-      const lottieOptions = {
-        loop: true,
-        autoplay: true,
-        animationData: animationData,
-        rendererSettings: {
-          preserveAspectRatio: "xMidYMid slice",
-        },
-      };
-      const style = { width:  "100%", height: "100%" , margin: "auto"  , }; // atur sesuai kebutuhan
-   const { View } = useLottie(lottieOptions, style);
-      const isMobile = useIsMobile()
+ 
+ 
+ 
   return (
     <>
    
-          <Card
-          className={cn(
-            "p-8 shadow-none border-0 justify-center items-center min-h-n  lg:m-auto h-full content-center relative bg-background z-[100] text-secondary-foreground overflow-visible ",
-            className
-          )}>
-             <nav
-      
-      
-              className='z-[999999] sr-only  left-7  absolute  top-4 bg-background/95 backdrop-blur   flex items-center   '>
-      
-              <Link href="/" className={cn(buttonVariants({ variant: "link" }), '  flex   has-[>svg]:px-0   w-fit py-2 md:flex  text-base items-center gap-3 px-0  group transition-colors')}>
-                <ChevronLeft className=" size-5  group-hover:-translate-x-1  group-hover:transform transition-all ease-out duration-300" />
-                <span className=''>Back </span>
-              </Link>
-              
-            </nav>
-          <CardContent className=" p-0 justify-center  w-full  max-w-sm flex m-auto flex-col h-full">
-            <CardHeader className="flex w-full text-center flex-col  p-0   items-left mb-7">
+         <div className="grid min-h-svh lg:grid-cols-2  ">
+            <div className="flex bg-background flex-col gap-4 p-6 md:p-10">
+                <div className="flex justify-center gap-2 md:justify-start">
+          <div  className="flex   cursor-none items-center gap-2 font-medium">
+          <AppLogo/>
              
-             <div className=" m-auto sr-only  w-50 h-42 ">
-              {  View}
-              </div> 
+          </div>
+        </div>
+         <div className="flex flex-1 items-center justify-center ">
+        <div className="mx-auto flex w-full flex-col justify-center space-y-6 max-w-[21rem] lg:max-w-[22rem] ">
+          <div className="flex flex-col space-y-2 text-center">
+            <h1 className="text-2xl font-semibold tracking-tight">
+            { formType == 'register' ? 'Signup' : 'Welcome' }   
+            </h1>
+            <p className="text-sm text-muted-foreground">
+                   { formType == 'register' ? ' Enter your email below to create your account' : ' Enter your email below to signin your account' }   
+            </p>
+          </div>
+         {props.children}
+         {formType && ( 
+          <div className="px-8 text-center text-sm text-muted-foreground">
+          { formType !== 'register' && "Don't" } have an account?
+      <Link   
+  aria-disabled={loading} 
+  tabIndex={loading ? -1 : undefined}  href={ formType == 'register' ? "/login" : "/register"} className={cn("   underline text-foreground underline-offset-4" , 
+    loading ? 'pointer-events-none cursor-none text-foreground/50' : ''
+  )}>
+      { formType == 'register' ? ' Login' : ' Signup' }
+      </Link>
+          </div>
+         )         }
 
-         
-          
-
-              <CardTitle className=" text-xl w-full lg:text-2xl mt-6  font-medium  tracking-tight">
-                {title}
-              </CardTitle>
-              <CardDescription className=" w-full line-clamp-1 text-sm opacity-80">{description}</CardDescription>
-            </CardHeader>
-
-           <CardAction className=" w-full">
-
-            {props.children}
-           </CardAction>
-
-            {formType && (
-              <CardFooter className="text-center cursor-target w-full sr-only  mt-2 text-muted-foreground text-sm">
-                      <CardAction className=" text-center w-full">
-                {formType == "register"
-                  ? `Sudah punya akun? `
-                  : "belum punya akun? "}
-            
-
-                <Link
-                  aria-disabled={loading}
-                  tabIndex={!loading ? -1 : undefined}
-                  href={`/${formTypeLink}`}
-                  className={cn(
-                    "text-secondary-foreground capitalize font-medium underline",
-                    loading
-                      ? "pointer-events-none cursor-none text-foreground/50"
-                      : ""
-                  )}>
-                  {formTypeLabel}
-                </Link>
-                  </CardAction>
-              </CardFooter>
-            )}
-          </CardContent>
-        </Card>
-    {/* <div className=" relative  h-full flex items-center justify-center overflow-hidden ">
-      <div
-        className={cn(
-          "  w-full relative max-w-lg  overflow-hidden flex flex-col  lg:flex-row shadow-xl lg:max-w-none h-lvh",
-          className
-        )}>
-           <nav
-      
-      
-              className='z-[999999]  left-7  absolute  top-4 bg-background/95 backdrop-blur   flex items-center   '>
-      
-              <Link href="/" className={cn(buttonVariants({ variant: "link" }), '  flex   has-[>svg]:px-0   w-fit py-2 md:flex  text-base items-center gap-3 px-0  group transition-colors')}>
-                <ChevronLeft className=" size-5  group-hover:-translate-x-1  group-hover:transform transition-all ease-out duration-300" />
-                <span className=''>Back </span>
-              </Link>
-              
-            </nav>
-   
-
-       
+        </div>
       </div>
-    </div> */}
+                
+            </div>
+                <div className="relative dark:border-l hidden bg-muted lg:block">
+       <MediaItem
+       
+          webViewLink="https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          
+          
+          className="  "
+        />
+       
+        </div>
+        </div>
     
     </>
   );
 };
+
+
+
 
 export default AuthLayoutTemplate;

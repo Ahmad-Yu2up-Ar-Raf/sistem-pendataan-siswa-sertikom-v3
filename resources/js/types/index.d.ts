@@ -5,6 +5,42 @@ export interface Auth {
     user: User;
 }
 
+
+export type PagePropsOverview = {
+    reports : Reports
+ }
+
+
+
+export interface TopJurusan{
+    nama_jurusan: string;
+    siswas_count: number;
+}
+
+export interface Reports {
+  totalTahunAjar: number;
+  totalJurusan: number;
+  topJurusan: TopJurusan[]
+  totalSiswa: number;
+  totalKelas: number;
+  KelastatusCount: Record<string, number>;
+  SiswastatusCount: Record<string, number>;
+  StatusJurusanCount: Record<string, number>;
+  TahunAjarstatusCount: Record<string, number>;
+
+  countsByDate: ChartDataType[];
+}
+
+
+export interface DataCard { 
+    title: string;
+    description: string;
+    value: number | number;
+    icon: LucideIcon;
+   label?: string;
+  }
+  
+
 export interface OptionItem {
     value: string;
     label: string;
@@ -16,6 +52,14 @@ export interface OptionItem {
     [key: string]: string | number | undefined | LucideIcon;
   }
   
+export interface ChartDataType {
+    date: string;
+   
+    orders?: number;
+    revenue?: number;
+    [key: string]: number; 
+  }
+
 
 export interface BreadcrumbItem {
     title: string;

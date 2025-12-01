@@ -7,7 +7,7 @@ enum StatusKelasEnums: string
     case Aktif = 'aktif';
     case NaikKelas = 'naik_kelas';
     case TinggalKelas = 'tinggal_kelas';
-    case PindahKelas = 'pindah_kelas';
+ 
     case Lulus = 'lulus';
     case Keluar = 'keluar';
 

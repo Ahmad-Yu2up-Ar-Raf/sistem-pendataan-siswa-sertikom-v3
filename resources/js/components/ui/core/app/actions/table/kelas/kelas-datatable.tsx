@@ -2,9 +2,9 @@
 import * as React from "react";
 import { router } from "@inertiajs/react";
 import { toast } from "sonner";
-import { Users2Icon } from "lucide-react";
+import { CircleCheckIcon, DoorOpen, Users2Icon } from "lucide-react";
 import { EmptyState } from "@/components/ui/fragments/custom-ui/empty-state";
-import { StatusTableActionBar } from "@/components/ui/fragments/custom-ui/table/status-action-bar";
+import { selectData, StatusTableActionBar } from "@/components/ui/fragments/custom-ui/table/action-bar/status-action-bar";
 import DeleteDialog from "@/components/ui/fragments/custom-ui/dialog/DeleteDialog";
 import CreateKelasSheet from "../../sheet/create-sheet/create-kelas-sheet";
 import UpdateKelasSheet from "../../sheet/update-sheet/update-kelas-sheet";
@@ -18,6 +18,7 @@ import { KelasTable } from "./components/KelasTable";
  
 import { DateRange } from "react-day-picker";
 import { StatusOptions } from "@/config/enums/status";
+import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
 
 export default function KelasDataTable({ data }: { data: pagePropsKelas }) {
   const paginatedData = data.meta.pagination;
@@ -32,7 +33,19 @@ export default function KelasDataTable({ data }: { data: pagePropsKelas }) {
   const [deletedId, setDeletedId] = React.useState<number | null>(null);
   const [currentKelas, setCurrentKelas] = React.useState<KelasSchema | null>(null);
   const [processing, setProcessing] = React.useState(false);
-
+    const selectData : selectData[] = [
+      {
+        Icon: CircleCheckIcon,
+        Data : StatusOptions,
+        field: "status"
+  
+      },
+      {
+        Icon: DoorOpen,
+        Data : TingkatOptions,
+        field: "tingkat"
+      }
+    ]
   // ✅ UPDATED: Use new useTableFilters hook
   const { 
     filters, 
@@ -54,6 +67,12 @@ export default function KelasDataTable({ data }: { data: pagePropsKelas }) {
         title: "Status",
         type: "enum" as const,
         options: StatusOptions,
+      },
+      {
+        column: "tingkat",
+        title: "Tingkat",
+        type: "enum" as const,
+        options: TingkatOptions,
       },
       {
         column: "created_at",
@@ -166,9 +185,9 @@ export default function KelasDataTable({ data }: { data: pagePropsKelas }) {
   }, [selectedIds]);
 
   const onTaskUpdate = React.useCallback(
-    ({ field, value }: { field: "status" | "agama" | "jenis_kelamin"; value: string }) => {
+    ({ field, value }: { field: string; value: string }) => {
       setIsAnyPending(true);
-      setCurrentAction("update-status");
+      setCurrentAction(`update-${field}`);
 
       startTransition(() => {
         const formData = {
@@ -290,6 +309,7 @@ export default function KelasDataTable({ data }: { data: pagePropsKelas }) {
 
       {selectedIds.length > 0 && (
         <StatusTableActionBar
+          selectProps={selectData}
           onTaskUpdate={onTaskUpdate}
           isPending={isAnyPending}
           setSelected={setSelectedIds}

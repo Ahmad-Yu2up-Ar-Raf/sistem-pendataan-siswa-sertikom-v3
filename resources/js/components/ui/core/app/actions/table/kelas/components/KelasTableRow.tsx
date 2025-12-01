@@ -67,6 +67,11 @@ export function KelasTableRow({
         </Badge>
       </TableCell>
       <TableCell>
+        <Badge icon={DoorOpen} variant="outline" className="py-1 [&>svg]:size-3.5">
+          {item.tingkat || "N/A"}
+        </Badge>
+      </TableCell>
+      <TableCell>
         <Badge icon={Users2Icon} variant="outline" className="py-1 [&>svg]:size-3.5">
           {item.siswa_count}
         </Badge>

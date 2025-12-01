@@ -76,7 +76,7 @@ export default function CreateKelasSheet({ ...props }: type) {
               </Button>{" "}
             </SheetTitle>
             <SheetDescription className=" sr-only">
-              Fill in the details below to create a new kelas
+              Isi rincian di bawah ini untuk membuat data kelas
             </SheetDescription>
           </SheetHeader>
           <KelasForm
@@ -104,7 +104,7 @@ export default function CreateKelasSheet({ ...props }: type) {
               <Button
                 disabled={isPending}
                 type="submit"
-                className="w-fit dark:bg-primary !pointer-kelas-auto  dark:text-primary-foreground  bg-primary text-primary-foreground "
+                className="w-fit dark:bg-primary  text-primary-foreground !pointer-kelas-auto  dark:primary-foreground  bg-primary  text-primary-foreground "
                 size={"sm"}
               >
                 {isPending && <Spinner className="animate-spin" />}
@@ -144,7 +144,7 @@ export default function CreateKelasSheet({ ...props }: type) {
             </Button>{" "}
           </DrawerTitle>
           <DrawerDescription className=" text-sm">
-            Fill in the details below to create a new kelas
+            Isi rincian di bawah ini untuk membuat data kelas
           </DrawerDescription>
         </DrawerHeader>
 
@@ -173,7 +173,7 @@ export default function CreateKelasSheet({ ...props }: type) {
             <Button
               type="submit"
               disabled={isPending}
-              className="w-fit  !pointer-kelas-auto  dark:bg-primary  dark:text-primary-foreground  bg-primary text-primary-foreground "
+              className="w-fit  !pointer-kelas-auto  dark:bg-primary  text-primary-foreground  dark:primary-foreground  bg-primary  text-primary-foreground "
               size={"sm"}
             >
               {isPending && <Spinner className="animate-spin" />}

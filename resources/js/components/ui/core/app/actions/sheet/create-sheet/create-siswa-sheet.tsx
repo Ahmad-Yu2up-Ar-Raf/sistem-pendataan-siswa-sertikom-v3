@@ -75,7 +75,7 @@ export default function CreateSiswaSheet({ ...props }: type) {
               </Button>{" "}
             </SheetTitle>
             <SheetDescription className="sr-only">
-              Fill in the details below to create a new siswa
+              Isi rincian di bawah ini untuk membuat data siswa
             </SheetDescription>
           </SheetHeader>
           <SiswaForm isPending={isPending} form={form} onSubmit={submit}>
@@ -99,7 +99,7 @@ export default function CreateSiswaSheet({ ...props }: type) {
               <Button
                 disabled={isPending}
                 type="submit"
-                className="w-fit dark:bg-primary !pointer-siswa-auto dark:text-primary-foreground bg-primary text-primary-foreground"
+                className="w-fit dark:bg-primary  text-primary-foreground !pointer-siswa-auto dark:primary-foreground bg-primary"
                 size={"sm"}
               >
                 {isPending && <Spinner className="" />}
@@ -135,7 +135,7 @@ export default function CreateSiswaSheet({ ...props }: type) {
             </Button>{" "}
           </DrawerTitle>
           <DrawerDescription className="text-sm">
-            Fill in the details below to create a new siswa
+            Isi rincian di bawah ini untuk membuat data siswa
           </DrawerDescription>
         </DrawerHeader>
 
@@ -160,7 +160,7 @@ export default function CreateSiswaSheet({ ...props }: type) {
             <Button
               type="submit"
               disabled={isPending}
-              className="w-fit !pointer-siswa-auto dark:bg-primary dark:text-primary-foreground bg-primary text-primary-foreground"
+              className="w-fit !pointer-siswa-auto dark:bg-primary  text-primary-foreground dark:primary-foreground bg-primary"
               size={"sm"}
             >
               {isPending && <Spinner className="" />}

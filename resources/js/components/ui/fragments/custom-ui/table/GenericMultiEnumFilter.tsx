@@ -111,7 +111,7 @@ export function GenericMultiEnumFilter({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="border-dashed text-xs  overflow-hidden  h-8">
+        <Button variant="outline" size="sm" className="border-dashed sm:w-fit text-xs  w-full overflow-hidden  h-8">
           {selectedValues?.length > 0 ? (
             <div
               role="button"
@@ -215,7 +215,7 @@ export function GenericMultiEnumFilter({
                               : "opacity-50 [&_svg]:invisible"
                           )}
                         >
-                          <Check className="h-3 w-3 text-primary-foreground" />
+                          <Check className="h-3 w-3" />
                         </div>
                         {Icon && <Icon className="text-accent-foreground" />}
                         <span className="truncate">{option.label}</span>

@@ -19,7 +19,7 @@ export enum StatusKelas {
   Aktif = "aktif",
   NaikKelas = "naik_kelas",
   TinggalKelas = "tinggal_kelas",
-  PindahKelas = "pindah_kelas",
+ 
   Lulus = "lulus",
   Keluar = "keluar",
 }
@@ -46,13 +46,7 @@ export const StatusKelasOptions: OptionItem[] = [
     subLabel: "Mengulang",
     description: "Siswa tinggal kelas dan mengulang",
   },
-  {
-    value: StatusKelas.PindahKelas,
-    label: "Pindah Kelas",
-    icon: Move,
-    subLabel: "Pindah Kelas",
-    description: "Siswa pindah ke kelas lain",
-  },
+  
   {
     value: StatusKelas.Lulus,
     label: "Lulus",

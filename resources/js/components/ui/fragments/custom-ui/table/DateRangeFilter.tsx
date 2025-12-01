@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/fragments/shadcn-ui/popover";
 import { Separator } from "@/components/ui/fragments/shadcn-ui/separator";
 import { formatDate } from "@/lib/format";
-import { cn } from "@/lib/utils";
+ 
 import { batasiKata } from "@/hooks/useWord";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -88,7 +88,7 @@ export function DateRangeFilter({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
-       variant="outline" size="sm" className="border-dashed text-xs   h-8"
+       variant="outline" size="sm" className="border-dashed text-xs w-full sm:w-fit   h-8"
         >
           {hasValue ? (
             <div

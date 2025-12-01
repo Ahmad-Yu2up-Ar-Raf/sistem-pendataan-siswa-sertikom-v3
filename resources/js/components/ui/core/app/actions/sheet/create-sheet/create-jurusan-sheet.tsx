@@ -76,7 +76,7 @@ export default function CreateJurusanSheet({ ...props }: type) {
               </Button>{" "}
             </SheetTitle>
             <SheetDescription className=" sr-only">
-              Fill in the details below to create a new jurusan
+              Isi rincian di bawah ini untuk membuat data jurusan
             </SheetDescription>
           </SheetHeader>
           <JurusanForm
@@ -104,7 +104,7 @@ export default function CreateJurusanSheet({ ...props }: type) {
               <Button
                 disabled={isPending}
                 type="submit"
-                className="w-fit dark:bg-primary !pointer-jurusan-auto  dark:text-primary-foreground  bg-primary text-primary-foreground "
+                className="w-fit dark:bg-primary  text-primary-foreground !pointer-jurusan-auto  dark:primary-foreground  bg-primary  text-primary-foreground "
                 size={"sm"}
               >
                 {isPending && <Spinner className="" />}
@@ -144,7 +144,7 @@ export default function CreateJurusanSheet({ ...props }: type) {
             </Button>{" "}
           </DrawerTitle>
           <DrawerDescription className=" text-sm">
-            Fill in the details below to create a new jurusan
+            Isi rincian di bawah ini untuk membuat data jurusan
           </DrawerDescription>
         </DrawerHeader>
 
@@ -173,7 +173,7 @@ export default function CreateJurusanSheet({ ...props }: type) {
             <Button
               type="submit"
               disabled={isPending}
-              className="w-fit  !pointer-jurusan-auto  dark:bg-primary  dark:text-primary-foreground  bg-primary text-primary-foreground "
+              className="w-fit  !pointer-jurusan-auto  dark:bg-primary  text-primary-foreground  dark:primary-foreground  bg-primary  text-primary-foreground "
               size={"sm"}
             >
               {isPending && <Spinner className="" />}

@@ -55,6 +55,7 @@ export function KelasTable({
             <TableHead >Tahun Ajar</TableHead>
 
             <TableHead>Wali Kelas</TableHead>
+            <TableHead>Tingkat</TableHead>
             <TableHead>Total SIswa</TableHead>
             <TableHead>Jurusan</TableHead>
             <TableHead>Status</TableHead>

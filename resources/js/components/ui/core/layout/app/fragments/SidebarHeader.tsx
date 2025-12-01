@@ -23,7 +23,7 @@ export default function SidebarHeaderLogo({
  
     user: Auth
 }) {
-
+   const appName = import.meta.env.VITE_APP_NAME;
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -35,7 +35,7 @@ export default function SidebarHeaderLogo({
        <AppLogo/>
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">Sundress</span>
+                <span className="truncate font-medium">{appName}</span>
                 <span className="truncate text-xs capitalize">{user.user.roles[0].replace(/_/g, ' ')}</span>
               </div>
             

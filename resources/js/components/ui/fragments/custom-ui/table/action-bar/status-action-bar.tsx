@@ -1,6 +1,6 @@
 "use client";
 import { SelectTrigger } from "@radix-ui/react-select";
-import { Book, CheckCircle2,  Church,  Key,  Trash2Icon, VenusAndMars } from "lucide-react";
+import { LucideIcon,     Trash2Icon } from "lucide-react";
 import * as React from "react";
 import {
   DataTableActionBar,
@@ -14,30 +14,36 @@ import {
   SelectItem,
 } from "@/components/ui/fragments/shadcn-ui/select";
 import { Separator } from "@/components/ui/fragments/shadcn-ui/separator";
-  
  
-import { RoleOptions } from "@/config/enums/Roles";
+import { OptionItem } from "@/types";
 
 
-interface RolesTableActionBarProps {
+export type selectData = {
+  Icon: LucideIcon;
+  Data : OptionItem[]
+  field: string
+}
+
+ 
+interface StatusTableActionBarProps {
 table: number[];
     setSelected: (value: React.SetStateAction<number[]>) => void
   // getIsActionPending: (action: Action) => boolean
-
+selectProps :  selectData[]
   onTaskDelete: () => void;
 isPending: boolean
   //  isPendingExport: boolean
    onTaskUpdate: ({ field, value, }: {
-    field: "roles"  ;
+   field: string;
     value: string;
    
 }) => void
 }
 
-export function RolesTableActionBar({ setSelected, onTaskUpdate, table, isPending, onTaskDelete, }: RolesTableActionBarProps) {
+export function StatusTableActionBar({ setSelected, onTaskUpdate, table, isPending, onTaskDelete,  selectProps }: StatusTableActionBarProps) {
 
 
-
+  const data = selectProps
 
    
   return (
@@ -48,32 +54,35 @@ export function RolesTableActionBar({ setSelected, onTaskUpdate, table, isPendin
         className="hidden data-[orientation=vertical]:h-5 sm:block"
       />
       <div className="flex items-center gap-1.5 text-accent-foreground">
+        {data.map((Item , i) => (
+
         <Select
+        key={i}
           onValueChange={(value: string) =>
-            onTaskUpdate({ field: "roles", value })
+            onTaskUpdate({ field: Item.field, value })
           }
         >
           <SelectTrigger asChild>
             <DataTableActionBarAction
               size="icon"
-              tooltip="Update roles"
+              tooltip={`Update ${Item.field}`}
               isPending={isPending}
             >
-              <Key className=" " />
+              <Item.Icon className=" " />
             </DataTableActionBarAction>
           </SelectTrigger>
           <SelectContent align="center">
             <SelectGroup>
-              {RoleOptions.map((roles) => (
-                <SelectItem key={roles.label} value={roles.value} className="capitalize">
-                  {roles.label}
+              {Item.Data.map((status) => (
+                <SelectItem key={status.label} value={status.value} className="capitalize">
+                  {status.label}
                 </SelectItem>
               ))}
             </SelectGroup>
           </SelectContent>
         </Select>
-     
-      
+        ))}
+    
         <DataTableActionBarAction
           size="icon"
           tooltip="Delete tasks"

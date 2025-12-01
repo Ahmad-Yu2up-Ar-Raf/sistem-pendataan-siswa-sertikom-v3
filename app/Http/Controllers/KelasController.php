@@ -25,6 +25,7 @@ class KelasController extends Controller
       
         $page = $request->input('page', 1);
         $status = $request->input('status');
+        $tingkat = $request->input('tingkat');
        
         
 
@@ -47,6 +48,10 @@ class KelasController extends Controller
           if ($request->filled('status')) {
         $statusArray = is_array($status) ? $status : explode(',', $status);
         $query->whereIn('status', $statusArray);
+    }
+          if ($request->filled('tingkat')) {
+        $tingkatArray = is_array($tingkat) ? $tingkat : explode(',', $tingkat);
+        $query->whereIn('tingkat', $tingkatArray);
     }
 
    
@@ -163,13 +168,10 @@ class KelasController extends Controller
                     
             ]);
 
-            $fileCount = count($product->showcase_images ?? []);
-            $message = $fileCount > 0 
-                ? "Kelas berhasil ditambahkan dengan {$fileCount} file."
-                : "Kelas berhasil ditambahkan.";
+        
 
             return redirect()->route('dashboard.kelas.index')
-                ->with('success', $message);
+                ->with('success', "Data Kelas Berhasil Di buat");
 
         } catch (\Exception $e) {
             Log::error('Kelas creation error: ' . $e->getMessage());

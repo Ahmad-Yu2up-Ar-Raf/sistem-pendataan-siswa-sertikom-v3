@@ -74,7 +74,7 @@ export default function CreateTahunAjarSheet({ ...props }: type) {
               </Button>{" "}
             </SheetTitle>
             <SheetDescription className=" sr-only">
-              Fill in the details below to create a new tahun ajar
+              Isi rincian di bawah ini untuk membuat data tahun ajar
             </SheetDescription>
           </SheetHeader>
           <TahunAjarForm
@@ -102,7 +102,7 @@ export default function CreateTahunAjarSheet({ ...props }: type) {
               <Button
                 disabled={isPending}
                 type="submit"
-                className="w-fit dark:bg-primary !pointer-events-auto  dark:text-primary-foreground  bg-primary text-primary-foreground "
+                className="w-fit dark:bg-primary  text-primary-foreground !pointer-events-auto  dark:primary-foreground  bg-primary  text-primary-foreground "
                 size={"sm"}
               >
                 {isPending && <Spinner className="" />}
@@ -144,7 +144,7 @@ export default function CreateTahunAjarSheet({ ...props }: type) {
             </Button>{" "}
           </DrawerTitle>
           <DrawerDescription className=" text-sm">
-            Fill in the details below to create a new tahun ajar
+            Isi rincian di bawah ini untuk membuat data tahun ajar
           </DrawerDescription>
         </DrawerHeader>
 
@@ -173,7 +173,7 @@ export default function CreateTahunAjarSheet({ ...props }: type) {
             <Button
               type="submit"
               disabled={isPending}
-              className="w-fit  !pointer-events-auto  dark:bg-primary  dark:text-primary-foreground  bg-primary text-primary-foreground "
+              className="w-fit  !pointer-events-auto  dark:bg-primary  text-primary-foreground  dark:primary-foreground  bg-primary  text-primary-foreground "
               size={"sm"}
             >
               {isPending && <Spinner className="" />}

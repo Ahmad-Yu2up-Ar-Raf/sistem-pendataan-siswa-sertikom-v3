@@ -6,9 +6,9 @@ enum StatusSiswaEnums: string
 {
     case Aktif = 'aktif';
     case Lulus = 'lulus';
-    case Pindah = 'pindah';
+ 
     case Keluar = 'keluar';
-    case Dropout = 'dropout';
+ 
 
 
 

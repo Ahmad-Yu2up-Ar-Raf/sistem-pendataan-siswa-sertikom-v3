@@ -26,8 +26,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->middleware('permission:dashboard.view');
 
         // Kelas Detail (riwayat) - resource
-        Route::resource('kelas-detail', KelasDetailController::class)
-            ->names('kelas_detail')
+        Route::resource('kelasDetail', KelasDetailController::class)
+            ->names('kelasDetail')
             ->middleware([
                 'permission:kelas_detail.view|kelas_detail.create|kelas_detail.edit|kelas_detail.delete'
             ]);
@@ -46,6 +46,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Siswa
         Route::prefix('siswa')->name('siswa.')->group(function () {
             Route::get('/', [SiswaController::class, 'index'])->name('index')->middleware('permission:siswa.view');
+              Route::get('/json_data', [SiswaController::class, 'json_data'])->name('json_data')->middleware('permission:siswa.view');
             Route::post('/', [SiswaController::class, 'store'])->name('store')->middleware('permission:siswa.create');
             Route::get('/{siswa}', [SiswaController::class, 'show'])->name('show')->middleware('permission:siswa.view');
             Route::put('/{siswa}', [SiswaController::class, 'update'])->name('update')->middleware('permission:siswa.edit');

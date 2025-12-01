@@ -4,7 +4,7 @@ import { router } from "@inertiajs/react";
 import { toast } from "sonner";
 import { Users2Icon } from "lucide-react";
 import { EmptyState } from "@/components/ui/fragments/custom-ui/empty-state";
-import { StatusTableActionBar } from "@/components/ui/fragments/custom-ui/table/status-action-bar";
+import { StatusTableActionBar } from "@/components/ui/fragments/custom-ui/table/action-bar/status-action-bar";
 import DeleteDialog from "@/components/ui/fragments/custom-ui/dialog/DeleteDialog";
 import CreateTahunAjarSheet from "../../sheet/create-sheet/create-tahun-ajar-sheet";
 import UpdateTahunAjarSheet from "../../sheet/update-sheet/update-tahun-ajar-sheet";
@@ -18,6 +18,7 @@ import { TahunAjarTable } from "./components/TahunAjarTable";
  
 import { DateRange } from "react-day-picker";
 import { StatusOptions } from "@/config/enums/status";
+import { selectDataOptions } from "../jurusan/jurusan-datatable";
 
 export default function TahunAjarDataTable({ data }: { data: pagePropsTahunAjar }) {
   const paginatedData = data.meta.pagination;
@@ -166,9 +167,9 @@ export default function TahunAjarDataTable({ data }: { data: pagePropsTahunAjar 
   }, [selectedIds]);
 
   const onTaskUpdate = React.useCallback(
-    ({ field, value }: { field: "status" | "agama" | "jenis_kelamin"; value: string }) => {
+    ({ field, value }: { field: string,  value: string }) => {
       setIsAnyPending(true);
-      setCurrentAction("update-status");
+      setCurrentAction(`update-${field}`);
 
       startTransition(() => {
         const formData = {
@@ -290,6 +291,7 @@ export default function TahunAjarDataTable({ data }: { data: pagePropsTahunAjar 
 
       {selectedIds.length > 0 && (
         <StatusTableActionBar
+        selectProps={selectDataOptions}
           onTaskUpdate={onTaskUpdate}
           isPending={isAnyPending}
           setSelected={setSelectedIds}

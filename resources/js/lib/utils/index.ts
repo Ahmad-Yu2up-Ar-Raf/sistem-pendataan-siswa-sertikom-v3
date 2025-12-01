@@ -207,20 +207,20 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
     const statusSiswaColors: Record<StatusSiswa, string> = {
       [StatusSiswa.Aktif]: "text-green-500",
       [StatusSiswa.Lulus]: "text-blue-500",
-      [StatusSiswa.Pindah]: "text-yellow-500",
+     
       [StatusSiswa.Keluar]: "text-orange-500",
-      [StatusSiswa.Dropout]: "text-red-500",
+     
     };
     return statusSiswaColors[statusSiswa] || "text-gray-400";
   }
 
   export function getStatusSiswaBadgeColor(statusSiswa: StatusSiswa): string {
     const statusSiswaBadgeColors: Record<StatusSiswa, string> = {
-      [StatusSiswa.Aktif]: "bg-green-100 text-green-800 border-green-200",
-      [StatusSiswa.Lulus]: "bg-blue-100 text-blue-800 border-blue-200",
-      [StatusSiswa.Pindah]: "bg-yellow-100 text-yellow-800 border-yellow-200",
-      [StatusSiswa.Keluar]: "bg-orange-100 text-orange-800 border-orange-200",
-      [StatusSiswa.Dropout]: "bg-red-100 text-red-800 border-red-200",
+      [StatusSiswa.Aktif]: "bg-green-100 text-green-800  ",
+      [StatusSiswa.Lulus]: "bg-blue-100 text-blue-800  ",
+  
+      [StatusSiswa.Keluar]: "bg-orange-100 text-orange-800  ",
+     
     };
     return statusSiswaBadgeColors[statusSiswa] || "bg-gray-100 text-gray-800 border-gray-200";
   }
@@ -229,9 +229,9 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
     const statusSiswaLabels: Record<StatusSiswa, string> = {
       [StatusSiswa.Aktif]: "Aktif",
       [StatusSiswa.Lulus]: "Lulus",
-      [StatusSiswa.Pindah]: "Pindah",
+   
       [StatusSiswa.Keluar]: "Keluar",
-      [StatusSiswa.Dropout]: "Dropout",
+ 
     };
     return statusSiswaLabels[statusSiswa] || "Unknown";
   }
@@ -250,7 +250,7 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
       [StatusKelas.Aktif]: "text-green-500",
       [StatusKelas.NaikKelas]: "text-blue-500",
       [StatusKelas.TinggalKelas]: "text-orange-500",
-      [StatusKelas.PindahKelas]: "text-yellow-500",
+      
       [StatusKelas.Lulus]: "text-purple-500",
       [StatusKelas.Keluar]: "text-red-500",
     };
@@ -262,7 +262,7 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
       [StatusKelas.Aktif]: "bg-green-100 text-green-800 border-green-200",
       [StatusKelas.NaikKelas]: "bg-blue-100 text-blue-800 border-blue-200",
       [StatusKelas.TinggalKelas]: "bg-orange-100 text-orange-800 border-orange-200",
-      [StatusKelas.PindahKelas]: "bg-yellow-100 text-yellow-800 border-yellow-200",
+     
       [StatusKelas.Lulus]: "bg-purple-100 text-purple-800 border-purple-200",
       [StatusKelas.Keluar]: "bg-red-100 text-red-800 border-red-200",
     };
@@ -274,7 +274,7 @@ import { Tingkat, TingkatOptions } from "@/config/enums/tingkat";
       [StatusKelas.Aktif]: "Aktif",
       [StatusKelas.NaikKelas]: "Naik Kelas",
       [StatusKelas.TinggalKelas]: "Tinggal Kelas",
-      [StatusKelas.PindahKelas]: "Pindah Kelas",
+     
       [StatusKelas.Lulus]: "Lulus",
       [StatusKelas.Keluar]: "Keluar",
     };

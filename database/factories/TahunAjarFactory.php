@@ -23,7 +23,7 @@ class TahunAjarFactory extends Factory
 
         return [
             'kode_tahun_ajar' => $this->faker->unique()->numerify('####/####'),
-            'nama_tahun_ajar' => $this->faker->numberBetween(2020, 2026) . '/' . $this->faker->numberBetween(2021, 2027),
+            'nama_tahun_ajar' => $this->faker->unique()->numberBetween(2020, 9026) . '/' . $this->faker->unique()->numberBetween(2021, 9027),
             'tanggal_mulai' => $mulai,
             'tanggal_selesai' => $selesai,
             'status' => StatusEnums::Aktif->value,

@@ -213,7 +213,7 @@ export default function UpdateSiswaSheet({ siswa, open = false, onOpenChange }: 
             <Button
               type="submit"
               disabled={isPending}
-              className="w-fit !pointer-events-auto dark:bg-primary dark:text-primary-foreground bg-primary text-primary-foreground"
+              className="w-fit !pointer-events-auto dark:bg-primary  text-primary-foreground dark:primary-foreground bg-primary"
               size={"sm"}
             >
               {isPending && <Spinner className="animate-spin" />}

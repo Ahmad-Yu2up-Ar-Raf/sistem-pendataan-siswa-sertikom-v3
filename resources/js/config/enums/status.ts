@@ -74,10 +74,8 @@ export const StatusValues: string[] = StatusOptions.map((item) => item.value);
 
 export enum StatusSiswa {
   Aktif = "aktif",
-  Lulus = "lulus",
-  Pindah = "pindah",
-  Keluar = "keluar",
-  Dropout = "dropout",
+  Lulus = "lulus", 
+  Keluar = "keluar", 
 }
 
 export const StatusSiswaOptions: OptionItem[] = [
@@ -95,13 +93,7 @@ export const StatusSiswaOptions: OptionItem[] = [
     subLabel: "Telah Lulus",
     description: "Siswa telah lulus dari sekolah",
   },
-  {
-    value: StatusSiswa.Pindah,
-    label: "Pindah",
-    icon: ArrowRightLeft,
-    subLabel: "Pindah Sekolah",
-    description: "Siswa pindah ke sekolah lain",
-  },
+  
   {
     value: StatusSiswa.Keluar,
     label: "Keluar",
@@ -109,13 +101,7 @@ export const StatusSiswaOptions: OptionItem[] = [
     subLabel: "Keluar Sekolah",
     description: "Siswa keluar dari sekolah",
   },
-  {
-    value: StatusSiswa.Dropout,
-    label: "Dropout",
-    icon: UserMinus,
-    subLabel: "Putus Sekolah",
-    description: "Siswa mengalami putus sekolah",
-  },
+   
 ];
 
 export const StatusSiswaValues: string[] = StatusSiswaOptions.map(

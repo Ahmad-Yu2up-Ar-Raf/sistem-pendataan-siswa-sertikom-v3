@@ -162,13 +162,9 @@ public function index(Request $request)
                     
             ]);
 
-            $fileCount = count($tahun_ajar->showcase_images ?? []);
-            $message = $fileCount > 0 
-                ? "Tahun Ajar berhasil ditambahkan dengan {$fileCount} file."
-                : "Tahun Ajar berhasil ditambahkan.";
-
+          
             return redirect()->route('dashboard.tahun_ajar.index')
-                ->with('success', $message);
+                ->with('success', "Data Tahun Ajar Berhasil Di buat");
 
         } catch (\Exception $e) {
             Log::error('Tahun Ajar creation error: ' . $e->getMessage());

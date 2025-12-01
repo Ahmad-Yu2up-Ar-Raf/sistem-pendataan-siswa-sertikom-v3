@@ -2,9 +2,9 @@
 import * as React from "react";
 import { router } from "@inertiajs/react";
 import { toast } from "sonner";
-import { Users2Icon } from "lucide-react";
+import { Church, CircleCheckIcon, Users2Icon, VenusAndMars } from "lucide-react";
 import { EmptyState } from "@/components/ui/fragments/custom-ui/empty-state";
-import { StatusTableActionBar } from "@/components/ui/fragments/custom-ui/table/siswa-action-bar";
+import { selectData, StatusTableActionBar } from "@/components/ui/fragments/custom-ui/table/action-bar/status-action-bar";
 import DeleteDialog from "@/components/ui/fragments/custom-ui/dialog/DeleteDialog";
 import CreateSiswaSheet from "../../sheet/create-sheet/create-siswa-sheet";
 import UpdateSiswaSheet from "../../sheet/update-sheet/update-siswa-sheet";
@@ -33,7 +33,24 @@ export default function SiswaDataTable({ data }: { data: pagePropsSiswa }) {
   const [deletedId, setDeletedId] = React.useState<number | null>(null);
   const [currentSiswa, setCurrentSiswa] = React.useState<SiswaSchema | null>(null);
   const [processing, setProcessing] = React.useState(false);
-
+ const selectData : selectData[] = [
+      {
+        Icon: CircleCheckIcon,
+        Data : StatusSiswaOptions,
+        field: "status"
+  
+      },
+      {
+        Icon: Church,
+        Data : AgamaOptions,
+        field: "agama"
+      },
+      {
+        Icon: VenusAndMars,
+        Data :JenisKelaminOptions,
+        field: "jenis_kelamin"
+      }
+    ]
   // Use new useTableFilters hook
   const { 
     filters, 
@@ -50,24 +67,7 @@ export default function SiswaDataTable({ data }: { data: pagePropsSiswa }) {
   // Filter configurations
   const filterConfigs = React.useMemo(
     () => [
-      {
-        column: "status",
-        title: "Status",
-        type: "enum" as const,
-        options: StatusSiswaOptions,
-      },
-      {
-        column: "agama",
-        title: "Agama",
-        type: "enum" as const,
-        options: AgamaOptions,
-      },
-      {
-        column: "jenis_kelamin",
-        title: "Gender",
-        type: "enum" as const,
-        options: JenisKelaminOptions,
-      },
+     
       {
         column: "jurusan",
         title: "Jurusan",
@@ -82,13 +82,13 @@ export default function SiswaDataTable({ data }: { data: pagePropsSiswa }) {
         endpoint: "/dashboard/kelas/json_data",
         perPage: 10,
       },
-      {
-        column: "tahun_ajar",
-        title: "Tahun Ajar",
-        type: "relation" as const,
-        endpoint: "/dashboard/tahun_ajar/json_data",
-        perPage: 10,
-      },
+      // {
+      //   column: "tahun_ajar",
+      //   title: "Tahun Ajar",
+      //   type: "relation" as const,
+      //   endpoint: "/dashboard/tahun_ajar/json_data",
+      //   perPage: 10,
+      // },
       {
         column: "created_at",
         title: "Tanggal Dibuat",
@@ -208,9 +208,9 @@ export default function SiswaDataTable({ data }: { data: pagePropsSiswa }) {
   }, [selectedIds]);
 
   const onTaskUpdate = React.useCallback(
-    ({ field, value }: { field: "status" | "agama" | "jenis_kelamin"; value: string }) => {
+    ({ field, value }: { field: string,  value: string }) => {
       setIsAnyPending(true);
-      setCurrentAction("update-status");
+      setCurrentAction(`update-${field}`);
 
       startTransition(() => {
         const formData = {
@@ -331,6 +331,7 @@ export default function SiswaDataTable({ data }: { data: pagePropsSiswa }) {
 
       {selectedIds.length > 0 && (
         <StatusTableActionBar
+        selectProps={selectData}
           onTaskUpdate={onTaskUpdate}
           isPending={isAnyPending}
           setSelected={setSelectedIds}

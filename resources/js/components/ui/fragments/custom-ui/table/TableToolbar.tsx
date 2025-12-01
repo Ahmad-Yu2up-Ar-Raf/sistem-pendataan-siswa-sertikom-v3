@@ -57,12 +57,12 @@ export function TableToolbar({
         className
       )}
     >
-  <div className="flex  w-full sm:w-fit sm:order-2 justify-end  items-center gap-2">
+  <div className="flex   w-full sm:w-fit sm:order-2 justify-end  items-center gap-2">
         {children}
-         <Button onClick={onCreateClick} size={"sm"} className=" h-8    w-full text-xs ">
+         <Button onClick={onCreateClick} size={"sm"} className="fixed md:relative md:end-0 md:bottom-0 end-6 bottom-6 z-50 cursor-pointer transition-all duration-200 w-fit  h-8    text-xs ">
           <Plus />
 
-          <span className="  ">
+          <span className="    hidden md:inline-flex ">
             Tambahkan Baru
             </span>
         </Button>
@@ -70,17 +70,18 @@ export function TableToolbar({
 
       <div
         className={cn(
-          "w-full grid md:flex md:flex-wrap items-center gap-y-2 gap-x-1.5",
-          filterConfigs.length > 1 ? "grid-cols-2" : "grid-cols-1"
+          " space-y-2 w-full  sm:flex sm:space-y-0 sm:items-center sm:gap-2 sm:flex-row  sm:justify-start ",
+ 
         )}
       >
         <Input
-          placeholder="Search..."
+          placeholder="Cari..."
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           className="md:max-w-[17em] col-span-4  sm:text-base text-xs h-8 w-full"
         />
-
+            <div className=" w-full gap-2 grid grid-cols-3 lg:flex    ">
+            
         {filterConfigs.map((config) => {
           if (config.type === 'date-range') {
             return (
@@ -93,7 +94,7 @@ export function TableToolbar({
               />
             );
           }
-
+    
           return (
             <GenericMultiEnumFilter
               key={config.column}
@@ -119,6 +120,7 @@ export function TableToolbar({
             Reset
           </Button>
         )}
+          </div>
       </div>
     </div>
   );

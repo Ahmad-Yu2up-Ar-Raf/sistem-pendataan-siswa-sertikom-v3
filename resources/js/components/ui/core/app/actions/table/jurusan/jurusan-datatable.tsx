@@ -2,9 +2,9 @@
 import * as React from "react";
 import { router } from "@inertiajs/react";
 import { toast } from "sonner";
-import { Users2Icon } from "lucide-react";
+import { CircleCheck, Users2Icon } from "lucide-react";
 import { EmptyState } from "@/components/ui/fragments/custom-ui/empty-state";
-import { StatusTableActionBar } from "@/components/ui/fragments/custom-ui/table/status-action-bar";
+import { selectData, StatusTableActionBar } from "@/components/ui/fragments/custom-ui/table/action-bar/status-action-bar";
 import DeleteDialog from "@/components/ui/fragments/custom-ui/dialog/DeleteDialog";
 import CreateJurusanSheet from "../../sheet/create-sheet/create-jurusan-sheet";
 import UpdateJurusanSheet from "../../sheet/update-sheet/update-jurusan-sheet";
@@ -19,11 +19,22 @@ import { JurusanTable } from "./components/JurusanTable";
 import { DateRange } from "react-day-picker";
 import { StatusOptions } from "@/config/enums/status";
 
+ export const selectDataOptions : selectData[] = [
+    {
+      Icon: CircleCheck,
+      Data : StatusOptions,
+      field: "status"
+
+    },
+
+  ]
+
 export default function JurusanDataTable({ data }: { data: pagePropsJurusan }) {
   const paginatedData = data.meta.pagination;
   const jurusan = data.data.jurusan;
   const initialFilters = data.meta.filters;
-
+ 
+ 
   // State management
   const [selectedIds, setSelectedIds] = React.useState<number[]>([]);
   const [openCreate, setOpenCreate] = React.useState(false);
@@ -32,7 +43,7 @@ export default function JurusanDataTable({ data }: { data: pagePropsJurusan }) {
   const [deletedId, setDeletedId] = React.useState<number | null>(null);
   const [currentJurusan, setCurrentJurusan] = React.useState<JurusanSchema | null>(null);
   const [processing, setProcessing] = React.useState(false);
-
+ 
   // ✅ UPDATED: Use new useTableFilters hook
   const { 
     filters, 
@@ -166,9 +177,9 @@ export default function JurusanDataTable({ data }: { data: pagePropsJurusan }) {
   }, [selectedIds]);
 
   const onTaskUpdate = React.useCallback(
-    ({ field, value }: { field: "status" | "agama" | "jenis_kelamin"; value: string }) => {
+    ({ field, value }: { field: string,  value: string }) => {
       setIsAnyPending(true);
-      setCurrentAction("update-status");
+      setCurrentAction(`update-${field}`);
 
       startTransition(() => {
         const formData = {
@@ -290,6 +301,7 @@ export default function JurusanDataTable({ data }: { data: pagePropsJurusan }) {
 
       {selectedIds.length > 0 && (
         <StatusTableActionBar
+        selectProps={selectDataOptions}
           onTaskUpdate={onTaskUpdate}
           isPending={isAnyPending}
           setSelected={setSelectedIds}

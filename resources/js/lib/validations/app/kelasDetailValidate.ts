@@ -1,7 +1,4 @@
 import { z } from "zod";
-import { siswaSchema } from "./siswaValidate";
-import { kelasSchema } from "./kelasValidate";
-import { tahunAjarSchema } from "./tahunAjarValidate";
 
 // ==========================================
 // KELAS DETAIL SCHEMA
@@ -18,21 +15,13 @@ export const kelasDetailSchema = z.object({
     tahun_ajar_id: z.coerce
       .number( "Tahun ajar wajib dipilih",)
       .min(1, "Tahun ajar wajib dipilih"),
-    tanggal_masuk: z.coerce.date("Tanggal masuk wajib diisi",),
-    tanggal_keluar: z.coerce
-    .date("Format tanggal tidak valid")
-    .optional()
-    .nullable()
-    .superRefine((date, ctx) => {
-      const tanggalMasuk = ctx.value;
-      if (date && tanggalMasuk && date <= tanggalMasuk) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Tanggal keluar harus setelah tanggal masuk",
-        });
-      }
-    }),
-    status_kelas: z.string().optional(),
+     tanggal_masuk: z.coerce.date({
+      message: "Tanggal mulai wajib diisi",
+    }).optional(),
+    tanggal_keluar: z.coerce.date({
+      message: "Tanggal selesai wajib diisi",
+    }).optional(),
+    status_kelas: z.string(),
     semester: z.string().optional().nullable(),
     no_urut_absen: z.coerce
       .number()
@@ -63,9 +52,9 @@ export const kelasDetailSchema = z.object({
     updated_by: z.number().optional(),
     
     // Relations
-    siswa: siswaSchema.optional(),
-    kelas: kelasSchema.optional(),
-    tahun_ajar: tahunAjarSchema.optional(),
+    // siswa: siswaSchema.optional(),
+    // kelas: kelasSchema.optional(),
+    // tahun_ajar: tahunAjarSchema.optional(),
   });
   
   export type KelasDetailSchema = z.infer<typeof kelasDetailSchema>;

@@ -109,6 +109,11 @@ export function SiswaTableRow({
           {item.kelas?.nama_kelas || "N/A"}
         </Badge>
       </TableCell>
+      <TableCell>
+        <Badge icon={DoorOpen} variant="outline" className="py-1 [&>svg]:size-3.5">
+          {item.kelas?.tingkat || "N/A"}
+        </Badge>
+      </TableCell>
 
       <TableCell>
         <Badge icon={Map} variant="outline" className="py-1 [&>svg]:size-3.5">

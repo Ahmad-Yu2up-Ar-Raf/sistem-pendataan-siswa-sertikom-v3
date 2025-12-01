@@ -2,7 +2,7 @@
 import * as React from "react";
 import { router } from "@inertiajs/react";
 import { toast } from "sonner";
-import { Users2Icon } from "lucide-react";
+import { Key, Users2Icon } from "lucide-react";
 import { EmptyState } from "@/components/ui/fragments/custom-ui/empty-state";
  
 import DeleteDialog from "@/components/ui/fragments/custom-ui/dialog/DeleteDialog";
@@ -18,8 +18,9 @@ import { UserTable } from "./components/UserTable";
  
 import { DateRange } from "react-day-picker";
  
-import { RoleOptions } from "@/config/enums/Roles";
-import { RolesTableActionBar } from "@/components/ui/fragments/custom-ui/table/role-action-bar";
+import { RoleOptions, RoleValues } from "@/config/enums/Roles";
+import { selectData, StatusTableActionBar } from "@/components/ui/fragments/custom-ui/table/action-bar/status-action-bar";
+ 
 
 export default function UserDataTable({ data }: { data: pagePropsAdmin }) {
   const paginatedData = data.meta.pagination;
@@ -34,7 +35,15 @@ export default function UserDataTable({ data }: { data: pagePropsAdmin }) {
   const [deletedId, setDeletedId] = React.useState<number | null>(null);
   const [currentUser, setCurrentUser] = React.useState<UserSchema | null>(null);
   const [processing, setProcessing] = React.useState(false);
-
+ const selectData : selectData[] = [
+      {
+        Icon: Key,
+        Data : RoleOptions,
+        field: "roles"
+  
+      },
+      
+    ]
   // ✅ UPDATED: Use new useTableFilters hook
   const { 
     filters, 
@@ -168,7 +177,7 @@ export default function UserDataTable({ data }: { data: pagePropsAdmin }) {
   }, [selectedIds]);
 
 const onTaskUpdate = React.useCallback(
-  ({ field, value }: { field: "roles"; value: string | string[] }) => {
+  ({ field, value }: { field: string; value: string | string[] }) => {
     if (!selectedIds || selectedIds.length === 0) {
       toast.error("Pilih minimal satu user terlebih dahulu.");
       return;
@@ -310,7 +319,8 @@ const onTaskUpdate = React.useCallback(
       )}
 
       {selectedIds.length > 0 && (
-        <RolesTableActionBar
+        <StatusTableActionBar
+        selectProps={selectData}
           onTaskUpdate={onTaskUpdate}
           isPending={isAnyPending}
           setSelected={setSelectedIds}

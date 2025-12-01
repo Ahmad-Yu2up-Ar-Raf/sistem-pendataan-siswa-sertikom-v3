@@ -1,4 +1,5 @@
 
+import ScrollToTop from '@/components/ui/fragments/custom-ui/button/ScrollTop';
 import AppLayoutTemplate from './app-sidebar-layout';
 
 import { Head, usePage } from '@inertiajs/react';
@@ -27,13 +28,13 @@ export default ({ children, ...props }: AppLayoutProps) =>
     <AppLayoutTemplate  {...props}>
         <Head title={pathNames[currentPath]}/>
            <div className="flex h-full flex-1 flex-col gap-5 rounded-xl px-4  py-6 md:p-6 overflow-x-auto">
-             <div className="flex-1 space-y-4 sm:space-y-7">
+             <div className="flex-1 space-y-2 sm:space-y-7">
 {(props.deskripcion && props.title) && (
 
 <header className=' flex-col md:flex-row text-center md:text-left  flex gap-5 content-center items-center '>
    {props.icon && 
     
-  <props.icon className=' bg-primary content-center text-primary-foreground p-2 t rounded-lg size-10'/>
+  <props.icon className=' bg-primary  text-primary-foreground content-center p-2 t rounded-lg size-10'/>
     }
 <div className="  m-auto w-full items-center content-center md:gap-2 ">
   
@@ -50,9 +51,10 @@ export default ({ children, ...props }: AppLayoutProps) =>
 
 {children}
 {/* <OrderDataTable  data={props}/> */}
-
+  {/* <ScrollToTop/> */}
 </div>
            </div>
+
     </AppLayoutTemplate>
 );
 }

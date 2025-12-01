@@ -5,7 +5,7 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/fragments/shadcn-ui/badge"
-import { Calendar, MapPin, Clock, CheckCircle,  DoorOpen, UsersRound, Venus, Mars, VenusAndMars, Building2, XCircle, CircleX, UserCheck2, UserRoundX } from "lucide-react"
+import { Calendar, MapPin, Clock, CheckCircle,  DoorOpen, UsersRound, Venus, Mars, VenusAndMars, Building2, XCircle, CircleX, UserCheck2, UserRoundX, PencilRuler, User, UserRound, IdCard, PenIcon } from "lucide-react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/fragments/shadcn-ui/card"
 import { SiswaSchema } from "@/lib/validations/app/siswaValidate"
 import { JurusanSchema } from "@/lib/validations/app/jurusanValidate"
@@ -17,12 +17,7 @@ import { JenisKelamin } from "@/config/enums/jenis-kelamin"
 import { getAgamaBadgeColor, getAgamaIcon, getJenisKelaminIcon, getStatusIcon, getStatusSiswaBadgeColor, getStatusSiswaIcon } from "@/lib/utils/index"
 import { useInitials } from "@/hooks/use-initials"
 import { batasiKata } from "@/hooks/useWord"
-
-
-
-
-
-
+import { Button } from "../../shadcn-ui/button"
 
 
 interface DetailCardProps {
@@ -35,45 +30,15 @@ interface DetailCardProps {
       kelas?: KelasSchema,
       tahun_masuk?: TahunAjarSchema
     };
-
+  onCreateClick?: () => void;
 }
 
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'active':
-      return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-    case 'inactive':
-      return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-    case 'maintenance':
-      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
-    case 'available':
-      return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
-    case 'full':
-      return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-    case 'limited':
-      return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400'
-    default:
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
-  }
-}
-
-const getTypeColor = (type: string) => {
-  switch (type) {
-    case 'mixture':
-      return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400'
-    case 'male':
-      return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
-    case 'female':
-      return 'bg-pink-100 text-pink-800 dark:bg-pink-900/20 dark:text-pink-400'
-    default:
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
-  }
-}
 
 const InfoItem = ({
   icon: Icon,
   label,
   value,
+  
   className
 }: {
   icon: React.ElementType
@@ -81,82 +46,101 @@ const InfoItem = ({
   value: React.ReactNode
   className?: string
 }) => (
-  <div className={cn("flex items-start gap-3 py-3 border-b border-border/50 last:border-b-0", className)}>
-    <Icon className="h-4 sr-only w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-    <div className="flex justify-between w-full min-w-0">
-      <p className="text-sm font-medium text-muted-foreground">{label}</p>
-      <div className="text-sm text-foreground mt-1">{value}</div>
+  <div className={cn(" flex w-full justify-between py-3 border-b border-border/50 last:border-b-0", className)}>
+    <div className="flex content-center items-start gap-3 ">
+
+    <Icon className="size-4 text-muted-foreground   sr-only flex-shrink-0" />
+      <p className="text-xs font-medium text-muted-foreground">{label}</p>
     </div>
+ 
+      <p className="text-xs text-right text-foreground mt-1">{value}</p>
+ 
   </div>
 )
 
 function DetailCard({
-  title = "General Information",
+  title = "Informasi Umum",
   className,
-  description = "Showing detailed siswa information and current status",
-
+  description = "Menampilkan informasi siswa secara detail",
+    onCreateClick,
   dataSiswa ,
 
 }: DetailCardProps) {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-
-
+ 
 
 
   const status = dataSiswa.status as StatusSiswa;
   const agama = dataSiswa.agama as Agama;
   const jenis_kelamin = dataSiswa.jenis_kelamin as JenisKelamin;
-  const IconStatus = getStatusSiswaIcon(status);
-  const IconStatusColor = getStatusSiswaBadgeColor(status);
-  const IconAgamaColor = getAgamaBadgeColor(agama);
+ 
+  const IconStatus= getStatusSiswaIcon(status);
+ 
   const IconAgama = getAgamaIcon(agama);
   const IconGender = getJenisKelaminIcon(jenis_kelamin);
-  const getInitial = useInitials()
-  const batasiHurufNama = batasiKata(dataSiswa.nama_lengkap, 2)
+ 
   return (
    <Card className={cn("flex flex-col w-full gap-2 ",    className)}>
        <CardHeader className=" space-y-0 border-b [.border-b]:pb-5   ">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <CardTitle className=" gap-2">
+        <div className=' flex-row      flex gap-5 content-center items-center '>
+          
+          <div className="  m-auto w-full items-center content-center md:gap-2 ">
+            <CardTitle className=" gap-2 ">
 
-              {`${title} #${dataSiswa.id}`}
+              {`${title}  `}
             </CardTitle>
             <CardDescription className="mt-2">{description}</CardDescription>
           </div>
-
+          {/* <Button onClick={onCreateClick} variant="outline" size="icon"   className="  ">
+        <PenIcon />
+        </Button> */}
         </div>
       </CardHeader>
 
       <CardContent className="space-y-1 content-center">
-        <InfoItem
-          icon={Building2}
-          label="Siswa Name"
+        {/* <InfoItem
+          icon={UserRound}
+          label="Nama "
           value={<span className="font-medium">{dataSiswa.nama_lengkap}</span>}
         />
-        {dataSiswa.alamat && (
+        <InfoItem
+          icon={IdCard}
+          label="NISN"
+          value={<span className="font-medium">{dataSiswa.nisn}</span>}
+        />
+         {dataSiswa.alamat && (
 
         <InfoItem
           icon={MapPin}
-          label="Location"
+          label="Alamat"
           value={dataSiswa.alamat || "Location not specified"}
         />
-        )}
+        )} */}
 
         <InfoItem
           icon={DoorOpen}
-          label="Room Capacity"
+          label="Kelas"
           value={
             <div className="flex items-center gap-2">
-              <span className="font-medium">Kelas {dataSiswa.kelas?.nama_kelas} </span>
+              <span className="font-medium"> 
+                  <Badge  variant={"outline"} className={cn("py-1 [&>svg]:size-3.5")} >
+         <DoorOpen className=" mr-1" />
+
+              {dataSiswa.kelas?.nama_kelas}
+            </Badge> </span>
+            </div>
+          }
+        />
+        <InfoItem
+          icon={PencilRuler}
+          label="Jurusan"
+          value={
+            <div className="flex items-center gap-2">
+              <span className="font-medium"> 
+                  <Badge  variant={"outline"} className={cn("py-1 [&>svg]:size-3.5")} >
+         <PencilRuler className=" mr-1" />
+
+              {dataSiswa.jurusan?.nama_jurusan}
+            </Badge> </span>
             </div>
           }
         />
@@ -164,26 +148,38 @@ function DetailCard({
 
 
   <>
-   <InfoItem
-          icon={DoorOpen}
-          label="Status"
-          value={
-           <Badge  className={cn("py-1 [&>svg]:size-3.5", IconStatusColor)} >
-                <IconStatus className=" mr-1" />
-
-              {dataSiswa.status}
-            </Badge>
-          }
-        />
+ 
 
    <InfoItem
           icon={DoorOpen}
           label="Agama"
           value={
-          <Badge  className={cn("py-1 [&>svg]:size-3.5",IconAgamaColor)} >
+          <Badge  variant={"outline"} className={cn("py-1 [&>svg]:size-3.5")} >
          <IconAgama className=" mr-1" />
 
               {dataSiswa.agama}
+            </Badge>
+          }
+        />
+   <InfoItem
+          icon={VenusAndMars}
+          label="Kelamin"
+          value={
+          <Badge  variant={"outline"} className={cn("py-1 [&>svg]:size-3.5")} >
+         <IconGender className=" mr-1" />
+
+              {dataSiswa.jenis_kelamin}
+            </Badge>
+          }
+        />
+   <InfoItem
+          icon={IconStatus}
+          label="Status"
+          value={
+          <Badge  variant={"outline"} className={cn("py-1 [&>svg]:size-3.5")} >
+         <IconStatus className=" mr-1" />
+
+              {dataSiswa.status}
             </Badge>
           }
         />
@@ -193,61 +189,9 @@ function DetailCard({
 
 
 
-        {/* {dataSiswa.capacityEmploye ? (
-
-        <InfoItem
-          icon={UsersRound}
-          label="Employee Capacity"
-          value={   <div className="flex items-center gap-2">
-              <span className="font-medium">{dataSiswa.capacityEmploye} Employe</span>
-            </div> }
-        />
-        ) : null}
-
-        <InfoItem
-          icon={dataSiswa.type == "female" ? Venus  : dataSiswa.type == "male" ? Mars : VenusAndMars }
-          label="Siswa Type"
-          value={
-            <Badge className={getTypeColor(dataSiswa.type)}>
-              {dataSiswa.type}
-            </Badge>
-          }
-        />
-
-        <InfoItem
-          icon={Calendar}
-          label="Created At"
-          value={formatDate(dataSiswa.createdAt)}
-        />
-
-
-
-
-        {dataSiswa.deskripcion && (
-          <InfoItem
-            icon={Clock}
-            label="Description"
-            value={<p className="text-sm leading-relaxed">{dataSiswa.deskripcion}</p>}
-          />
-        )} */}
+       
       </CardContent>
-            {/* <CardFooter className=" pt-4 border-t sr-only">
-          <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
-            <div className="flex items-center">
-              <div className={cn("w-2 h-2 rounded-full mr-2",
-                dataSiswa.status === 'active' ? 'bg-green-500' :  'bg-red-500'
-              )} />
-              Status: {dataSiswa.status}
-            </div>
-            <div className="flex items-center">
-              <div className={cn("w-2 h-2 rounded-full mr-2",
-                dataSiswa.statusCapacity === 'available' ? 'bg-blue-500' :
-                dataSiswa.statusCapacity === 'full' ? 'bg-red-500' : 'bg-orange-500'
-              )} />
-              Capacity: {dataSiswa.statusCapacity}
-            </div>
-          </div>
-        </CardFooter> */}
+          
     </Card>
   )
 

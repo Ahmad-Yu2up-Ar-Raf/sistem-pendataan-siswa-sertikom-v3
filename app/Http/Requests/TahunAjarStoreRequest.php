@@ -25,7 +25,7 @@ class TahunAjarStoreRequest extends FormRequest
     {
         return [
             'kode_tahun_ajar' => 'required|string|max:20|unique:tahun_ajars,kode_tahun_ajar',
-            'nama_tahun_ajar' => 'required|string|max:100',
+            'nama_tahun_ajar' => 'required|string|max:100|unique:tahun_ajars,nama_tahun_ajar',
             'tanggal_mulai' => 'required|date|before:tanggal_selesai',
             'tanggal_selesai' => 'required|date|after:tanggal_mulai',
             'status' => [
@@ -40,6 +40,7 @@ class TahunAjarStoreRequest extends FormRequest
         return [
             'kode_tahun_ajar.required' => 'Kode tahun ajar wajib diisi',
             'kode_tahun_ajar.unique' => 'Kode tahun ajar sudah digunakan',
+            'nama_tahun_ajar.unique' => 'Namar Tahun ajar sudah digunakan',
             'kode_tahun_ajar.max' => 'Kode tahun ajar maksimal 20 karakter',
             'nama_tahun_ajar.required' => 'Nama tahun ajar wajib diisi',
             'nama_tahun_ajar.max' => 'Nama tahun ajar maksimal 100 karakter',
