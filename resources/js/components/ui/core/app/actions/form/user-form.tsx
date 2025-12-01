@@ -104,24 +104,46 @@ export default function UserForm<T extends FieldValues>({
               )}
             />
             {/* Password Field */}
-            {defaultvalue == null && (
+            {/* {defaultvalue == null && (
               <>
               
+              </>
+            )} */}
+            <FormField
+              control={form.control}
+              name={"password" as FieldPath<T>}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className={cn(isPending && "text-muted-foreground" , 
+
+
+                  )}>
+                    Password
+                  </FormLabel>
+                  <FormControl>
+                    <PasswordInput
+                      placeholder="Password"
+              
+                      disabled={isPending}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+              />
               <FormField
                 control={form.control}
-                name={"password" as FieldPath<T>}
+                name={"password_confirmation" as FieldPath<T>}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className={cn(isPending && "text-muted-foreground" , 
-  
-  
-                    )}>
-                      Password
+                    <FormLabel className={cn(isPending && "text-muted-foreground")}>
+                      Password Confirmation
                     </FormLabel>
                     <FormControl>
                       <PasswordInput
-                        placeholder="Password"
-                        type="number"
+                        placeholder="Password Confirmation"
+          
                         disabled={isPending}
                         {...field}
                       />
@@ -129,29 +151,7 @@ export default function UserForm<T extends FieldValues>({
                     <FormMessage />
                   </FormItem>
                 )}
-                />
-                <FormField
-                  control={form.control}
-                  name={"password_confirmation" as FieldPath<T>}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className={cn(isPending && "text-muted-foreground")}>
-                        Password Confirmation
-                      </FormLabel>
-                      <FormControl>
-                        <PasswordInput
-                          placeholder="Password Confirmation"
-                          type="number"
-                          disabled={isPending}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </>
-            )}
+              />
             {/* Password Field */}
 
    {/* Status */}

@@ -33,7 +33,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ]);
 
         // Tahun Ajar
-        Route::prefix('tahun-ajar')->name('tahun_ajar.')->group(function () {
+        Route::prefix('tahun_ajar')->name('tahun_ajar.')->group(function () {
             Route::get('/', [TahunAjarController::class, 'index'])->name('index')->middleware('permission:tahun_ajar.view');
             Route::get('/json_data', [TahunAjarController::class, 'json_data'])->name('json_data')->middleware('permission:tahun_ajar.view');
             Route::post('/', [TahunAjarController::class, 'store'])->name('store')->middleware('permission:tahun_ajar.create');
@@ -61,7 +61,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/{admin}', [AdminController::class, 'show'])->name('show')->middleware('permission:users.view');
             Route::put('/{admin}', [AdminController::class, 'update'])->name('update')->middleware('permission:users.edit');
             Route::delete('/{admin}', [AdminController::class, 'destroy'])->name('destroy')->middleware('permission:users.delete');
-               Route::post('/bulk-roles', [AdminController::class, 'bulkUpdateRoles'])
+            Route::post('/bulk-roles', [AdminController::class, 'bulkUpdateRoles'])
          ->name('bulk_roles')->middleware('permission:users.edit');
         });
 

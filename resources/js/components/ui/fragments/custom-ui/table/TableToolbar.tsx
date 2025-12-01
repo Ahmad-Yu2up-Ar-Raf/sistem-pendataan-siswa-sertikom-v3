@@ -71,7 +71,7 @@ export function TableToolbar({
       <div
         className={cn(
           "w-full grid md:flex md:flex-wrap items-center gap-y-2 gap-x-1.5",
-          filterConfigs.length > 1 ? "grid-cols-4" : "grid-cols-1"
+          filterConfigs.length > 1 ? "grid-cols-3" : "grid-cols-1"
         )}
       >
         <Input

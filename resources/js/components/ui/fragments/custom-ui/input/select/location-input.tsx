@@ -70,7 +70,7 @@ export interface StateProps {
 // ==================== COUNTRY SELECTOR ====================
 interface CountrySelectorProps {
   disabled?: boolean
-  value?: string
+  value?: string | undefined    // <-- allow undefined
   onChange?: (value: string) => void
   onCountrySelect?: (country: CountryProps | null) => void
 }
@@ -87,17 +87,21 @@ export const CountrySelector = ({
   const countriesData = countries as CountryProps[]
 
   // Initialize from value prop
-  useEffect(() => {
-    
-    
-    if (value) {
-      const country = countriesData.find(c => c.name === value)
-   
-      
-      if (country && (!selectedCountry || selectedCountry.name !== value)) {
-        setSelectedCountry(country)
-        onCountrySelect?.(country)
-      }
+ useEffect(() => {
+    if (!value) {
+      setSelectedCountry(null)
+      onCountrySelect?.(null)
+      return
+    }
+
+    // support: search by name, iso2 or iso3
+    const country = countriesData.find(c =>
+      c.name === value || c.iso2 === value || c.iso3 === value
+    )
+
+    if (country && selectedCountry?.id !== country.id) {
+      setSelectedCountry(country)
+      onCountrySelect?.(country)
     }
   }, [value])
 

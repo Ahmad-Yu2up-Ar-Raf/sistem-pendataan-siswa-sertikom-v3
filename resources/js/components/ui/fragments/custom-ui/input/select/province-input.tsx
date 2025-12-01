@@ -64,23 +64,16 @@ export const ProvinceSelector = ({
   }
 
   // Filter provinces for selected country - FIXED: Handle type mismatch
-  const availableProvinces = selectedCountry
-    ? statesData.filter((state) => {
-        // Handle both string and number comparison
-        const stateCountryId = state.country_id 
-        const selectedCountryId = selectedCountry.id
-        
-        // Compare as both string and number
-        return stateCountryId == selectedCountryId || 
-               Number(stateCountryId) === Number(selectedCountryId) ||
-               String(stateCountryId) === String(selectedCountryId)
-      })
-    : []
+const availableProvinces = selectedCountry
+  ? statesData.filter((state) => String(state.country_id) === String(selectedCountry.id))
+  : []
 
 
   if (availableProvinces.length > 0) {
 
   }
+
+
 
   const hasProvinces = availableProvinces.length > 0
 
@@ -90,24 +83,29 @@ export const ProvinceSelector = ({
 
 
   // Initialize from value prop
-  useEffect(() => {
-    if (value && availableProvinces.length > 0) {
-      const province = availableProvinces.find(p => p.name === value)
-      if (province && (!selectedProvince || selectedProvince.name !== value)) {
-        setSelectedProvince(province)
-      }
+useEffect(() => {
+  if (value && availableProvinces.length > 0) {
+    const province = availableProvinces.find(p => p.name === value || String(p.id) === String(value))
+    if (province && (!selectedProvince || selectedProvince.id !== province.id)) {
+      setSelectedProvince(province)
+      onProvinceSelect?.(province)   // penting: beri tahu parent
     }
-  }, [value, availableProvinces.length])
+  }
+  // If value is falsy, clear selection
+  if (!value) {
+    setSelectedProvince(null)
+    onProvinceSelect?.(null)
+  }
+}, [value, availableProvinces]) // <- depend on the actual array (content)
 
-  // Reset province when country changes
+
+ 
+
   useEffect(() => {
-    if (selectedCountry && selectedProvince?.country_id !== selectedCountry.id) {
-   
-      setSelectedProvince(null)
-      onChange?.('')
-      onProvinceSelect?.(null)
-    }
-  }, [selectedCountry?.id])
+  setSelectedProvince(null)
+  onChange?.('')         // clear the form value
+  onProvinceSelect?.(null)
+}, [selectedCountry?.id])
 
   const handleSelect = (province: StateProps) => {
     

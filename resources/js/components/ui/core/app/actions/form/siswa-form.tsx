@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/fragments/shadcn-ui/select";
 
 import { Button } from "@/components/ui/fragments/shadcn-ui/button";
-import { CalendarIcon, Check, Search, Loader } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { Textarea } from "@/components/ui/fragments/shadcn-ui/textarea";
 import { StatusSiswaOptions } from "@/config/enums/StatusSiswa";
 
@@ -46,14 +46,12 @@ import JurusanCombobox from "@/components/ui/fragments/custom-ui/input/combobox/
 import { SiswaSchema } from "@/lib/validations/app/siswaValidate";
 import { ProvinceSelector } from "@/components/ui/fragments/custom-ui/input/select/province-input";
 
-
-
 interface TaskFormProps<T extends FieldValues> {
   form: UseFormReturn<T>;
   onSubmit: (data: T) => void;
   children: React.ReactNode;
   isPending: boolean;
-    defaultvalue?: SiswaSchema;
+  defaultvalue?: SiswaSchema;
 }
 
 export default function SiswaForm<T extends FieldValues>({
@@ -63,8 +61,7 @@ export default function SiswaForm<T extends FieldValues>({
   isPending,
   defaultvalue,
 }: TaskFormProps<T>) {
-
-  const countryValue = form.watch("asal_negara" as FieldPath<T>)
+ 
 
   return (
     <Form {...form}>
@@ -75,8 +72,7 @@ export default function SiswaForm<T extends FieldValues>({
         <main className="space-y-6 mb-6">
           <section className="space-y-10 pb-8 pt-2 px-4 sm:px-6 border-b">
             
-           
-  {/* Nama Lengkap Field */}
+            {/* Nama Lengkap Field */}
             <FormField
               control={form.control}
               name={"nama_lengkap" as FieldPath<T>}
@@ -91,12 +87,14 @@ export default function SiswaForm<T extends FieldValues>({
                       type="text"
                       disabled={isPending}
                       {...field}
+                      value={field.value || ""}
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             {/* NISN Field */}
             <FormField
               control={form.control}
@@ -109,9 +107,10 @@ export default function SiswaForm<T extends FieldValues>({
                   <FormControl>
                     <Input
                       placeholder="NISN"
-                      type="number"
+                      type="text"
                       disabled={isPending}
                       {...field}
+                      value={field.value || ""}
                     />
                   </FormControl>
                   <FormMessage />
@@ -131,9 +130,10 @@ export default function SiswaForm<T extends FieldValues>({
                   <FormControl>
                     <Input
                       placeholder="NIS"
-                      type="number"
+                      type="text"
                       disabled={isPending}
                       {...field}
+                      value={field.value || ""}
                     />
                   </FormControl>
                   <FormMessage />
@@ -141,54 +141,11 @@ export default function SiswaForm<T extends FieldValues>({
               )}
             />
 
+            {/* Country Field */}
+           
 
-             {/* Country Field */}
-        <FormField
-          control={form.control}
-          name={"asal_negara" as FieldPath<T>}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Asal Negara</FormLabel>
-              <FormControl>
-                <CountrySelector
-                  value={field.value}
-                  onChange={field.onChange}
-                  disabled={isPending}
-                />
-              </FormControl>
-              <FormDescription className='text-xs sr-only text-muted-foreground'>
-                Pilih your country
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+           
 
-        {/* Province Field */}
-        <FormField
-          control={form.control}
-          name={"tempat_lahir" as FieldPath<T>}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tempat Lahir</FormLabel>
-              <FormControl>
-                <ProvinceSelector
-             
-                  value={field.value}
-                  onChange={field.onChange}
-                  countryName={countryValue as string}
-                  disabled={isPending}
-                />
-              </FormControl>
-              <FormDescription className='text-xs sr-only text-muted-foreground'>
-                Pilih your province (if available)
-              </FormDescription>
-              <FormMessage  className=' sr-only'/>
-            </FormItem>
-          )}
-        />    
-
-          
             <FormField
               control={form.control}
               name={"nama_ayah" as FieldPath<T>}
@@ -203,12 +160,14 @@ export default function SiswaForm<T extends FieldValues>({
                       type="text"
                       disabled={isPending}
                       {...field}
+                      value={field.value || ""}
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name={"nama_ibu" as FieldPath<T>}
@@ -223,6 +182,7 @@ export default function SiswaForm<T extends FieldValues>({
                       type="text"
                       disabled={isPending}
                       {...field}
+                      value={field.value || ""}
                     />
                   </FormControl>
                   <FormMessage />
@@ -230,125 +190,131 @@ export default function SiswaForm<T extends FieldValues>({
               )}
             />
 
+            <TahunAjarCombobox isPending={isPending} form={form}/>
+            <KelasCombobox isPending={isPending} form={form}/>
+            <JurusanCombobox isPending={isPending} form={form}/>
 
-                 <TahunAjarCombobox isPending={isPending} form={form}/>
-                <KelasCombobox isPending={isPending} form={form}/>
-                <JurusanCombobox isPending={isPending} form={form}/>
-            {/* RT Field */}
-           
+            <FormField
+              control={form.control}
+              name={"tanggal_lahir" as FieldPath<T>}
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Tanggal Lahir</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          disabled={isPending}
+                          variant="outline"
+                          className={cn(
+                            "w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                          type="button"
+                        >
+                          {field.value ? (
+                            format(new Date(field.value), "PPP")
+                          ) : (
+                            <span>Pilih tanggal</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar mode="single" onSelect={field.onChange} selected={field.value} />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          
+            {/* Alamat */}
+            <FormField
+              control={form.control}
+              name={"alamat" as FieldPath<T>}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className={cn(isPending && "text-muted-foreground")}>
+                    Alamat
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Alamat lengkap"
+                      className="resize-none"
+                      disabled={isPending}
+                      {...field}
+                      value={field.value || ""}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-                control={form.control}
-                name={"tanggal_lahir" as FieldPath<T>}
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Tanggal Lahir</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            disabled={isPending}
-                            variant="outline"
-                            className={cn(
-                              "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                            type="button"
-                          >
-                            {field.value ? (
-                              format(new Date(field.value), "PPP")
-                            ) : (
-                              <span>Pilih tanggal</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar mode="single" onSelect={field.onChange} />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Alamat */}
-              <FormField
-                control={form.control}
-                name={"alamat" as FieldPath<T>}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className={cn(isPending && "text-muted-foreground")}>
-                      Alamat
-                    </FormLabel>
+            {/* ✅ FIXED: Use value instead of defaultValue */}
+            <FormField
+              control={form.control}
+              name={"jenis_kelamin" as FieldPath<T>}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Jenis Kelamin</FormLabel>
+                  <Select 
+                    onValueChange={field.onChange} 
+                    value={field.value} 
+                    disabled={isPending}
+                  >
                     <FormControl>
-                      <Textarea
-                        placeholder="Alamat lengkap"
-                        className="resize-none"
-                        disabled={isPending}
-                        {...field}
-                      />
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih kelamin" />
+                      </SelectTrigger>
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                    <SelectContent>
+                      {JenisKelaminOptions.map((item, i) => (
+                        <SelectItem key={i} value={item.value}>
+                          {item.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name={"jenis_kelamin" as FieldPath<T>}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Jenis Kelamin</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={defaultvalue?.jenis_kelamin} disabled={isPending}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Pilih kelamin" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {JenisKelaminOptions.map((item, i) => (
-                          <SelectItem key={i} value={item.value}>
-                            {item.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name={"agama" as FieldPath<T>}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Agama</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={defaultvalue?.agama} disabled={isPending}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Pilih agama" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {AgamaOptions.map((item, i) => (
-                          <SelectItem key={i} value={item.value}>
-                            {item.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            {/* ✅ FIXED: Use value instead of defaultValue */}
+            <FormField
+              control={form.control}
+              name={"agama" as FieldPath<T>}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Agama</FormLabel>
+                  <Select 
+                    onValueChange={field.onChange} 
+                    value={field.value} 
+                    disabled={isPending}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih agama" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {AgamaOptions.map((item, i) => (
+                        <SelectItem key={i} value={item.value}>
+                          {item.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
           </section>
 
-             
           {/* Optional Fields */}
           <section className="space-y-10 px-4 sm:px-6">
             <header>
@@ -359,97 +325,120 @@ export default function SiswaForm<T extends FieldValues>({
             </header>
 
             <section className="space-y-10">
-              {/* Tanggal Lahir */}
+
+              {/* ========== FOTO FIELD (Avatar Input) ========== */}
+              <FormField
+                control={form.control}
+                name={"foto" as FieldPath<T>}
+                render={({ field }) => (
+                  <FormItem className="">
+                    <FormControl>
+                      <AvatarInput
+                        value={field.value}
+                        onChange={field.onChange}
+                        disabled={isPending}
+                      />
+                    </FormControl>
+                    <FormDescription className="text-center">
+                      Upload foto profil siswa (JPG, PNG, max 2MB)
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
 
-                 {/* ========== FOTO FIELD (Avatar Input) ========== */}
+                 {/* Province Field */}
             <FormField
               control={form.control}
-              name={"foto" as FieldPath<T>}
+              name={"provinsi" as FieldPath<T>}
               render={({ field }) => (
-                <FormItem className="">
-                  {/* <FormLabel className={cn(isPending && "text-muted-foreground sr-only hidden text-center w-full m-auto")}>
-                    Foto Profil
-                  </FormLabel> */}
+                <FormItem>
+                  <FormLabel>Tempat Lahir</FormLabel>
                   <FormControl>
-                    <AvatarInput
-                      value={field.value}
+                    <ProvinceSelector
+                      value={field.value || ""}
                       onChange={field.onChange}
+                      countryName={"Indonesia"}
                       disabled={isPending}
                     />
                   </FormControl>
-                  <FormDescription className=" text-center">
-                    Upload foto profil siswa (JPG, PNG, max 2MB)
+                  <FormDescription className='text-xs sr-only text-muted-foreground'>
+                    Pilih your province (if available)
                   </FormDescription>
-                  <FormMessage />
+                  <FormMessage className='sr-only'/>
                 </FormItem>
               )}
-            />
+            />    
 
-             <FormField
-              control={form.control}
-              name={"rt" as FieldPath<T>}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className={cn(isPending && "text-muted-foreground")}>
-                    RT
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="RT"
-                      type="text"
-                      disabled={isPending}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name={"rt" as FieldPath<T>}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className={cn(isPending && "text-muted-foreground")}>
+                      RT
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="RT"
+                        type="text"
+                        disabled={isPending}
+                        {...field}
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            {/* RW Field */}
-            <FormField
-              control={form.control}
-              name={"rw" as FieldPath<T>}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className={cn(isPending && "text-muted-foreground")}>
-                    RW
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="RW"
-                      type="text"
-                      disabled={isPending}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              {/* RW Field */}
+              <FormField
+                control={form.control}
+                name={"rw" as FieldPath<T>}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className={cn(isPending && "text-muted-foreground")}>
+                      RW
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="RW"
+                        type="text"
+                        disabled={isPending}
+                        {...field}
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               {/* Asal Sekolah Field */}
-            <FormField
-              control={form.control}
-              name={"asal_sekolah" as FieldPath<T>}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className={cn(isPending && "text-muted-foreground")}>
-                    Asal Sekolah
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Asal sekolah"
-                      type="text"
-                      disabled={isPending}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name={"asal_sekolah" as FieldPath<T>}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className={cn(isPending && "text-muted-foreground")}>
+                      Asal Sekolah
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Asal sekolah"
+                        type="text"
+                        disabled={isPending}
+                        {...field}
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               {/* Keterangan */}
               <FormField
                 control={form.control}
@@ -465,6 +454,7 @@ export default function SiswaForm<T extends FieldValues>({
                         className="resize-none"
                         disabled={isPending}
                         {...field}
+                        value={field.value || ""}
                       />
                     </FormControl>
                     <FormMessage />
@@ -486,6 +476,7 @@ export default function SiswaForm<T extends FieldValues>({
                         placeholder="Kelurahan"
                         disabled={isPending}
                         {...field}
+                        value={field.value || ""}
                       />
                     </FormControl>
                     <FormMessage />
@@ -493,14 +484,18 @@ export default function SiswaForm<T extends FieldValues>({
                 )}
               />
 
-              {/* Status */}
+              {/* ✅ FIXED: Status - Use value instead of defaultValue */}
               <FormField
                 control={form.control}
                 name={"status" as FieldPath<T>}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Status</FormLabel>
-                    <Select onValueChange={field.onChange}  defaultValue={field.value}  disabled={isPending}>
+                    <Select 
+                      onValueChange={field.onChange}  
+                      value={field.value}  
+                      disabled={isPending}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Pilih status" />
@@ -527,4 +522,4 @@ export default function SiswaForm<T extends FieldValues>({
       </form>
     </Form>
   );
-} 
+}

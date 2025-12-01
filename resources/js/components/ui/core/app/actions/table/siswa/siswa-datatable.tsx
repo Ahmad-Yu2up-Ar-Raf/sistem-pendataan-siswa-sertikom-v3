@@ -10,7 +10,7 @@ import CreateSiswaSheet from "../../sheet/create-sheet/create-siswa-sheet";
 import UpdateSiswaSheet from "../../sheet/update-sheet/update-siswa-sheet";
 import { TableToolbar } from "@/components/ui/fragments/custom-ui/table/TableToolbar";
 import { Pagination } from "@/components/ui/fragments/custom-ui/table/data-table-paggination";
-import { useTableFilters } from "@/hooks/filters/useTableFilters"; // ← UPDATED IMPORT
+import { useTableFilters } from "@/hooks/filters/useTableFilters";
 import type { pagePropsSiswa } from "@/pages/dashboard/siswa";
 import type { SiswaSchema } from "@/lib/validations/app/siswaValidate";
 import { cn } from "@/lib/utils";
@@ -34,7 +34,7 @@ export default function SiswaDataTable({ data }: { data: pagePropsSiswa }) {
   const [currentSiswa, setCurrentSiswa] = React.useState<SiswaSchema | null>(null);
   const [processing, setProcessing] = React.useState(false);
 
-  // ✅ UPDATED: Use new useTableFilters hook
+  // Use new useTableFilters hook
   const { 
     filters, 
     setSearch, 
@@ -47,7 +47,7 @@ export default function SiswaDataTable({ data }: { data: pagePropsSiswa }) {
     route: "/dashboard/siswa",
   });
 
-  // ✅ UPDATED: Filter configurations with type support (enum, relation, date-range)
+  // Filter configurations
   const filterConfigs = React.useMemo(
     () => [
       {
@@ -68,7 +68,6 @@ export default function SiswaDataTable({ data }: { data: pagePropsSiswa }) {
         type: "enum" as const,
         options: JenisKelaminOptions,
       },
-      // ✅ NEW: Relation filters (dynamic from backend)
       {
         column: "jurusan",
         title: "Jurusan",
@@ -90,7 +89,6 @@ export default function SiswaDataTable({ data }: { data: pagePropsSiswa }) {
         endpoint: "/dashboard/tahun_ajar/json_data",
         perPage: 10,
       },
-      // ✅ NEW: Date range filter
       {
         column: "created_at",
         title: "Tanggal Dibuat",
@@ -100,7 +98,7 @@ export default function SiswaDataTable({ data }: { data: pagePropsSiswa }) {
     []
   );
 
-  // ✅ UPDATED: Handle filter changes (enum arrays, date ranges)
+  // Handle filter changes
   const handleFilterChange = React.useCallback(
     (column: string, value: string[] | DateRange | undefined) => {
       if (Array.isArray(value)) {
@@ -112,7 +110,7 @@ export default function SiswaDataTable({ data }: { data: pagePropsSiswa }) {
     [setEnumFilter, setDateRange]
   );
 
-  // Selection logic (unchanged)
+  // Selection logic
   const allIds: number[] = React.useMemo(
     () => siswa.map((item) => item.id!),
     [siswa]
@@ -131,8 +129,16 @@ export default function SiswaDataTable({ data }: { data: pagePropsSiswa }) {
     );
   }, []);
 
-  // CRUD operations (unchanged)
+  // ✅ FIX: Safe edit handler with validation
   const handleEdit = React.useCallback((item: SiswaSchema) => {
+    // Validate item has ID before opening
+    if (!item.id) {
+      console.error("❌ Cannot edit: Siswa ID is missing!", item);
+      toast.error("Data siswa tidak valid");
+      return;
+    }
+
+    console.log("✅ Opening edit for siswa:", item.id, item.nama_lengkap);
     setCurrentSiswa(item);
     setOpenUpdate(true);
   }, []);
@@ -165,7 +171,7 @@ export default function SiswaDataTable({ data }: { data: pagePropsSiswa }) {
     });
   }, []);
 
-  // Bulk actions (unchanged)
+  // Bulk actions
   const [isPending, startTransition] = React.useTransition();
   const [currentAction, setCurrentAction] = React.useState<string | null>(null);
   const [isAnyPending, setIsAnyPending] = React.useState<boolean>(false);
@@ -242,12 +248,14 @@ export default function SiswaDataTable({ data }: { data: pagePropsSiswa }) {
     [selectedIds]
   );
 
+  // ✅ FIX: Safe update close handler
   const handleUpdateClose = React.useCallback((open: boolean) => {
     setOpenUpdate(open);
     if (!open) {
+      // Delay clearing to allow smooth animation
       setTimeout(() => {
         setCurrentSiswa(null);
-      }, 500);
+      }, 300);
     }
   }, []);
 
@@ -276,7 +284,6 @@ export default function SiswaDataTable({ data }: { data: pagePropsSiswa }) {
   return (
     <>
       <div className={cn("flex w-full flex-col gap-3.5")}>
-        {/* ✅ UPDATED: TableToolbar with new filter support */}
         <TableToolbar
           search={filters.search}
           onSearchChange={setSearch}
@@ -288,7 +295,6 @@ export default function SiswaDataTable({ data }: { data: pagePropsSiswa }) {
           onCreateClick={() => setOpenCreate(true)}
         />
 
-        {/* Table */}
         <SiswaTable
           data={siswa}
           selectedIds={selectedIds}
@@ -303,7 +309,6 @@ export default function SiswaDataTable({ data }: { data: pagePropsSiswa }) {
         />
       </div>
 
-      {/* Pagination */}
       <Pagination
         pagination={paginatedData}
         filters={initialFilters}
@@ -334,7 +339,8 @@ export default function SiswaDataTable({ data }: { data: pagePropsSiswa }) {
         />
       )}
 
-      {currentSiswa && (
+      {/* ✅ FIX: Only render UpdateSiswaSheet if currentSiswa has valid ID */}
+      {currentSiswa?.id && (
         <UpdateSiswaSheet
           siswa={currentSiswa}
           open={openUpdate}

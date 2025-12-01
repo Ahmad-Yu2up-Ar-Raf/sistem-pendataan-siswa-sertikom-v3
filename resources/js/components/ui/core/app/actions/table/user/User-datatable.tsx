@@ -52,8 +52,8 @@ export default function UserDataTable({ data }: { data: pagePropsAdmin }) {
   const filterConfigs = React.useMemo(
     () => [
       {
-        column: "role",
-        title: "Role",
+        column: "roles",
+        title: "Roles",
         type: "enum" as const,
         options: RoleOptions,
       },

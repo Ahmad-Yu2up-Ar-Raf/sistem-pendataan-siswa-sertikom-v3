@@ -40,7 +40,7 @@ export function UserTableRow({
    const batasiHurufNama = batasiKata(item.name, 2)
  const getInitial = useInitials()
    const role = item.primary_role as Role;
- 
+    console.log("Role:", item.primary_role);
  
    const IconRole = getRoleIcon(role);
   

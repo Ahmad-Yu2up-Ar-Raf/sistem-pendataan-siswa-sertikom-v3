@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AdminStoreRequest;
+use App\Http\Requests\AdminUpdateRequest;
 use App\Models\User;
 use App\Services\FileUploadService;
 use Illuminate\Http\Request;
@@ -45,8 +47,8 @@ class AdminController extends Controller
             });
         }
 
-        if ($request->filled('role')) {
-            $roleArray = is_array($request->input('role')) ? $request->input('role') : explode(',', $request->input('role'));
+        if ($request->filled('roles')) {
+            $roleArray = is_array($request->input('roles')) ? $request->input('roles') : explode(',', $request->input('roles'));
             $query->whereHas('roles', function ($q) use ($roleArray) {
                 $q->whereIn('name', $roleArray);
             });
@@ -136,32 +138,24 @@ class AdminController extends Controller
     /**
      * Store a newly created user
      */
-    public function store(Request $request)
+    public function store(AdminStoreRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => 'required|string|exists:roles,name',
-            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'foto_original' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
-            'foto_crop_data' => 'nullable|string',
-        ]);
-
-        return DB::transaction(function () use ($request, $validated) {
+ 
+        return DB::transaction(function () use ($request) {
             // Handle photo upload with 'users' directory
+            $data = $request->validated();
             $photoData = $this->fileUploadService->handlePhotoUpload($request, 'users');
             
             $user = User::create([
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
+                ...$data,
+              
+                'password' => Hash::make($data['password']),
                 'foto' => $photoData['foto'] ?? null,
                 'raw_foto' => $photoData['raw_foto'] ?? null,
             ]);
 
             // Assign role
-            $user->assignRole($validated['role']);
+            $user->assignRole($data['roles']);
 
             // Send password reset link
             Password::sendResetLink(['email' => $user->email]);
@@ -204,64 +198,72 @@ class AdminController extends Controller
     /**
      * Update the specified user
      */
-    public function update(Request $request, string $id)
-    {
-        $user = User::findOrFail($id);
+public function update(AdminUpdateRequest $request, string $id)
+{
+    $user = User::findOrFail($id);
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => [
-                'required',
-                'string',
-                'lowercase',
-                'email',
-                'max:255',
-                Rule::unique('users')->ignore($user->id),
-            ],
-            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
-            'role' => 'nullable|string|exists:roles,name',
-            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'foto_original' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
-            'foto_crop_data' => 'nullable|string',
-        ]);
+    return DB::transaction(function () use ($request, $user) {
+        $data = $request->validated();
 
-        return DB::transaction(function () use ($request, $validated, $user) {
-            // Handle photo upload if new photo provided
-            if ($request->hasFile('foto')) {
-                // Delete old photos first
-                $this->fileUploadService->deleteOldPhotos($user);
-                
-                // Upload new photos to 'users' directory
-                $photoData = $this->fileUploadService->handlePhotoUpload($request, 'users');
-                
-                if ($photoData) {
-                    $validated['foto'] = $photoData['foto'];
-                    $validated['raw_foto'] = $photoData['raw_foto'];
-                }
+        // HANDLE FOTO (sama seperti implementasimu)
+        if ($request->hasFile('foto')) {
+            $this->fileUploadService->deleteOldPhotos($user);
+            $photoData = $this->fileUploadService->handlePhotoUpload($request, 'users');
+            if (!empty($photoData)) {
+                $data['foto'] = $photoData['foto'] ?? null;
+                $data['raw_foto'] = $photoData['raw_foto'] ?? null;
             }
+        }
 
-            // Update password only if provided
-            if (!empty($validated['password'])) {
-                $validated['password'] = Hash::make($validated['password']);
+        // HANDLE PASSWORD MANUAL (admin memasukkan password baru)
+        if (!empty($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        } else {
+            unset($data['password']);
+        }
+
+        // AMBIL DAN HAPUS ROLES DARI PAYLOAD
+        $roles = $data['roles'] ?? null;
+        unset($data['roles']);
+
+        // Update user fields
+        $user->update($data);
+
+        // SYNC ROLES jika ada
+        if ($roles) {
+            $rolesArray = is_array($roles)
+                ? $roles
+                : array_filter(array_map('trim', explode(',', $roles)));
+            $user->syncRoles($rolesArray);
+        }
+
+        // Opsi: generate temporary password (kembalikan plain sekali)
+        if ($request->boolean('generate_temp_password')) {
+            $plain = Str::random(10); // atau gunakan length custom
+            $user->password = Hash::make($plain);
+            $user->save();
+
+            // optional: simpan log/audit di sini
+
+            // kembalikan plain password sekali (flash) — tampilkan di UI, jangan simpan di DB
+            return redirect()->back()->with('success', 'User berhasil diperbarui.')
+                                   ->with('temp_password', $plain);
+        }
+
+        // Opsi: kirim reset link (lebih aman)
+        if ($request->boolean('send_reset_link')) {
+            $status = Password::sendResetLink(['email' => $user->email]);
+
+            if ($status === Password::RESET_LINK_SENT) {
+                return redirect()->back()->with('success', 'Reset link dikirim ke email user.');
             } else {
-                unset($validated['password']);
+                return redirect()->back()->with('error', 'Gagal mengirim reset link.');
             }
+        }
 
-            // Remove role from validated data (handle separately)
-            $role = $validated['role'] ?? null;
-            unset($validated['role']);
-
-            // Update user
-            $user->update($validated);
-
-            // Update role if provided
-            if ($role) {
-                $user->syncRoles([$role]);
-            }
-
-            return redirect()->back()->with('success', 'User berhasil diperbarui.');
-        });
-    }
+        return redirect()->back()->with('success', 'User berhasil diperbarui.');
+    });
+}
 
     /**
      * Remove the specified users (bulk delete)

@@ -20,8 +20,8 @@ return new class extends Migration
             $table->string('nis', 20)->unique()->nullable();
             $table->string('nama_lengkap', 191);
             $table->enum('jenis_kelamin', JenisKelaminEnums::values()); // L = Laki-laki, P = Perempuan
-            $table->string('tempat_lahir', 100);
-            $table->string('asal_negara', 100);
+      
+ 
             $table->date('tanggal_lahir');
             $table->enum('agama', AgamaEnums::values())->default(AgamaEnums::Islam->value) ;
             $table->integer('anak_ke')->nullable();

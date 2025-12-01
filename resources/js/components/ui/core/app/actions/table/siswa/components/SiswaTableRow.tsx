@@ -4,18 +4,17 @@ import { Checkbox } from "@/components/ui/fragments/shadcn-ui/checkbox";
 import { Badge } from "@/components/ui/fragments/shadcn-ui/badge";
 import {
   CalendarCheck,
-  CalendarClock,
+ 
   DoorOpen,
-  Globe,
+ 
   Map,
   PencilRuler,
-  TrendingUp,
-  Users2Icon,
+ 
 } from "lucide-react";
 import { RowActions } from "../../../../../../fragments/custom-ui/table/RowActions";
 import type { SiswaSchema } from "@/lib/validations/app/siswaValidate";
-import { Status } from "@/config/enums/status";
-import { getAgamaIcon, getJenisKelaminIcon, getStatusIcon, getStatusSiswaIcon } from "@/lib/utils/index";
+ 
+import { getAgamaIcon, getJenisKelaminIcon, getStatusSiswaIcon } from "@/lib/utils/index";
 import { cn } from "@/lib/utils";
   import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/fragments/shadcn-ui/avatar";
 import { useInitials } from "@/hooks/use-initials";
@@ -23,8 +22,16 @@ import { Agama } from "@/config/enums/agama";
 import { JenisKelamin } from "@/config/enums/jenis-kelamin";
 import { StatusSiswa } from "@/config/enums/StatusSiswa";
 import { batasiHuruf, batasiKata } from "@/hooks/useWord";
+import { JurusanSchema } from "@/lib/validations/app/jurusanValidate";
+import { KelasSchema } from "@/lib/validations/app/kelasValidate";
+import { TahunAjarSchema } from "@/lib/validations/app/tahunAjarValidate";
+import { router } from "@inertiajs/react";
 interface SiswaTableRowProps {
-  item: SiswaSchema;
+  item: SiswaSchema & {
+    jurusan?: JurusanSchema,
+    kelas?: KelasSchema,
+    tahun_masuk?: TahunAjarSchema
+  };
   isSelected: boolean;
   onSelect: () => void;
   onEdit: () => void;
@@ -47,7 +54,10 @@ export function SiswaTableRow({
   const getInitial = useInitials()
   const batasiHurufNama = batasiKata(item.nama_lengkap, 2)
   return (
-    <TableRow className={cn(isSelected && "bg-muted")}>
+    <TableRow  
+    
+     onClick={() => router.visit(`/dashboard/siswa/${item?.id!}`, { preserveScroll: true })}
+    className={cn(isSelected && "bg-muted cursor-pointer")}>
       <TableCell
         typeColumn="checkbox"
       >
@@ -99,14 +109,10 @@ export function SiswaTableRow({
           {item.kelas?.nama_kelas || "N/A"}
         </Badge>
       </TableCell>
-      {/* <TableCell>
-        <Badge icon={Globe} variant="outline" className="py-1 [&>svg]:size-3.5">
-          {item.asal_negara}
-        </Badge>
-      </TableCell> */}
+ 
       <TableCell>
         <Badge icon={Map} variant="outline" className="py-1 [&>svg]:size-3.5">
-          {item.tempat_lahir}
+          {item.provinsi || "N/A"}
         </Badge>
       </TableCell>
       <TableCell>

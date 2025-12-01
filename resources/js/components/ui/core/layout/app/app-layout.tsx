@@ -37,11 +37,11 @@ export default ({ children, ...props }: AppLayoutProps) =>
     }
 <div className="  m-auto w-full items-center content-center md:gap-2 ">
   
-<h2 className=" text-2xl m-auto w-full md:text-3xl font-bold   gap-5 tracking-tighter ">
+<h1 className=" text-2xl m-auto w-full md:text-3xl font-bold   gap-5 tracking-tighter ">
    
   {props.title}
-  </h2>
-<p className="text-muted-foreground ">{props.deskripcion}.</p>
+  </h1>
+<p className="text-muted-foreground ">{props.deskripcion}</p>
 </div>
 </header>
 )}

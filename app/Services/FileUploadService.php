@@ -11,10 +11,10 @@ use Illuminate\Http\Request;
 class FileUploadService
 {
     /**
-     * Handle photo upload - processes cropped & original files
+     * Handle photo upload - hanya simpan 1 file (cropped) di 1 folder
      * 
      * @param Request $request
-     * @param string $baseDir Directory path where files will be stored (e.g., 'siswa', 'users', 'posts')
+     * @param string $baseDir Directory path (e.g., 'siswa', 'users', 'posts')
      * @return array|null ['foto' => string, 'raw_foto' => array] or null
      */
     public function handlePhotoUpload(Request $request, string $baseDir = 'uploads'): ?array
@@ -25,7 +25,7 @@ class FileUploadService
         
         $disk = 'public';
         
-        // ===== 1. UPLOAD CROPPED FILE (main foto) =====
+        // ===== 1. UPLOAD CROPPED FILE SAJA (main foto) =====
         $croppedFile = $request->file('foto');
         
         // Validate it's an image
@@ -33,30 +33,12 @@ class FileUploadService
             throw new \RuntimeException('Invalid image file');
         }
         
+        // Simpan langsung di folder baseDir (tanpa subfolder)
         $croppedFilename = Str::uuid() . '.jpg';
-        $croppedPath = $croppedFile->storeAs($baseDir . '/cropped', $croppedFilename, $disk);
+        $croppedPath = $croppedFile->storeAs($baseDir, $croppedFilename, $disk);
         $croppedUrl = Storage::url($croppedPath);
         
-        // ===== 2. UPLOAD ORIGINAL FILE (backup) =====
-        $originalFile = $request->file('foto_original');
-        $originalData = null;
-        
-        if ($originalFile && $this->isValidImage($originalFile)) {
-            $originalExt = $originalFile->getClientOriginalExtension();
-            $originalFilename = Str::uuid() . '.' . $originalExt;
-            $originalPath = $originalFile->storeAs($baseDir . '/original', $originalFilename, $disk);
-            $originalUrl = Storage::url($originalPath);
-            
-            $originalData = [
-                'url' => $originalUrl,
-                'path' => $originalPath,
-                'original_name' => $originalFile->getClientOriginalName(),
-                'size' => $originalFile->getSize(),
-                'mime' => $originalFile->getMimeType(),
-            ];
-        }
-        
-        // ===== 3. PARSE CROP METADATA =====
+        // ===== 2. PARSE CROP METADATA (optional, untuk info aja) =====
         $cropMetadata = null;
         
         if ($request->has('foto_crop_data')) {
@@ -67,15 +49,14 @@ class FileUploadService
             }
         }
         
-        // ===== 4. BUILD raw_foto STRUCTURE =====
+        // ===== 3. BUILD raw_foto STRUCTURE (simplified) =====
         $rawFoto = [
-            'file' => $originalData,
-            'croppedBlob' => [
-                'url' => $croppedUrl,
-                'path' => $croppedPath,
-            ],
+            'url' => $croppedUrl,
+            'path' => $croppedPath,
             'cropData' => $cropMetadata['cropData'] ?? null,
-            'preview' => $croppedUrl,
+            'original_name' => $croppedFile->getClientOriginalName(),
+            'size' => $croppedFile->getSize(),
+            'mime' => $croppedFile->getMimeType(),
         ];
         
         return [
@@ -111,45 +92,60 @@ class FileUploadService
     }
 
     /**
-     * Delete old photo files from any model
+     * Delete old photo files dari model (FIXED - hapus semua file)
      * 
-     * @param mixed $model Model with foto & raw_foto properties
+     * @param mixed $model Model dengan foto & raw_foto properties
      * @return void
      */
     public function deleteOldPhotos($model): void
     {
         $disk = 'public';
         
-        // Delete main foto
+        // ===== 1. DELETE MAIN FOTO =====
         if ($model->foto) {
             $path = str_replace('/storage/', '', $model->foto);
             
             if (Storage::disk($disk)->exists($path)) {
                 Storage::disk($disk)->delete($path);
-                Log::info("Deleted main photo: {$path}");
+                Log::info("✅ Deleted main photo: {$path}");
+            } else {
+                Log::warning("⚠️ Main photo not found: {$path}");
             }
         }
         
-        // Delete original & cropped from raw_foto
+        // ===== 2. DELETE FILE DARI RAW_FOTO (jaga-jaga kalo ada struktur lama) =====
         if ($model->raw_foto) {
             $rawFoto = is_array($model->raw_foto) 
                 ? $model->raw_foto 
                 : json_decode($model->raw_foto, true);
             
-            if (isset($rawFoto['file']['path']) && Storage::disk($disk)->exists($rawFoto['file']['path'])) {
-                Storage::disk($disk)->delete($rawFoto['file']['path']);
-                Log::info("Deleted original photo: {$rawFoto['file']['path']}");
+            // Struktur baru (1 file)
+            if (isset($rawFoto['path'])) {
+                if (Storage::disk($disk)->exists($rawFoto['path'])) {
+                    Storage::disk($disk)->delete($rawFoto['path']);
+                    Log::info("✅ Deleted photo from raw_foto: {$rawFoto['path']}");
+                }
             }
             
-            if (isset($rawFoto['croppedBlob']['path']) && Storage::disk($disk)->exists($rawFoto['croppedBlob']['path'])) {
-                Storage::disk($disk)->delete($rawFoto['croppedBlob']['path']);
-                Log::info("Deleted cropped photo: {$rawFoto['croppedBlob']['path']}");
+            // Struktur lama (2 files) - backward compatibility
+            if (isset($rawFoto['file']['path'])) {
+                if (Storage::disk($disk)->exists($rawFoto['file']['path'])) {
+                    Storage::disk($disk)->delete($rawFoto['file']['path']);
+                    Log::info("✅ Deleted original photo: {$rawFoto['file']['path']}");
+                }
+            }
+            
+            if (isset($rawFoto['croppedBlob']['path'])) {
+                if (Storage::disk($disk)->exists($rawFoto['croppedBlob']['path'])) {
+                    Storage::disk($disk)->delete($rawFoto['croppedBlob']['path']);
+                    Log::info("✅ Deleted cropped photo: {$rawFoto['croppedBlob']['path']}");
+                }
             }
         }
     }
 
     /**
-     * Transform raw_foto paths to full URLs for frontend
+     * Transform raw_foto paths to full URLs untuk frontend
      * 
      * @param mixed $rawFoto
      * @return array|null
@@ -168,6 +164,12 @@ class FileUploadService
             return null;
         }
 
+        // Transform URL (struktur baru)
+        if (isset($rawFoto['url']) && !str_starts_with($rawFoto['url'], 'http')) {
+            $rawFoto['url'] = url($rawFoto['url']);
+        }
+
+        // Backward compatibility untuk struktur lama
         if (isset($rawFoto['file']['url']) && !str_starts_with($rawFoto['file']['url'], 'http')) {
             $rawFoto['file']['url'] = url($rawFoto['file']['url']);
         }

@@ -23,8 +23,8 @@ class SiswaStoreRequest extends FormRequest
             'nis' => 'nullable|string|max:20|unique:siswas,nis',
             'nama_lengkap' => 'required|string|max:191',
             'jenis_kelamin' => ['required', Rule::in(JenisKelaminEnums::values())],
-            'tempat_lahir' => 'required|string|max:100',
-            'asal_negara' => 'required|string|max:100',
+            
+        
             'tanggal_lahir' => 'required|date|before:today',
             'agama' => ['required', Rule::in(AgamaEnums::values())],
             'anak_ke' => 'nullable|integer|min:1|max:20',
@@ -86,8 +86,8 @@ class SiswaStoreRequest extends FormRequest
             'nis.unique' => 'NIS sudah terdaftar',
             'nama_lengkap.required' => 'Nama lengkap wajib diisi',
             'jenis_kelamin.required' => 'Jenis kelamin wajib dipilih',
-            'tempat_lahir.required' => 'Tempat lahir wajib diisi',
-            'asal_negara.required' => 'Asal negara wajib diisi',
+          
+            
             'tanggal_lahir.required' => 'Tanggal lahir wajib diisi',
             'tanggal_lahir.before' => 'Tanggal lahir harus sebelum hari ini',
             'agama.required' => 'Agama wajib dipilih',

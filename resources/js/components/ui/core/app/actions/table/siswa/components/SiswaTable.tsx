@@ -59,7 +59,7 @@ export function SiswaTable({
             <TableHead>Tahun Ajar</TableHead>
             <TableHead>Kelas</TableHead>
             {/* <TableHead>Warga Negara</TableHead> */}
-            <TableHead>Asal Kota</TableHead>
+            <TableHead>Asal</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Agama</TableHead>
             <TableHead>Kelamin</TableHead>

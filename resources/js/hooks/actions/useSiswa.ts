@@ -4,6 +4,9 @@ import { router } from "@inertiajs/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { siswaSchema, SiswaSchema } from "@/lib/validations/app/siswaValidate";
 import { AvatarUpload } from "@/lib/validations/app/fileValidate";
+import countries from '@/config/data/countries.json'
+import { CountryProps } from "@/components/ui/fragments/custom-ui/input/select/location-input";
+
 export type UseSiswaFormOptions = {
   notify?: (args: { type: "success" | "error"; message: string }) => void;
   onSuccess?: (page?: unknown) => void;
@@ -15,40 +18,41 @@ export type UseSiswaFormOptions = {
 };
 
 /**
+ * ✅ NULL-SAFE helpers
+ */
+const safeString = (val: any): string => (val === null || val === undefined) ? "" : String(val);
+const safeNumber = (val: any): number | undefined => {
+  if (val === null || val === undefined || val === "") return undefined;
+  const num = Number(val);
+  return isNaN(num) ? undefined : num;
+};
+
+/**
  * Build FormData payload from SiswaSchema values
- * Handles file upload, crop data, and all other fields
  */
 function buildFormData(values: SiswaSchema): FormData {
   const formData = new FormData();
 
-  // Process each field
   Object.entries(values).forEach(([key, value]) => {
-    // Skip relations & audit fields that shouldn't be sent
+    // Skip relations & audit fields
     if (['jurusan', 'kelas', 'tahun_masuk', 'created_at', 'updated_at', 'created_by', 'updated_by'].includes(key)) {
       return;
     }
 
-    // Handle FOTO field specially
+    // Handle FOTO field
     if (key === "foto" && value) {
       const fotoData = value as SiswaSchema["foto"];
       
-      // Check if this is NEW upload (has File & Blob)
       if (fotoData && 'file' in fotoData && fotoData.file instanceof File) {
         const uploadData = fotoData as AvatarUpload;
         
-        // 1. Append the CROPPED blob as main foto file
-        // Convert Blob to File with proper name
         const croppedFile = new File(
           [uploadData.croppedBlob],
           uploadData.file.name.replace(/\.[^/.]+$/, "") + "_cropped.jpg",
           { type: "image/jpeg" }
         );
         formData.append("foto", croppedFile);
-        
-        // 2. Append the ORIGINAL file (untuk backup/raw_foto)
         formData.append("foto_original", uploadData.file);
-        
-        // 3. Append crop metadata as JSON string
         formData.append("foto_crop_data", JSON.stringify({
           cropData: uploadData.cropData,
           originalName: uploadData.file.name,
@@ -56,10 +60,7 @@ function buildFormData(values: SiswaSchema): FormData {
           originalMime: uploadData.file.type,
         }));
       }
-      // If existing foto (edit without reupload), don't send anything
-      // Backend will keep existing data
-      
-      return; // Skip normal processing
+      return;
     }
 
     // Handle other fields
@@ -80,32 +81,40 @@ function buildFormData(values: SiswaSchema): FormData {
 }
 
 /**
- * Convert server response to form-compatible format
- * Used for prefilling form on edit
+ * ✅ FIXED: NULL-SAFE converter
  */
 function convertServerDataToFormData(serverData: any): Partial<SiswaSchema> {
-  const formData: Partial<SiswaSchema> = { ...serverData };
+  console.log("🔄 Converting server data:", serverData);
 
-  // Convert tanggal_lahir string to Date
+  // ✅ Convert tanggal_lahir - handle both ISO string and Date
+  let tanggalLahir: Date | undefined;
   if (serverData.tanggal_lahir) {
-    formData.tanggal_lahir = new Date(serverData.tanggal_lahir);
+    try {
+      tanggalLahir = new Date(serverData.tanggal_lahir);
+      // Validate date is valid
+      if (isNaN(tanggalLahir.getTime())) {
+        console.error("Invalid tanggal_lahir:", serverData.tanggal_lahir);
+        tanggalLahir = undefined;
+      }
+    } catch (e) {
+      console.error("Error parsing tanggal_lahir:", e);
+      tanggalLahir = undefined;
+    }
   }
 
-  // Convert foto from server format to form format
+ 
+
+  // ✅ Convert foto - handle null case
+  let fotoValue: any = undefined;
   if (serverData.foto && serverData.raw_foto) {
-    // Server returns:
-    // foto: "/storage/siswa/xyz.jpg"
-    // raw_foto: { file: {...}, croppedBlob: {...}, cropData: {...}, preview: "..." }
-    
-    formData.foto = {
+    fotoValue = {
       preview: serverData.raw_foto.preview || serverData.foto,
       cropData: serverData.raw_foto.cropData,
       file: serverData.raw_foto.file,
       croppedBlob: serverData.raw_foto.croppedBlob,
     };
   } else if (serverData.foto && !serverData.raw_foto) {
-    // Fallback: only foto URL exists (old data)
-    formData.foto = {
+    fotoValue = {
       preview: serverData.foto,
       cropData: undefined,
       file: {
@@ -117,8 +126,70 @@ function convertServerDataToFormData(serverData: any): Partial<SiswaSchema> {
       },
     };
   }
+  // If both foto and raw_foto are null, fotoValue stays undefined
 
-  return formData;
+  // ✅ Build converted object with NULL-SAFE transformations
+  const converted = {
+    id: serverData.id,
+    // Required string fields - convert null to empty string
+    nisn: safeString(serverData.nisn),
+    nis: safeString(serverData.nis),
+    nama_lengkap: safeString(serverData.nama_lengkap),
+    nama_ayah: safeString(serverData.nama_ayah),
+    nama_ibu: safeString(serverData.nama_ibu),
+    alamat: safeString(serverData.alamat),
+    
+    // Enum fields - keep as is (required, shouldn't be null)
+    jenis_kelamin: serverData.jenis_kelamin,
+    agama: serverData.agama || "Islam",
+    
+    // Optional string fields - convert null to empty string
+    nama_wali: safeString(serverData.nama_wali),
+    
+    asal_sekolah: safeString(serverData.asal_sekolah),
+    rt: safeString(serverData.rt),
+    rw: safeString(serverData.rw),
+    kelurahan: safeString(serverData.kelurahan),
+    kecamatan: safeString(serverData.kecamatan),
+    kota: safeString(serverData.kota),
+    provinsi: safeString(serverData.provinsi),
+    kode_pos: safeString(serverData.kode_pos),
+    telepon: safeString(serverData.telepon),
+    email: safeString(serverData.email),
+    pekerjaan_ayah: safeString(serverData.pekerjaan_ayah),
+    pendidikan_ayah: safeString(serverData.pendidikan_ayah),
+    telepon_ayah: safeString(serverData.telepon_ayah),
+    pekerjaan_ibu: safeString(serverData.pekerjaan_ibu),
+    pendidikan_ibu: safeString(serverData.pendidikan_ibu),
+    telepon_ibu: safeString(serverData.telepon_ibu),
+    hubungan_wali: safeString(serverData.hubungan_wali),
+    pekerjaan_wali: safeString(serverData.pekerjaan_wali),
+    telepon_wali: safeString(serverData.telepon_wali),
+    alamat_wali: safeString(serverData.alamat_wali),
+    keterangan: safeString(serverData.keterangan),
+    status: serverData.status || undefined,
+    
+    // Date field
+    tanggal_lahir: tanggalLahir,
+    
+    // Number fields - convert null to undefined
+    tahun_ajar_id: safeNumber(serverData.tahun_ajar_id),
+    jurusan_id: safeNumber(serverData.jurusan_id),
+    kelas_id: safeNumber(serverData.kelas_id),
+    anak_ke: safeNumber(serverData.anak_ke),
+    jumlah_saudara: safeNumber(serverData.jumlah_saudara),
+    
+    // Foto
+    foto: fotoValue,
+    
+    // Relations (optional, keep as is)
+    jurusan: serverData.jurusan,
+    kelas: serverData.kelas,
+    tahun_masuk: serverData.tahun_masuk,
+  };
+
+  console.log("✅ Converted data:", converted);
+  return converted;
 }
 
 export function useSiswaForm(
@@ -135,66 +206,20 @@ export function useSiswaForm(
     method = "post"
   } = opts;
 
-  // Convert server data if needed
-  const initialValues = defaultValues 
-    ? convertServerDataToFormData(defaultValues)
-    : {};
-
   const form = useForm<SiswaSchema>({
     mode: "onSubmit",
     resolver: zodResolver(siswaSchema) as any,
-    defaultValues: {
-      id: initialValues.id,
-      nisn: initialValues.nisn ?? "",
-      nis: initialValues.nis ?? "",
-      nama_lengkap: initialValues.nama_lengkap ?? "",
-      jenis_kelamin: initialValues.jenis_kelamin,
-      tempat_lahir: initialValues.tempat_lahir ?? "",
-      asal_negara: initialValues.asal_negara ?? "Indonesia",
-      tanggal_lahir: initialValues.tanggal_lahir,
-      agama: initialValues.agama ?? "Islam",
-      alamat: initialValues.alamat ?? "",
-      nama_ayah: initialValues.nama_ayah ?? "",
-      nama_ibu: initialValues.nama_ibu ?? "",
-      nama_wali: initialValues.nama_wali ?? "",
-      tahun_ajar_id: initialValues.tahun_ajar_id,
-      asal_sekolah: initialValues.asal_sekolah ?? "",
-      rt: initialValues.rt ?? "",
-      rw: initialValues.rw ?? "",
-      kelurahan: initialValues.kelurahan ?? "",
-      kecamatan: initialValues.kecamatan ?? "",
-      kota: initialValues.kota ?? "",
-      provinsi: initialValues.provinsi ?? "",
-      kode_pos: initialValues.kode_pos ?? "",
-      anak_ke: initialValues.anak_ke,
-      jumlah_saudara: initialValues.jumlah_saudara,
-      telepon: initialValues.telepon ?? "",
-      email: initialValues.email ?? "",
-      pekerjaan_ayah: initialValues.pekerjaan_ayah ?? "",
-      pendidikan_ayah: initialValues.pendidikan_ayah ?? "",
-      telepon_ayah: initialValues.telepon_ayah ?? "",
-      pekerjaan_ibu: initialValues.pekerjaan_ibu ?? "",
-      pendidikan_ibu: initialValues.pendidikan_ibu ?? "",
-      telepon_ibu: initialValues.telepon_ibu ?? "",
-      hubungan_wali: initialValues.hubungan_wali ?? "",
-      pekerjaan_wali: initialValues.pekerjaan_wali ?? "",
-      telepon_wali: initialValues.telepon_wali ?? "",
-      alamat_wali: initialValues.alamat_wali ?? "",
-      jurusan_id: initialValues.jurusan_id,
-      kelas_id: initialValues.kelas_id,
-      status: initialValues.status,
-      keterangan: initialValues.keterangan ?? "",
-      foto: initialValues.foto,
-    } as SiswaSchema,
+    defaultValues: defaultValues as SiswaSchema,
   });
 
-  // Sync with external defaultValues changes
+  // ✅ Sync with external changes - PROPERLY handle conversion
   useEffect(() => {
     if (defaultValues) {
+      console.log("🔄 Resetting form with new defaultValues");
       const converted = convertServerDataToFormData(defaultValues);
       form.reset(converted as SiswaSchema);
     }
-  }, [JSON.stringify(defaultValues)]);
+  }, [JSON.stringify(defaultValues), form]);
 
   const [isPending, setIsPending] = useState(false);
 
@@ -205,10 +230,8 @@ export function useSiswaForm(
       form.clearErrors();
       setIsPending(true);
 
-      // Build FormData payload
       const formData = buildFormData(values);
 
-      // Debug: log FormData contents
       console.log("📦 FormData entries:");
       for (const [key, value] of formData.entries()) {
         if (value instanceof File) {
@@ -234,10 +257,10 @@ export function useSiswaForm(
       const handleError = (errors?: unknown) => {
         console.error("❌ SUBMIT ERROR:", errors);
         
-     if (errors && typeof errors === "object" && !Array.isArray(errors)) {
+        if (errors && typeof errors === "object" && !Array.isArray(errors)) {
           Object.entries(errors as Record<string, unknown>).forEach(([key, val]) => {
             const message = Array.isArray(val) ? (val as string[]).join(", ") : String(val ?? "Terjadi kesalahan.");
-            console.log(message)
+            console.log(`Error [${key}]:`, message);
           });
         }
         if (notify) {
@@ -264,7 +287,6 @@ export function useSiswaForm(
           onFinish: finalize,
         });
       } else if (method === "put") {
-        // Laravel needs _method=PUT for FormData
         formData.append("_method", "PUT");
         router.post(route, formData, {
           preserveState: true,

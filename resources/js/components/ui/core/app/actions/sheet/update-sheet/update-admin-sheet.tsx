@@ -46,7 +46,7 @@ export default function UpdateUserSheet({ user, open = false, onOpenChange }: Pr
 
 
   // route for update: include id when available
-  const route = user?.id ? `/dashboard/user/${user.id}` : "/dashboard/user";
+  const route = user?.id ? `/dashboard/admin/${user.id}` : "/dashboard/admin";
 
   const { form, submit, isPending } = useUserForm(user ?? undefined, {
     notify: ({ type, message }) => {
@@ -104,7 +104,7 @@ export default function UpdateUserSheet({ user, open = false, onOpenChange }: Pr
               </SheetClose>
  
 <Button
-  type="button"
+  type="submit"
   disabled={isPending}
   onClick={() => form.handleSubmit(submit)()}
   className="w-fit ..."
