@@ -1,5 +1,87 @@
-node_modules
-vendor
-.env
+# ============================================================================
+# .dockerignore - Exclude files from Docker build context
+# ============================================================================
+
+# === Version Control ===
 .git
-.nixpacks
+.github
+.gitignore
+.gitattributes
+
+# === Dependencies (will be installed in Dockerfile) ===
+vendor/
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# === Environment & Config ===
+.env
+.env.*
+!.env.example
+.env.local
+.env.*.local
+
+# === Build Artifacts ===
+.nixpacks/
+nixpacks.toml
+public/build/
+public/hot
+public/storage
+public/mix-manifest.json
+
+# === IDE & Editor ===
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# === Testing ===
+.phpunit.result.cache
+phpunit.xml
+tests/
+coverage/
+.phpunit.cache
+
+# === Cache & Logs ===
+storage/logs/*
+!storage/logs/.gitkeep
+storage/framework/cache/*
+!storage/framework/cache/.gitkeep
+storage/framework/sessions/*
+!storage/framework/sessions/.gitkeep
+storage/framework/testing/*
+!storage/framework/testing/.gitkeep
+storage/framework/views/*
+!storage/framework/views/.gitkeep
+bootstrap/cache/*
+!bootstrap/cache/.gitkeep
+
+# === Documentation ===
+README.md
+CHANGELOG.md
+LICENSE
+*.md
+docs/
+
+# === Docker ===
+docker-compose*.yml
+Dockerfile.dev
+.dockerignore
+
+# === Deployment ===
+deploy.sh
+.deployment
+azure-pipelines.yml
+.travis.yml
+.gitlab-ci.yml
+
+# === Misc ===
+*.log
+*.pid
+*.seed
+*.pid.lock
