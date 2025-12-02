@@ -3,32 +3,35 @@ FROM dunglas/frankenphp:php8.2-fpm
 
 WORKDIR /app
 
-# system deps
+# minimal system deps for build
 RUN apt-get update && apt-get install -y \
-    git curl zip unzip libzip-dev build-essential ca-certificates \
-    nodejs npm \
-  && rm -rf /var/lib/apt/lists/*
+    git curl unzip zip libzip-dev build-essential ca-certificates \
+    gnupg2 \
+    && rm -rf /var/lib/apt/lists/*
 
-# composer
+# composer (installer)
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# enable corepack for pnpm
-RUN npm install -g corepack && corepack enable
+# node via NodeSource (debian base) — ensures node/npm available (for corepack)
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+  && apt-get install -y nodejs \
+  && npm install -g corepack \
+  && corepack enable
 
-# copy app
+# copy app (use .dockerignore to speed up)
 COPY . /app
 
-# install php deps (prefer to cache vendor in CI, but this is simple)
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+# install php deps
+RUN composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
 
-# Node: use corepack/pnpm if pnpm-lock exists; fallback npm
+# prepare pnpm via corepack, install node deps
 RUN if [ -f pnpm-lock.yaml ]; then corepack prepare pnpm@9.15.9 --activate || corepack prepare pnpm@9 --activate; fi
 RUN if [ -f pnpm-lock.yaml ]; then pnpm install --frozen-lockfile || npm ci; else npm ci; fi
 
-# build frontend (Vite)
+# build frontend (vite)
 RUN if [ -f package.json ]; then pnpm run build || npm run build || true; fi
 
-# Laravel optimizations (consider running migrations at release, not build)
+# Laravel optimizations (prefer to run migrate in release hook rather than build)
 RUN php artisan key:generate --force || true
 RUN php artisan config:cache || true
 RUN php artisan route:cache || true
@@ -37,6 +40,5 @@ RUN php artisan storage:link || true
 
 EXPOSE 8000
 
-# Run Octane with FrankenPHP
-# NOTE: DO NOT pass secrets here; set env in Dockploy UI
+# Start Octane w/ FrankenPHP — ideally tune workers in runtime/service config
 ENTRYPOINT ["php","artisan","octane:frankenphp","--host=0.0.0.0","--port=8000","--workers=auto","--max-requests=500"]
