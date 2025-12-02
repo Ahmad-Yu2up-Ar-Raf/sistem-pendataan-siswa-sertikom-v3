@@ -1,0 +1,15 @@
+providers = ["node","php"]
+
+[phases.install]
+cmds = [
+  "npm install -g corepack || true",
+  "corepack enable || true",
+  "corepack prepare pnpm@9.15.9 --activate || corepack prepare pnpm@9 --activate",
+  "if [ -f pnpm-lock.yaml ]; then pnpm install --frozen-lockfile; else npm ci; fi",
+  "composer install --no-dev --optimize-autoloader --no-interaction || true"
+]
+
+[phases.build]
+cmds = [
+  "if [ -f package.json ]; then pnpm run build || npm run build || true; fi"
+]
