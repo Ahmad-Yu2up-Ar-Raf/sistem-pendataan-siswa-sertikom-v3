@@ -39,9 +39,9 @@ class RolesAndPermissionsSeeder extends Seeder
         // create roles
         $super = Role::firstOrCreate(['name' => RoleEnums::SuperAdmin->value, 'guard_name' => 'web']);
         $admin = Role::firstOrCreate(['name' => RoleEnums::Admin->value, 'guard_name' => 'web']);
-        $kepala = Role::firstOrCreate(['name' => 'kepala_kurikulum', 'guard_name' => 'web']);
+ 
         $guru = Role::firstOrCreate(['name' => 'guru', 'guard_name' => 'web']);
-        $operator = Role::firstOrCreate(['name' => 'operator', 'guard_name' => 'web']);
+    
         $siswaRole = Role::firstOrCreate(['name' => 'siswa', 'guard_name' => 'web']);
 
         // assign permissions
@@ -53,20 +53,14 @@ class RolesAndPermissionsSeeder extends Seeder
         $admin->syncPermissions($adminPerms);
 
         // Kepala Kurikulum: view kelas, siswa, kelas_detail, reports
-        $kepala->syncPermissions(Permission::whereIn('name', [
-            'kelas.view','siswa.view','kelas_detail.view','kelas_detail.approve','dashboard.view','reports.view'
-        ])->get());
+        
 
         // Guru: view kelas & siswa (scoped via policies), dashboard
         $guru->syncPermissions(Permission::whereIn('name', [
             'kelas.view','siswa.view','dashboard.view'
         ])->get());
 
-        // Operator: import/export & view siswa
-        $operator->syncPermissions(Permission::whereIn('name', [
-            'siswa.import','siswa.export','siswa.view','kelas.view'
-        ])->get());
-
+       
         // Siswa: hanya lihat diri sendiri (use policies to enforce)
         $siswaRole->syncPermissions(Permission::whereIn('name', [
             'siswa.view','kelas_detail.view','dashboard.view'

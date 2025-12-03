@@ -1,4 +1,4 @@
-import { PlaceholderPattern } from '@/components/ui/fragments/svg-icon/placeholder-pattern';
+ 
 import AppLayout from '@/components/ui/core/layout/app/app-layout';
 import Wrapper from '@/components/ui/core/app/reports/wrapper';
 import MainSection from '@/components/ui/core/app/reports/overview';

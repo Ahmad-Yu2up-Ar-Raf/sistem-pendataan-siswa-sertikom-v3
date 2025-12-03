@@ -97,7 +97,7 @@ function DetailCard({
       </CardHeader>
 
       <CardContent className="space-y-1 content-center">
-        {/* <InfoItem
+        <InfoItem
           icon={UserRound}
           label="Nama "
           value={<span className="font-medium">{dataSiswa.nama_lengkap}</span>}
@@ -107,14 +107,7 @@ function DetailCard({
           label="NISN"
           value={<span className="font-medium">{dataSiswa.nisn}</span>}
         />
-         {dataSiswa.alamat && (
-
-        <InfoItem
-          icon={MapPin}
-          label="Alamat"
-          value={dataSiswa.alamat || "Location not specified"}
-        />
-        )} */}
+       
 
         <InfoItem
           icon={DoorOpen}

@@ -62,7 +62,7 @@ export function TableToolbar({
          <Button onClick={onCreateClick} size={"sm"} className="fixed md:relative md:end-0 md:bottom-0 end-6 bottom-6 z-50 cursor-pointer transition-all duration-200 w-fit  h-8    text-xs ">
           <Plus />
 
-          <span className="    hidden md:inline-flex ">
+          <span className="    hidden lg:inline-flex ">
             Tambahkan Baru
             </span>
         </Button>
@@ -80,7 +80,7 @@ export function TableToolbar({
           onChange={(e) => onSearchChange(e.target.value)}
           className="md:max-w-[17em] col-span-4  sm:text-base text-xs h-8 w-full"
         />
-            <div className=" w-full gap-2 grid grid-cols-3 lg:flex    ">
+            <div className=" w-full gap-2 grid grid-cols-3 md:flex    ">
             
         {filterConfigs.map((config) => {
           if (config.type === 'date-range') {

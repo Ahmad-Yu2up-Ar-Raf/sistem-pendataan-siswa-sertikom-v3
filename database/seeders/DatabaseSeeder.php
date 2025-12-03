@@ -10,8 +10,8 @@ class DatabaseSeeder extends Seeder
     {
         // Urutan penting: jurusan harus ada sebelum factories yang memilih jurusan
         $this->call([
-            JurusanSeeder::class,               // MUST run first
             RolesAndPermissionsSeeder::class,   // role/permission setup
+            JurusanSeeder::class,               // MUST run first
             UserSeeder::class,                  // creates nested tahun_ajars -> kelases -> siswas via has()
         ]);
     }

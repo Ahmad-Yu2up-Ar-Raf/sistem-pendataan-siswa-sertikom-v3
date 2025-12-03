@@ -84,7 +84,7 @@ export function ChartAreaInteractive({ chartData , className, isShowMerchandise 
   })
 
   return (
-    <Card className={cn("pt-0 ", className)}>
+    <Card className={cn("pt-0  grid", className)}>
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-7.5 sm:flex-row">
     
                 <div className="grid flex-1 gap-1">

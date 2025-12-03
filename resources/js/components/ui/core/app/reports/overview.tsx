@@ -62,7 +62,7 @@ const dataCards: DataCard[] = [
             <SectionCards dataCards={dataCards} />
           </div>
 
-          <div className=" grid grid-cols-1 sm:grid-cols-2    gap-y-4 md:gap-x-4 @5xl/main:grid-cols-3">
+          <div className=" md:grid flex flex-col grid-cols-1 md:grid-cols-2    gap-y-4 md:gap-x-4 @5xl/main:grid-cols-3">
             {/* Grafik tren harian */}
             <ChartAreaInteractive
               className="col-span-3 "

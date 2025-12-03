@@ -89,7 +89,7 @@ onSubmit
                 />
               </FormControl>
               <div className="space-y-1  cursor-pointer  leading-none">
-                <FormLabel className='  cursor-pointer'>Remember me</FormLabel>
+                <FormLabel className='  cursor-pointer'>Ingat Saya</FormLabel>
                 <FormDescription className=' sr-only'>You can manage your mobile notifications in the mobile settings page.</FormDescription>
                 <FormMessage />
               </div>

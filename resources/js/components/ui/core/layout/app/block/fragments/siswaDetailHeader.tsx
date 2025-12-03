@@ -11,6 +11,7 @@ import { SiswaSchema } from "@/lib/validations/app/siswaValidate";
 import { KelasSchema } from "@/lib/validations/app/kelasValidate";
 import { JurusanSchema } from "@/lib/validations/app/jurusanValidate";
 import { TahunAjarSchema } from "@/lib/validations/app/tahunAjarValidate";
+import { EllipsisVerticalIcon } from "lucide-react";
  function SiswaDetailHeader({  onDelete, data,  onEdit}: {
   data : SiswaSchema & {
         jurusan?: JurusanSchema,
@@ -32,7 +33,7 @@ import { TahunAjarSchema } from "@/lib/validations/app/tahunAjarValidate";
 
       <div className="relative">
 
-       <Avatar className="  rounded-full  relative flex size-18 shrink-0 overflow-hidden">
+       <Avatar className="  rounded-lg  relative flex size-18 shrink-0 overflow-hidden">
                                           <AvatarImage src={`${data?.foto!}`} alt={data.nama_lengkap} />
                                           <AvatarFallback className={cn("rounded-xl  bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white",
 
@@ -41,7 +42,7 @@ import { TahunAjarSchema } from "@/lib/validations/app/tahunAjarValidate";
                                               {getInitial(data.nama_lengkap)}
                                           </AvatarFallback>
                                       </Avatar>
-                                      <span className={cn("-end-0.5 sr-only -bottom-0.5 absolute size-4.5 rounded-xl border-3 border-background " ,
+                                      <span className={cn("-end-0.5  -bottom-0.5 absolute size-4.5 rounded-xl border-3 border-background " ,
                                                             statusColor
                                       )}>
         <span className="sr-only">Online</span>
@@ -60,7 +61,7 @@ import { TahunAjarSchema } from "@/lib/validations/app/tahunAjarValidate";
     {data.kelas?.nama_kelas}</p>
 </div>
           </div>
-          <RowActions onDelete={onDelete} onEdit={onEdit}/>
+          <RowActions Icon={EllipsisVerticalIcon} onDelete={onDelete} onEdit={onEdit}/>
 </header>
    )
  }

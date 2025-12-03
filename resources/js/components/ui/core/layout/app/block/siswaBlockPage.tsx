@@ -99,22 +99,26 @@ import UpdateKelasDetailSheet from '../../../app/actions/sheet/update-sheet/upda
    return (
     <>
     <main className=' space-y-6'>
-    {/* <SiswaDetailHeader 
+    <SiswaDetailHeader 
     
          onEdit={() => setOpenUpdate(true)}
           onDelete={() => {
             setOpenDelete(true); 
           }}
-    data={pageProps.data.siswa}  /> */}
+    data={pageProps.data.siswa}  />
    
 
-    {/* <DetailCard dataSiswa={siswa}/> */}
-    </main>
+          <div className=" grid md:grid-cols-2   gap-6">
+
+
+    <DetailCard dataSiswa={siswa}/>
     <RiwayatCard   onEdit={handleEdit}
           onDelete={(id) => {
             setOpenDeleteHistory(true);
             setDeletedId(id);
           }} Siswa={siswa} setOpen={setOpenCreate} kelas_details={pageProps.data.kelas_detail}      />
+          </div>
+    </main>
 
     {currentHistory?.id && (
           <UpdateKelasDetailSheet

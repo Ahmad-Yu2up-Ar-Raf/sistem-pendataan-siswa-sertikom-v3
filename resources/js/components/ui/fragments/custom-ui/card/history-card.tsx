@@ -20,6 +20,7 @@ import { RowActions } from "../table/RowActions"
 import { JurusanSchema } from "@/lib/validations/app/jurusanValidate"
 import { KelasSchema } from "@/lib/validations/app/kelasValidate"
 import { TahunAjarSchema } from "@/lib/validations/app/tahunAjarValidate"
+import { kelasType } from "@/pages/dashboard/siswa/[id]"
 
 
 
@@ -42,7 +43,7 @@ interface DetailCardProps {
     
    onEdit: (item: KelasDetailSchema) => void;
   onDelete: (id: number) => void;
-      kelas_details?: KelasDetailSchema[]
+      kelas_details?: kelasType[]
   
 }
  
@@ -69,7 +70,7 @@ export default function RiwayatCard({
 
               {`${title}  `}
             </CardTitle>
-            <CardDescription className="mt-2 text-xs">{description}</CardDescription>
+            <CardDescription className="mt-2  ">{description}</CardDescription>
           </div>
           {dataRiwayat?.length! > 0 && (
             <Button    size={"sm"} className="w-fit text-sm" onClick={() => setOpen(true)}>

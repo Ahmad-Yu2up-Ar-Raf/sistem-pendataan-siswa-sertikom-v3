@@ -8,6 +8,12 @@ import { TahunAjarSchema } from '@/lib/validations/app/tahunAjarValidate';
 import { ApiResponse } from '@/types';
  
 
+export type  kelasType = KelasDetailSchema & {
+      kelas: KelasSchema
+      siswa: SiswaSchema
+      tahun_ajar: TahunAjarSchema
+} 
+
 export type pagePropsSiswa = ApiResponse & {
   
   data: {
@@ -20,7 +26,7 @@ export type pagePropsSiswa = ApiResponse & {
 
 
 
-    kelas_detail : KelasDetailSchema[] 
+    kelas_detail : kelasType[] 
   }
 }
 

@@ -16,6 +16,7 @@ import { StatusKelas } from "@/config/enums/StatusKelas";
     import { formatDistanceToNow } from 'date-fns';
 import { RowActions } from "./table/RowActions";
 import { SiswaSchema } from "@/lib/validations/app/siswaValidate";
+import { kelasType } from "@/pages/dashboard/siswa/[id]";
 // const items = [
 //   {
 //     date: "15 minutes ago",
@@ -50,7 +51,7 @@ import { SiswaSchema } from "@/lib/validations/app/siswaValidate";
 //   },
 // ];
 
-export default function TimelineCard({ History  , onDelete, onEdit , siswa}: {History : KelasDetailSchema[] , siswa: SiswaSchema ,   onEdit: (item: KelasDetailSchema) => void;
+export default function TimelineCard({ History  , onDelete, onEdit , siswa}: {History : kelasType[] , siswa: SiswaSchema ,   onEdit: (item: KelasDetailSchema) => void;
   onDelete: (id: number) => void;} ) {
   return (
     <Timeline defaultValue={3}>
@@ -68,15 +69,18 @@ export default function TimelineCard({ History  , onDelete, onEdit , siswa}: {Hi
           key={item.id}
           step={i + 1}
         >
-          <TimelineHeader>
+          <TimelineHeader>  
+            {History.length != i  + 1 && (
+
             <TimelineSeparator className="group-data-[orientation=vertical]/timeline:-left-7 group-data-[orientation=vertical]/timeline:h-[calc(100%-1.5rem-0.25rem)] group-data-[orientation=vertical]/timeline:translate-y-6.5" />
-            <TimelineTitle className="mt-0.5 capitalize">{item.status_kelas}</TimelineTitle>
+            ) }
+            <TimelineTitle className="  capitalize">{item.kelas.nama_kelas}</TimelineTitle>
             <TimelineIndicator className="group-data-[orientation=vertical]/timeline:-left-7 flex size-6 items-center justify-center border-none bg-primary/10 group-data-completed/timeline-item:bg-primary group-data-completed/timeline-item:text-primary-foreground">
               <Icon size={14} />
             </TimelineIndicator>
           </TimelineHeader>
           <TimelineContent>
-            {item.keterangan || `Berikut ini adalah Riwayat kelas dari ${siswa.nama_lengkap}`}
+            {item.status_kelas}
             <TimelineDate className="mt-2 mb-0"> {item.created_at
           ? new Date(item.created_at).toLocaleDateString()
           : "N/A"}</TimelineDate>

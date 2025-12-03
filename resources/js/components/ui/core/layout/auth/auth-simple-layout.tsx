@@ -36,9 +36,9 @@ const AuthLayoutTemplate = ({
   return (
     <>
    
-         <div className="grid min-h-svh lg:grid-cols-2  ">
+         <div className="grid min-h-svh    ">
             <div className="flex bg-background flex-col gap-4 p-6 md:p-10">
-                <div className="flex justify-center gap-2 md:justify-start">
+                <div className="flex justify-center gap-2  ">
           <div  className="flex   cursor-none items-center gap-2 font-medium">
           <AppLogo/>
              
@@ -56,7 +56,7 @@ const AuthLayoutTemplate = ({
           </div>
          {props.children}
          {formType && ( 
-          <div className="px-8 text-center text-sm text-muted-foreground">
+          <div className="px-8 sr-only text-center text-sm text-muted-foreground">
           { formType !== 'register' && "Don't" } have an account?
       <Link   
   aria-disabled={loading} 
@@ -72,16 +72,7 @@ const AuthLayoutTemplate = ({
       </div>
                 
             </div>
-                <div className="relative dark:border-l hidden bg-muted lg:block">
-       <MediaItem
-       
-          webViewLink="https://images.unsplash.com/photo-1600792170156-7fdc12ed6733?q=80&w=1167&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-          
-          
-          className="  "
-        />
-       
-        </div>
+               
         </div>
     
     </>
